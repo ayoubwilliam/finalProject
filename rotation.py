@@ -9,6 +9,8 @@ from file_handler import load_nifti, save_nifti
 def rotate_ct_scan(data: np.array, angle_x: float, angle_y: float, angle_z: float) -> np.array:
     # Permute from (H, W, D) to (D, H, W)
     ct_tensor = torch.from_numpy(data).permute(2, 0, 1)
+    # todo: handle device with cuda
+
 
     # Reshape the tensor to Kornia's 5D format (B, C, D, H, W)- adding Batch and Channel dimension
     kornia_input_tensor = ct_tensor.unsqueeze(0).unsqueeze(0)
