@@ -18,7 +18,8 @@ def create_drr_from_ct(ct_data: np.array, output_path: str, projection_axis: int
         drr_image = (drr_image - drr_image.min()) / (drr_image.max() - drr_image.min())
 
     # Rotate image 90° to correct flipped orientation from CT coordinate system
-    drr_image = np.rot90(drr_image)
+    drr_image = np.flip(drr_image.T, axis=0) #np.rot90(drr_image)
+
 
     # Save the resulting DRR image as grayscale PNG
     plt.imsave(output_path, drr_image, cmap='gray')
