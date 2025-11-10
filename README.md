@@ -1,10 +1,8 @@
-# final Engneering project at Huji
-
+# final_project
 Finding changes of interest in chest X-rays in ICU
-In the ICU, doctors compare chest X-rays from different times to track a patient’s condition. This is difficult because X-rays are 2D projections of complex 3D anatomy, so overlapping structures can hide important findings. Image quality is often low when patients cannot be positioned well. Variations in angle, lighting, and exposure make comparisons harder, and multiple health issues add further complexity.
-
-
-
-Our goal is to create a Convolutional Neural Network (CNN), trained using synthetic data, capable of detecting and localizing differences between two consecutive X-ray images.
-
-
+In the ICU, doctors compare chest X-rays taken at different time points to monitor a patient’s condition.
+However, this task is challenging due to the complex nature of X-ray images.
+Since X-rays are 2D images of three-dimensional anatomical structures, overlapping structures may obscure clinically significant details.
+Image quality is often poor, particularly when patients cannot be properly positioned.
+Differences in angle, lighting, and exposure pose additional challenges for comparison.
+The presence of multiple health conditions introduces additional complexity.
