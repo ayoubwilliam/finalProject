@@ -1,6 +1,6 @@
 # Detecting Air Under the Diaphragm in Chest X-Ray Images
 
-**Engineering Project - Group 104**  
+**Engineering Project - Group 104: William Ayoub and Agam Hershko**  
 **Hebrew University of Jerusalem (HUJI) - CASMIP Lab**
 
 ---
