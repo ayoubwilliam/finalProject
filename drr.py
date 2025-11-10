@@ -7,8 +7,8 @@ from file_handler import load_nifti
 
 
 def create_drr_from_ct(ct_data: np.array, output_path: str, projection_axis: int = 1) -> None:
-    # Clamp negative Hounsfield Unit (HU) values to remove air regions
-    ct_data_clamped = np.clip(ct_data, 0, None)
+    # todo: Clamp negative Hounsfield Unit (HU) values to remove air regions
+    ct_data_clamped = np.clip(ct_data, -1000, None)
 
     # Sum along the chosen axis to simulate X-ray projection (DRR generation)
     drr_image = np.sum(ct_data_clamped, axis=projection_axis)
