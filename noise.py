@@ -9,6 +9,7 @@ STD = 500
 
 def add_noise(data: np.ndarray) -> np.ndarray:
     return data + np.random.normal(MEAN, STD, data.shape)
+    #todo: add smaller data.shape and resize
 
 
 if __name__ == '__main__':

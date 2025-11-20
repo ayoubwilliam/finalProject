@@ -2,6 +2,7 @@ import sys
 import numpy as np
 
 from file_handler import load_nifti, save_nifti
+from noise import add_noise
 
 
 def create_box(data: np.ndarray, ranges: list[list], intensity: int) -> np.ndarray:
@@ -12,10 +13,15 @@ def create_box(data: np.ndarray, ranges: list[list], intensity: int) -> np.ndarr
         intensity: value to assign inside the box.
         Returns the modified array.
     """
+    box_seg = np.zeros_like(data)
+
+    #todo: avoid loops
     for i in range(ranges[0][0], ranges[0][1]):
         for j in range(ranges[1][0], ranges[1][1]):
             for k in range(ranges[2][0], ranges[2][1]):
-                data[i, j, k] = intensity
+                box_seg[i, j, k] = 1
+
+    data[box_seg == 1] = intensity
     return data
 
 
@@ -71,6 +77,32 @@ def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int],
     return data
 
 
+def create_noised_box(data: np.ndarray, ranges: list[list[int]], intensity: int) -> np.ndarray:
+    """
+    Sets all voxels inside a 3D box to a given intensity and adds noise only in that box.
+    ranges: [[x_start, x_end], [y_start, y_end], [z_start, z_end]].
+    data: 3D numpy array of the CT volume.
+    intensity: base value to assign inside the box before noise.
+    Returns the modified array.
+    """
+    x0, x1 = ranges[0]
+    y0, y1 = ranges[1]
+    z0, z1 = ranges[2]
+
+    # First: set the cube to a constant intensity (your original loop)
+    for i in range(x0, x1):
+        for j in range(y0, y1):
+            for k in range(z0, z1):
+                data[i, j, k] = intensity
+
+    # Then: add noise ONLY inside that cube
+    cube_view = data[x0:x1, y0:y1, z0:z1]
+    noisy_cube = add_noise(cube_view)
+    data[x0:x1, y0:y1, z0:z1] = noisy_cube
+
+    return data
+
+
 if __name__ == '__main__':
     input_path = sys.argv[1]
     output_path = sys.argv[2]
@@ -82,5 +114,6 @@ if __name__ == '__main__':
     # box = create_box(data, [[153, 213], [223, 283], [246, 346]], intensity)
     # sphere = create_sphere(data, [180, 250, 300], 30, intensity)
     # sphere = create_ellipsoid(data, [180, 250, 300], [30, 40, 60], intensity)
+    noised_cube = create_noised_box(data, [[153, 213], [223, 283], [266, 326]], intensity)
 
     save_nifti(output_path, data, affine, header)
