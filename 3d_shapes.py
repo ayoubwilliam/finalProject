@@ -5,8 +5,7 @@ from file_handler import load_nifti, save_nifti
 from noise import create_noise
 
 
-def create_box(data: np.ndarray, ranges: list[list], intensity: int, is_noised: bool = False) -> (
-        np.ndarray):
+def create_box(data: np.ndarray, ranges: list[list], intensity: int, is_noised: bool = False) -> None:
     x0, x1 = ranges[0]
     y0, y1 = ranges[1]
     z0, z1 = ranges[2]
@@ -20,11 +19,9 @@ def create_box(data: np.ndarray, ranges: list[list], intensity: int, is_noised: 
     else:
         data[mask] = intensity
 
-    return data
-
 
 def create_sphere(data: np.ndarray, center: list[int, int, int], radius: int, intensity: int,
-                  is_noised: bool = False) -> np.ndarray:
+                  is_noised: bool = False) -> None:
     """
         Sets all voxels inside a spherical region to a given intensity.
         center: [x, y, z] voxel coordinates of sphere center.
@@ -46,17 +43,16 @@ def create_sphere(data: np.ndarray, center: list[int, int, int], radius: int, in
 
     # Assign intensity where inside the sphere
     mask = dist <= radius
-    data[mask] = intensity
 
     if is_noised:
         noise = create_noise(data.shape)
         data[mask] = intensity + noise[mask]
-
-    return data
+    else:
+        data[mask] = intensity
 
 
 def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int],
-                     intensity: int, is_noised: bool = False) -> np.ndarray:
+                     intensity: int, is_noised: bool = False) -> None:
     """
     Sets all voxels inside an ellipsoid to a given intensity.
     center: [cx, cy, cz] voxel coordinates of ellipsoid center.
@@ -81,13 +77,12 @@ def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int],
 
     # Fill ellipsoid
     mask = dist <= 1
-    data[mask] = intensity
 
     if is_noised:
         noise = create_noise(data.shape)
         data[mask] = intensity + noise[mask]
-
-    return data
+    else:
+        data[mask] = intensity
 
 
 if __name__ == '__main__':
