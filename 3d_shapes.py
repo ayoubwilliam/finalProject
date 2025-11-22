@@ -5,33 +5,59 @@ from file_handler import load_nifti, save_nifti
 from noise import add_noise
 
 
-def create_box(data: np.ndarray, ranges: list[list], intensity: int) -> np.ndarray:
+def create_box(data: np.ndarray, ranges: list[list], intensity: int, is_noised: bool = False) -> np.ndarray:
     """
         Sets all voxels inside a 3D box to a given intensity.
         ranges: [[x_start, x_end], [y_start, y_end], [z_start, z_end]].
         data: 3D numpy array of the CT volume.
         intensity: value to assign inside the box.
+        is_noised: add noise only inside the box region if True
         Returns the modified array.
     """
-    box_seg = np.zeros_like(data)
+    x0, x1 = ranges[0]
+    y0, y1 = ranges[1]
+    z0, z1 = ranges[2]
 
-    #todo: avoid loops
-    for i in range(ranges[0][0], ranges[0][1]):
-        for j in range(ranges[1][0], ranges[1][1]):
-            for k in range(ranges[2][0], ranges[2][1]):
-                box_seg[i, j, k] = 1
+    # Boolean mask instead of float/int
+    mask = np.zeros_like(data, dtype=bool)
+    mask[x0:x1, y0:y1, z0:z1] = True
 
-    data[box_seg == 1] = intensity
+    # Set base intensity
+    data[mask] = intensity
+
+    if is_noised:
+        data[mask] = add_noise(data[mask])
+
+    return data
+
+def create_noised_box(data: np.ndarray, ranges: list[list], intensity: int, is_noised: bool = False) -> (
+        np.ndarray):
+    x0, x1 = ranges[0]
+    y0, y1 = ranges[1]
+    z0, z1 = ranges[2]
+
+    mask = np.zeros_like(data, dtype=bool)
+    mask[x0:x1, y0:y1, z0:z1] = True
+
+    if is_noised:
+        # generate 3D noise for the whole volume, then apply only in the box
+        noise_vol = add_noise(np.zeros_like(data))
+        data[mask] = intensity + noise_vol[mask]
+    else:
+        data[mask] = intensity
+
     return data
 
 
-def create_sphere(data: np.ndarray, center: list[int, int, int], radius: int, intensity: int) -> np.ndarray:
+def create_sphere(data: np.ndarray, center: list[int, int, int], radius: int, intensity: int,
+                  is_noised: bool = False) -> np.ndarray:
     """
         Sets all voxels inside a spherical region to a given intensity.
         center: [x, y, z] voxel coordinates of sphere center.
         radius: sphere radius in voxels.
         data: 3D numpy array of the CT volume.
         intensity: value to assign inside the sphere.
+        is_noised: add noise only inside the box region if True
         Returns the modified array.
     """
     cx, cy, cz = center
@@ -45,18 +71,24 @@ def create_sphere(data: np.ndarray, center: list[int, int, int], radius: int, in
     dist = np.sqrt((x - cx) ** 2 + (y - cy) ** 2 + (z - cz) ** 2)
 
     # Assign intensity where inside the sphere
-    data[dist <= radius] = intensity
+    mask = dist <= radius
+    data[mask] = intensity
+
+    if is_noised:
+        data[mask] = add_noise(data[mask])
+
     return data
 
 
 def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int],
-                     intensity: int) -> np.ndarray:
+                     intensity: int, is_noised: bool = False) -> np.ndarray:
     """
     Sets all voxels inside an ellipsoid to a given intensity.
     center: [cx, cy, cz] voxel coordinates of ellipsoid center.
     radius: [rx, ry, rz] ellipsoid radii in x, y, z directions.
     data: 3D numpy array of the CT volume.
     intensity: value to assign inside the ellipsoid.
+    is_noised: add noise only inside the box region if True
     Returns the modified volume.
     """
     cx, cy, cz = center
@@ -73,32 +105,11 @@ def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int],
                    ((z - cz) / rz) ** 2)
 
     # Fill ellipsoid
-    data[dist <= 1] = intensity
-    return data
+    mask = dist <= 1
+    data[mask] = intensity
 
-
-def create_noised_box(data: np.ndarray, ranges: list[list[int]], intensity: int) -> np.ndarray:
-    """
-    Sets all voxels inside a 3D box to a given intensity and adds noise only in that box.
-    ranges: [[x_start, x_end], [y_start, y_end], [z_start, z_end]].
-    data: 3D numpy array of the CT volume.
-    intensity: base value to assign inside the box before noise.
-    Returns the modified array.
-    """
-    x0, x1 = ranges[0]
-    y0, y1 = ranges[1]
-    z0, z1 = ranges[2]
-
-    # First: set the cube to a constant intensity (your original loop)
-    for i in range(x0, x1):
-        for j in range(y0, y1):
-            for k in range(z0, z1):
-                data[i, j, k] = intensity
-
-    # Then: add noise ONLY inside that cube
-    cube_view = data[x0:x1, y0:y1, z0:z1]
-    noisy_cube = add_noise(cube_view)
-    data[x0:x1, y0:y1, z0:z1] = noisy_cube
+    if is_noised:
+        data[mask] = add_noise(data[mask])
 
     return data
 
@@ -110,10 +121,9 @@ if __name__ == '__main__':
 
     data, affine, header = load_nifti(input_path)
 
-    # cube = create_box(data, [[153, 213], [223, 283], [266, 326]], intensity)
-    # box = create_box(data, [[153, 213], [223, 283], [246, 346]], intensity)
-    # sphere = create_sphere(data, [180, 250, 300], 30, intensity)
-    # sphere = create_ellipsoid(data, [180, 250, 300], [30, 40, 60], intensity)
-    noised_cube = create_noised_box(data, [[153, 213], [223, 283], [266, 326]], intensity)
+    # create_sphere(data, [180, 250, 300], 30, intensity, True)
+    # create_ellipsoid(data, [180, 250, 300], [30, 40, 60], intensity, True)
+    create_noised_box(data, [[153, 213], [223, 283], [266, 326]], intensity, True)  # cube
+    # create_box(data, [[153, 213], [223, 283], [246, 346]], intensity) # box
 
     save_nifti(output_path, data, affine, header)
