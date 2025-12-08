@@ -13,9 +13,14 @@ from drr_with_post_processing import create_drr_from_ct
 # ----- hyper-parameters -----
 MASS_RADIUS_RANGE = (10, 20)  # in voxels
 MASS_INTENSITY_RANGE = (-100, 100)  # HU range for consolidation-like mass
-B_SPLINE_GRID_DENSITY = 8
-B_SPLINE_DEFORMATION = 0.04
 ROT_ANGLE_RANGE_DEG = 15.0  # sample angles in [-15, 15]
+
+# Bspline
+B_SPLINE_DEFORMATION = 0.04
+B_SPLINE_GRID_DENSITY = 8
+
+# Heatmap
+MIN_INTENSITY_DIFF = 0.2  # Only meaningful changes
 
 
 def sample_point_in_lungs(lung_mask: np.ndarray) -> tuple[int, int, int]:
@@ -200,12 +205,22 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
     return angle_x, angle_y, angle_z
 
 
-# todo: add documentation
 def create_heatmap(prior_drr_path: str,
                    prior_rotation_angles: tuple[float, float, float],
                    current_drr_path: str,
                    current_rotation_angles: tuple[float, float, float],
                    heatmap_path: str) -> None:
+    """
+        This function aligns a prior DRR to the current DRR's orientation and generates a difference heatmap
+         where positive differences (growth) appear green and negative differences (shrinkage) appear red.
+        parameters:
+        1) prior_drr_path: path to the baseline DRR image
+        2) prior_rotation_angles: rotation angles (x, y, z) of the baseline image
+        3) current_drr_path: path to the current DRR image
+        4) current_rotation_angles: rotation angles (x, y, z) of the current image
+        5) heatmap_path: destination path for the generated heatmap
+    """
+    # Load and standardize images to 2D grayscale
     prior_img = plt.imread(prior_drr_path)
     current_img = plt.imread(current_drr_path)
 
@@ -219,37 +234,40 @@ def create_heatmap(prior_drr_path: str,
     prior_img = np.squeeze(prior_img)
     current_img = np.squeeze(current_img)
 
+    # Compute rotation difference
     prior_theta, _, _ = prior_rotation_angles
     current_theta, _, _ = current_rotation_angles
     delta_angle = current_theta - prior_theta
     print(f"Delta Angle: {delta_angle}")
 
+    # Align prior image to current orientation
     prior_aligned = rotate(prior_img, delta_angle, reshape=False, order=1, mode="nearest")
+    # Match foreground regions of current DRR in the rotated prior
     prior_aligned[current_img == 1] = 1
     plt.imsave("pipeline/rotated_prior.png", prior_aligned, cmap="gray")
 
+    # Compute difference map
     diff = current_img - prior_aligned
 
     # Stack 2D image to create 3D RGB heatmap base
     heatmap = np.dstack((current_img, current_img, current_img))
 
-    threshold = 0.2
-
-    pos_mask = diff > threshold
+    # Apply Green overlay for positive difference (growth)
+    pos_mask = diff > MIN_INTENSITY_DIFF
     heatmap[pos_mask, 1] += diff[pos_mask]
     heatmap[pos_mask, 0] -= diff[pos_mask] * 0.3
     heatmap[pos_mask, 2] -= diff[pos_mask] * 0.3
 
-    neg_mask = diff < -threshold
+    # Apply Red overlay for negative difference (shrinkage)
+    neg_mask = diff < -MIN_INTENSITY_DIFF
     abs_diff = np.abs(diff[neg_mask])
     heatmap[neg_mask, 0] += abs_diff
     heatmap[neg_mask, 1] -= abs_diff * 0.3
     heatmap[neg_mask, 2] -= abs_diff * 0.3
 
+    # Save final heatmap
     heatmap = np.clip(heatmap, 0.0, 1.0)
-
     plt.imsave(heatmap_path, heatmap)
-    print(f"Heatmap saved to {heatmap_path}")
 
 
 def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
