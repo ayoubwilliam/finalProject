@@ -184,6 +184,7 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
     # Embed the deformed synthetic structure into the CT volume
     ct_with_mass, deformed_mask = insert_synthetic_structure(ct_data, deformed_mass)
     ct_with_mass, deformed_mask = clip_synthetic_to_lungs(ct_with_mass, deformed_mask, lung_seg, ct_data)
+    # todo: maybe fix ct/mask with bspline- clip and lung mask
 
     # Apply pooling
     deformed_mask = deformed_mask & (lung_seg > 0)  # restrict smoothing only to areas inside lungs
@@ -200,7 +201,7 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
 
     # Save ct and create drr
     save_nifti(output_ct_path, ct_rotated, ct_affine, ct_header)
-    create_drr_from_ct(ct_rotated, output_drr_path, projection_axis=1)
+    # create_drr_from_ct(ct_rotated, output_drr_path, projection_axis=1)
 
     return angle_x, angle_y, angle_z
 
@@ -280,6 +281,12 @@ def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
     current_rotation_angles = run_pipeline(ct_path, lung_mask_path,
                                            current_output_ct_path, current_output_drr_path, False)
     # print(current_rotation_angles)
+
+    # todo: rotate prior by current
+    # todo: create drr of rotated prior and current
+    # todo: create heatmap
+    # todo: post processing of og prior and current
+    # todo: show changes in heatmap with post processed current image
 
     # Create heatmap
     create_heatmap(prior_output_drr_path, prior_rotation_angles,
