@@ -174,9 +174,9 @@ def drr_post_processing(drr_xray, window_size=8, clip_limit=8, sharpness_factor=
 
 
 ##################### main drr #####################
-def create_drr_from_ct(ct_data: np.array, output_path: str, projection_axis: int = 1,
-                       window_size: int = 8, clip_limit: float = 8.0,
-                       sharpness_factor: float = 3.0) -> np.ndarray:
+def create_drr_with_processing(ct_data: np.array, projection_axis: int = 1,
+                               window_size: int = 8, clip_limit: float = 8.0,
+                               sharpness_factor: float = 3.0) -> np.ndarray:
     ct_pre_processed = ct_pre_processing(ct_data)
 
     # Sum using PyTorch
@@ -184,8 +184,20 @@ def create_drr_from_ct(ct_data: np.array, output_path: str, projection_axis: int
 
     xray_post_processed = drr_post_processing(drr_image, window_size, clip_limit, sharpness_factor)
 
-    # Convert to numpy for saving
+    # Convert to numpy
     xray_np = xray_post_processed.cpu().numpy()
+
+    return xray_np
+
+
+def create_drr(ct_data: np.array, output_path: str, projection_axis: int = 1) -> np.ndarray:
+    # Sum using PyTorch
+    ct_tensor = torch.from_numpy(ct_data).float().to(DEVICE)
+    drr_image = torch.sum(ct_tensor, dim=projection_axis)
+    drr_image = flip(drr_image)
+
+    # Convert to numpy for saving
+    xray_np = drr_image.cpu().numpy()
 
     plt.imsave(output_path, xray_np, cmap='gray')
 
@@ -219,7 +231,7 @@ if __name__ == "__main__":
             output_filename = f"drr_clip{clip_limit}_window{window}_sharp{sharpness}.png"
             output_path = os.path.join(output_dir, output_filename)
             print(f"Processing: clip_limit={clip_limit}, window_size={window}, sharpness={sharpness}")
-            create_drr_from_ct(data, output_path, 1,
-                               window_size=window,
-                               clip_limit=clip_limit,
-                               sharpness_factor=sharpness)
+            create_drr_with_processing(data, output_path, 1,
+                                       window_size=window,
+                                       clip_limit=clip_limit,
+                                       sharpness_factor=sharpness)

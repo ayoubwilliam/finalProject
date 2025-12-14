@@ -8,7 +8,7 @@ from create_shapes import create_sphere, apply_mask
 from bspline import bspline
 from rotation import rotate_ct_scan
 from pooling import apply_pooling, KERNEL_SIZE as POOL_KERNEL
-from drr_with_post_processing import create_drr_from_ct
+from drr_with_post_processing import create_drr_with_processing, create_drr
 
 # ----- hyper-parameters -----
 MASS_RADIUS_RANGE = (10, 20)  # in voxels
@@ -20,7 +20,8 @@ B_SPLINE_DEFORMATION = 0.04
 B_SPLINE_GRID_DENSITY = 8
 
 # Heatmap
-MIN_INTENSITY_DIFF = 0.2  # Only meaningful changes
+MIN_INTENSITY_DIFF = 0
+COLOR_FACTOR = 3
 
 
 def sample_point_in_lungs(lung_mask: np.ndarray) -> tuple[int, int, int]:
@@ -169,7 +170,7 @@ def clip_synthetic_to_lungs(ct_with_mass: np.ndarray,
 
 
 def run_pipeline(ct_path: str, lung_mask_path: str,
-                 output_ct_path: str, output_drr_path: str, is_prev) -> tuple[int, int, int]:
+                 output_ct_path: str, is_prev) -> tuple[np.ndarray, tuple[int, int, int]]:
     # Load data
     ct_data, ct_affine, ct_header = load_nifti(ct_path)
     lung_seg, _, _ = load_nifti(lung_mask_path)
@@ -199,28 +200,16 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
 
     ct_rotated = rotate_ct_scan(ct_smoothed, angle_x, angle_y, angle_z)
 
-    # Save ct and create drr
+    # Save ct
     save_nifti(output_ct_path, ct_rotated, ct_affine, ct_header)
-    # create_drr_from_ct(ct_rotated, output_drr_path, projection_axis=1)
 
-    return angle_x, angle_y, angle_z
+    return ct_rotated, (angle_x, angle_y, angle_z)
 
 
-def create_heatmap(prior_drr_path: str,
-                   prior_rotation_angles: tuple[float, float, float],
-                   current_drr_path: str,
-                   current_rotation_angles: tuple[float, float, float],
-                   heatmap_path: str) -> None:
-    """
-        This function aligns a prior DRR to the current DRR's orientation and generates a difference heatmap
-         where positive differences (growth) appear green and negative differences (shrinkage) appear red.
-        parameters:
-        1) prior_drr_path: path to the baseline DRR image
-        2) prior_rotation_angles: rotation angles (x, y, z) of the baseline image
-        3) current_drr_path: path to the current DRR image
-        4) current_rotation_angles: rotation angles (x, y, z) of the current image
-        5) heatmap_path: destination path for the generated heatmap
-    """
+def get_images(prior_drr_path: str,
+               prior_rotation_angles: tuple[float, float, float],
+               current_drr_path: str,
+               current_rotation_angles: tuple[float, float, float]):
     # Load and standardize images to 2D grayscale
     prior_img = plt.imread(prior_drr_path)
     current_img = plt.imread(current_drr_path)
@@ -245,26 +234,33 @@ def create_heatmap(prior_drr_path: str,
     prior_aligned = rotate(prior_img, delta_angle, reshape=False, order=1, mode="nearest")
     # Match foreground regions of current DRR in the rotated prior
     prior_aligned[current_img == 1] = 1
-    plt.imsave("pipeline/rotated_prior.png", prior_aligned, cmap="gray")
+    plt.imsave("pipeline/rotated_prior1.png", prior_aligned, cmap="gray")
 
+    return prior_aligned, current_img
+
+
+def create_heatmap(prior_aligned: np.ndarray,
+                   current_img: np.ndarray,
+                   post_processed_current_img: np.ndarray,
+                   heatmap_path: str) -> None:
     # Compute difference map
     diff = current_img - prior_aligned
 
     # Stack 2D image to create 3D RGB heatmap base
-    heatmap = np.dstack((current_img, current_img, current_img))
+    heatmap = np.dstack((post_processed_current_img, post_processed_current_img, post_processed_current_img))
 
     # Apply Green overlay for positive difference (growth)
     pos_mask = diff > MIN_INTENSITY_DIFF
     heatmap[pos_mask, 1] += diff[pos_mask]
-    heatmap[pos_mask, 0] -= diff[pos_mask] * 0.3
-    heatmap[pos_mask, 2] -= diff[pos_mask] * 0.3
+    heatmap[pos_mask, 0] -= diff[pos_mask] * COLOR_FACTOR
+    heatmap[pos_mask, 2] -= diff[pos_mask] * COLOR_FACTOR
 
     # Apply Red overlay for negative difference (shrinkage)
     neg_mask = diff < -MIN_INTENSITY_DIFF
     abs_diff = np.abs(diff[neg_mask])
     heatmap[neg_mask, 0] += abs_diff
-    heatmap[neg_mask, 1] -= abs_diff * 0.3
-    heatmap[neg_mask, 2] -= abs_diff * 0.3
+    heatmap[neg_mask, 1] -= abs_diff * COLOR_FACTOR
+    heatmap[neg_mask, 2] -= abs_diff * COLOR_FACTOR
 
     # Save final heatmap
     heatmap = np.clip(heatmap, 0.0, 1.0)
@@ -273,25 +269,29 @@ def create_heatmap(prior_drr_path: str,
 
 def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
                                       prior_output_ct_path, current_output_ct_path,
-                                      prior_output_drr_path, current_output_drr_path, heatmap_path):
+                                      prior_output_drr_path, current_output_drr_path,
+                                      heatmap_path):
     # Get current and prior ct scans
-    prior_rotation_angles = run_pipeline(ct_path, lung_mask_path,
-                                         prior_output_ct_path, prior_output_drr_path, True)
+    # prior_ct, prior_rotation_angles = run_pipeline(ct_path, lung_mask_path,
+    #                                                prior_output_ct_path, True)
+    prior_ct, _, _ = load_nifti(prior_output_ct_path)
+    prior_rotation_angles = (30, 0, 0)
     # print(prior_rotation_angles)
-    current_rotation_angles = run_pipeline(ct_path, lung_mask_path,
-                                           current_output_ct_path, current_output_drr_path, False)
+    # current_ct, current_rotation_angles = run_pipeline(ct_path, lung_mask_path,
+    #                                                    current_output_ct_path, False)
+    current_ct, _, _ = load_nifti(current_output_ct_path)
+    current_rotation_angles = (-30, 0, 0)
     # print(current_rotation_angles)
 
-    # todo: rotate prior by current
-    # todo: create drr of rotated prior and current
-    # todo: create heatmap
-    # todo: post processing of og prior and current
-    # todo: show changes in heatmap with post processed current image
+    # todo: fix rotate and create drr
+    create_drr(prior_ct, prior_output_drr_path)
+    create_drr(current_ct, current_output_drr_path)
+    prior_aligned, current_img = get_images(prior_output_drr_path, prior_rotation_angles,
+                                            current_output_drr_path, current_rotation_angles)
+    post_processed_current_img = create_drr_with_processing(current_ct)
 
     # Create heatmap
-    create_heatmap(prior_output_drr_path, prior_rotation_angles,
-                   current_output_drr_path, current_rotation_angles,
-                   heatmap_path)
+    create_heatmap(prior_aligned, current_img, post_processed_current_img, heatmap_path)
 
 
 if __name__ == "__main__":
