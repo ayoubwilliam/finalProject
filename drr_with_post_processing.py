@@ -190,6 +190,40 @@ def create_drr_from_ct(ct_data: np.array, output_path: str, projection_axis: int
     plt.imsave(output_path, xray_np, cmap='gray')
 
 
+def create_drr_with_processing(ct_data: np.array, projection_axis: int = 1,
+                               window_size: int = 8, clip_limit: float = 8.0,
+                               sharpness_factor: float = 3.0) -> np.ndarray:
+    ct_pre_processed = ct_pre_processing(ct_data)
+
+    # Sum using PyTorch
+    drr_image = torch.sum(ct_pre_processed, dim=projection_axis)
+
+    xray_post_processed = drr_post_processing(drr_image, window_size, clip_limit, sharpness_factor)
+
+    # Convert to numpy
+    xray_np = xray_post_processed.cpu().numpy()
+
+    return xray_np
+
+
+def create_drr(ct_data: np.array, output_path: str, projection_axis: int = 1) -> np.ndarray:
+    # Sum using PyTorch
+    ct_tensor = torch.from_numpy(ct_data).float().to(DEVICE)
+
+    # Creating drr
+    drr_image = torch.sum(ct_tensor, dim=projection_axis)
+
+    drr_image = normalize(drr_image)
+    drr_image = flip(drr_image)
+
+    # Convert to numpy for saving
+    xray_np = drr_image.cpu().numpy()
+
+    plt.imsave(output_path, xray_np, cmap='gray')
+
+    return xray_np
+
+
 if __name__ == "__main__":
     # Define input and output paths
     input_nifti_path = "../../ct/1.3.6.1.4.1.14519.5.2.1.6279.6001.100332161840553388986847034053.nii.gz"
@@ -212,7 +246,6 @@ if __name__ == "__main__":
     #         output_path = os.path.join(output_dir, output_filename)
     #         print(f"Processing: clip_limit={clip}, window_size={window}")
     #         create_drr_from_ct(data, output_path, 1, window_size=window, clip_limit=clip
-
 
     # Iterate through all combinations
     for sharpness in sharpness_values:

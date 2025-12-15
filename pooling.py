@@ -113,18 +113,3 @@ def apply_pooling(data: np.ndarray, mask: np.ndarray, lung_mask: np.ndarray, ker
 
     # Return the full volume with the updated ROI
     return data
-
-
-if __name__ == '__main__':
-    input_path = sys.argv[1]
-    output_path = sys.argv[2]
-
-    data, affine, header = load_nifti(input_path)
-
-    # mask = create_box(data, [[163, 203], [233, 273], [276, 316]])
-    mask = create_sphere(data, [180, 250, 300], 30)
-    # mask = create_ellipsoid(data, [180, 250, 300], [30, 40, 60])
-
-    avg_pooling = apply_pooling(data, mask, KERNEL_SIZE)
-
-    save_nifti(output_path, avg_pooling, affine, header)
