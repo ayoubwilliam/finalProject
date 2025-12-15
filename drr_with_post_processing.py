@@ -193,7 +193,10 @@ def create_drr_with_processing(ct_data: np.array, projection_axis: int = 1,
 def create_drr(ct_data: np.array, output_path: str, projection_axis: int = 1) -> np.ndarray:
     # Sum using PyTorch
     ct_tensor = torch.from_numpy(ct_data).float().to(DEVICE)
+
+    # Creating drr
     drr_image = torch.sum(ct_tensor, dim=projection_axis)
+
     drr_image = normalize(drr_image)
     drr_image = flip(drr_image)
 

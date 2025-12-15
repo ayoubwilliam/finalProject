@@ -21,7 +21,7 @@ B_SPLINE_DEFORMATION = 0.04
 B_SPLINE_GRID_DENSITY = 8
 
 # Heatmap
-POSITIVE_MIN_INTENSITY_DIFF = 0.02
+POSITIVE_MIN_INTENSITY_DIFF = 0
 NEGATIVE_MIN_INTENSITY_DIFF = 0
 COLOR_FACTOR = 10
 
@@ -216,18 +216,19 @@ def create_heatmap(prior_aligned: np.ndarray,
     # Compute difference map
     diff = current_img - prior_aligned
 
-    if lung_mask is not None:
-        # 1. Project 3D mask to 2D if needed (Max Intensity Projection)
-        # This flattens the volume: if a lung voxel exists in the depth, it counts.
-        if lung_mask.ndim == 3:
-            lung_mask = np.max(lung_mask, axis=1)  # Assuming axis 1 is depth/coronal. Adjust if needed.
-
-        # 2. Resize to match image dimensions exactly if there is still a mismatch
-        if lung_mask.shape != diff.shape:
-            lung_mask = resize(lung_mask, diff.shape, order=0, preserve_range=True, anti_aliasing=False)
-
-        # 3. Apply mask
-        diff[lung_mask < 0.1] = 0
+    # Differnce out of lungs mask will not be visible
+    # if lung_mask is not None:
+    #     # 1. Project 3D mask to 2D if needed (Max Intensity Projection)
+    #     # This flattens the volume: if a lung voxel exists in the depth, it counts.
+    #     if lung_mask.ndim == 3:
+    #         lung_mask = np.max(lung_mask, axis=1)  # Assuming axis 1 is depth/coronal. Adjust if needed.
+    #
+    #     # 2. Resize to match image dimensions exactly if there is still a mismatch
+    #     if lung_mask.shape != diff.shape:
+    #         lung_mask = resize(lung_mask, diff.shape, order=0, preserve_range=True, anti_aliasing=False)
+    #
+    #     # 3. Apply mask
+    #     diff[lung_mask < 0.1] = 0
 
     # Stack 2D image to create 3D RGB heatmap base
     heatmap = np.dstack((post_processed_current_img, post_processed_current_img, post_processed_current_img))
@@ -270,13 +271,15 @@ def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
     #                                                prior_output_ct_path, True)
     # print(prior_rotation_angles)
     prior_ct, _, _ = load_nifti(prior_output_ct_path)
-    prior_rotation_angles = (-0.7113819440275737, 12.488811990578263, -7.072103293641957)
+    prior_rotation_angles = (30, 0, 0)
+    # prior_rotation_angles = (-0.7113819440275737, 12.488811990578263, -7.072103293641957)
 
     # current_ct, current_rotation_angles = run_pipeline(ct_path, lung_mask_path,
     #                                                    current_output_ct_path, False)
     # print(current_rotation_angles)
     current_ct, _, _ = load_nifti(current_output_ct_path)
-    current_rotation_angles = (13.825531308342274, -2.398305530544933, 12.422342910582081)
+    current_rotation_angles = (-30, 0, 0)
+    # current_rotation_angles = (13.825531308342274, -2.398305530544933, 12.422342910582081)
 
     # rotate prior ct
     prior_aligned = rotate_prior_by_current(prior_ct, prior_rotation_angles, current_rotation_angles)
