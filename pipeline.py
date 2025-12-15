@@ -218,18 +218,18 @@ def create_heatmap(prior_aligned: np.ndarray,
     diff = current_img - prior_aligned
 
     # Differnce out of lungs mask will not be visible
-    if lung_mask is not None:
-        # 1. Project 3D mask to 2D if needed (Max Intensity Projection)
-        # This flattens the volume: if a lung voxel exists in the depth, it counts.
-        if lung_mask.ndim == 3:
-            lung_mask = np.max(lung_mask, axis=1)  # Assuming axis 1 is depth/coronal. Adjust if needed.
-
-        # 2. Resize to match image dimensions exactly if there is still a mismatch
-        if lung_mask.shape != diff.shape:
-            lung_mask = resize(lung_mask, diff.shape, order=0, preserve_range=True, anti_aliasing=False)
-
-        # 3. Apply mask
-        diff[lung_mask < 0.1] = 0
+    # if lung_mask is not None:
+    #     # 1. Project 3D mask to 2D if needed (Max Intensity Projection)
+    #     # This flattens the volume: if a lung voxel exists in the depth, it counts.
+    #     if lung_mask.ndim == 3:
+    #         lung_mask = np.max(lung_mask, axis=1)  # Assuming axis 1 is depth/coronal. Adjust if needed.
+    #
+    #     # 2. Resize to match image dimensions exactly if there is still a mismatch
+    #     if lung_mask.shape != diff.shape:
+    #         lung_mask = resize(lung_mask, diff.shape, order=0, preserve_range=True, anti_aliasing=False)
+    #
+    #     # 3. Apply mask
+    #     diff[lung_mask < 0.1] = 0
 
     # Stack 2D image to create 3D RGB heatmap base
     heatmap = np.dstack((post_processed_current_img, post_processed_current_img, post_processed_current_img))
