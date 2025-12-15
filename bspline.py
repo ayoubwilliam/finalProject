@@ -3,7 +3,7 @@ import gryds
 
 from create_shapes import create_sphere, apply_mask
 from file_handler import load_nifti, save_nifti
-from drr_with_post_processing import create_drr_with_processing
+# from drr_with_post_processing import create_drr_with_processing
 from rotation import rotate_ct_scan
 
 
