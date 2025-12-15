@@ -194,12 +194,15 @@ def create_drr(ct_data: np.array, output_path: str, projection_axis: int = 1) ->
     # Sum using PyTorch
     ct_tensor = torch.from_numpy(ct_data).float().to(DEVICE)
     drr_image = torch.sum(ct_tensor, dim=projection_axis)
+    drr_image = normalize(drr_image)
     drr_image = flip(drr_image)
 
     # Convert to numpy for saving
     xray_np = drr_image.cpu().numpy()
 
     plt.imsave(output_path, xray_np, cmap='gray')
+
+    return xray_np
 
 
 if __name__ == "__main__":

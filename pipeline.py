@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import rotate
+from skimage.transform import resize
 
 from file_handler import load_nifti, save_nifti
 from create_shapes import create_sphere, apply_mask
@@ -20,8 +21,9 @@ B_SPLINE_DEFORMATION = 0.04
 B_SPLINE_GRID_DENSITY = 8
 
 # Heatmap
-MIN_INTENSITY_DIFF = 0
-COLOR_FACTOR = 3
+POSITIVE_MIN_INTENSITY_DIFF = 0.02
+NEGATIVE_MIN_INTENSITY_DIFF = 0
+COLOR_FACTOR = 10
 
 
 def sample_point_in_lungs(lung_mask: np.ndarray) -> tuple[int, int, int]:
@@ -192,11 +194,11 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
     ct_smoothed = smooth_mass_region(ct_with_mass, deformed_mask, POOL_KERNEL)
 
     # Rotate ct
-    # angle_x, angle_y, angle_z = get_random_rotation_angles()
-    if is_prev:
-        angle_x, angle_y, angle_z = 30, 0, 0
-    else:
-        angle_x, angle_y, angle_z = -30, 0, 0
+    angle_x, angle_y, angle_z = get_random_rotation_angles()
+    # if is_prev:
+    #     angle_x, angle_y, angle_z = 30, 0, 0
+    # else:
+    #     angle_x, angle_y, angle_z = -30, 0, 0
 
     ct_rotated = rotate_ct_scan(ct_smoothed, angle_x, angle_y, angle_z)
 
@@ -206,57 +208,38 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
     return ct_rotated, (angle_x, angle_y, angle_z)
 
 
-def get_images(prior_drr_path: str,
-               prior_rotation_angles: tuple[float, float, float],
-               current_drr_path: str,
-               current_rotation_angles: tuple[float, float, float]):
-    # Load and standardize images to 2D grayscale
-    prior_img = plt.imread(prior_drr_path)
-    current_img = plt.imread(current_drr_path)
-
-    # Robustly flatten to 2D (H, W)
-    if prior_img.ndim == 3:
-        prior_img = prior_img[..., 0]
-    if current_img.ndim == 3:
-        current_img = current_img[..., 0]
-
-    # Ensure no singleton dimensions remain (e.g., (H, W, 1) -> (H, W))
-    prior_img = np.squeeze(prior_img)
-    current_img = np.squeeze(current_img)
-
-    # Compute rotation difference
-    prior_theta, _, _ = prior_rotation_angles
-    current_theta, _, _ = current_rotation_angles
-    delta_angle = current_theta - prior_theta
-    print(f"Delta Angle: {delta_angle}")
-
-    # Align prior image to current orientation
-    prior_aligned = rotate(prior_img, delta_angle, reshape=False, order=1, mode="nearest")
-    # Match foreground regions of current DRR in the rotated prior
-    prior_aligned[current_img == 1] = 1
-    plt.imsave("pipeline/rotated_prior1.png", prior_aligned, cmap="gray")
-
-    return prior_aligned, current_img
-
-
 def create_heatmap(prior_aligned: np.ndarray,
                    current_img: np.ndarray,
                    post_processed_current_img: np.ndarray,
+                   lung_mask: np.ndarray,
                    heatmap_path: str) -> None:
     # Compute difference map
     diff = current_img - prior_aligned
+
+    if lung_mask is not None:
+        # 1. Project 3D mask to 2D if needed (Max Intensity Projection)
+        # This flattens the volume: if a lung voxel exists in the depth, it counts.
+        if lung_mask.ndim == 3:
+            lung_mask = np.max(lung_mask, axis=1)  # Assuming axis 1 is depth/coronal. Adjust if needed.
+
+        # 2. Resize to match image dimensions exactly if there is still a mismatch
+        if lung_mask.shape != diff.shape:
+            lung_mask = resize(lung_mask, diff.shape, order=0, preserve_range=True, anti_aliasing=False)
+
+        # 3. Apply mask
+        diff[lung_mask < 0.1] = 0
 
     # Stack 2D image to create 3D RGB heatmap base
     heatmap = np.dstack((post_processed_current_img, post_processed_current_img, post_processed_current_img))
 
     # Apply Green overlay for positive difference (growth)
-    pos_mask = diff > MIN_INTENSITY_DIFF
+    pos_mask = diff > POSITIVE_MIN_INTENSITY_DIFF
     heatmap[pos_mask, 1] += diff[pos_mask]
     heatmap[pos_mask, 0] -= diff[pos_mask] * COLOR_FACTOR
     heatmap[pos_mask, 2] -= diff[pos_mask] * COLOR_FACTOR
 
     # Apply Red overlay for negative difference (shrinkage)
-    neg_mask = diff < -MIN_INTENSITY_DIFF
+    neg_mask = diff < NEGATIVE_MIN_INTENSITY_DIFF
     abs_diff = np.abs(diff[neg_mask])
     heatmap[neg_mask, 0] += abs_diff
     heatmap[neg_mask, 1] -= abs_diff * COLOR_FACTOR
@@ -267,6 +250,17 @@ def create_heatmap(prior_aligned: np.ndarray,
     plt.imsave(heatmap_path, heatmap)
 
 
+def rotate_prior_by_current(prior_ct, prior_rotation_angles, current_rotation_angles):
+    inv_rotated_prior = rotate_ct_scan(prior_ct,
+                                       -prior_rotation_angles[0],
+                                       -prior_rotation_angles[1],
+                                       -prior_rotation_angles[2])
+    return rotate_ct_scan(inv_rotated_prior,
+                          current_rotation_angles[0],
+                          current_rotation_angles[1],
+                          current_rotation_angles[2])
+
+
 def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
                                       prior_output_ct_path, current_output_ct_path,
                                       prior_output_drr_path, current_output_drr_path,
@@ -274,24 +268,29 @@ def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
     # Get current and prior ct scans
     # prior_ct, prior_rotation_angles = run_pipeline(ct_path, lung_mask_path,
     #                                                prior_output_ct_path, True)
-    prior_ct, _, _ = load_nifti(prior_output_ct_path)
-    prior_rotation_angles = (30, 0, 0)
     # print(prior_rotation_angles)
+    prior_ct, _, _ = load_nifti(prior_output_ct_path)
+    prior_rotation_angles = (-0.7113819440275737, 12.488811990578263, -7.072103293641957)
+
     # current_ct, current_rotation_angles = run_pipeline(ct_path, lung_mask_path,
     #                                                    current_output_ct_path, False)
-    current_ct, _, _ = load_nifti(current_output_ct_path)
-    current_rotation_angles = (-30, 0, 0)
     # print(current_rotation_angles)
+    current_ct, _, _ = load_nifti(current_output_ct_path)
+    current_rotation_angles = (13.825531308342274, -2.398305530544933, 12.422342910582081)
 
-    # todo: fix rotate and create drr
-    create_drr(prior_ct, prior_output_drr_path)
-    create_drr(current_ct, current_output_drr_path)
-    prior_aligned, current_img = get_images(prior_output_drr_path, prior_rotation_angles,
-                                            current_output_drr_path, current_rotation_angles)
+    # rotate prior ct
+    prior_aligned = rotate_prior_by_current(prior_ct, prior_rotation_angles, current_rotation_angles)
+
+    # create drr from ct
+    prior_img = create_drr(prior_aligned, prior_output_drr_path)
+    current_img = create_drr(current_ct, current_output_drr_path)
     post_processed_current_img = create_drr_with_processing(current_ct)
 
-    # Create heatmap
-    create_heatmap(prior_aligned, current_img, post_processed_current_img, heatmap_path)
+    # create heatmap
+    lung_mask, _, _ = load_nifti(lung_mask_path)
+    angle_x, angle_y, angle_z = current_rotation_angles
+    lung_mask_rotated = rotate_ct_scan(lung_mask, angle_x, angle_y, angle_z)
+    create_heatmap(prior_img, current_img, post_processed_current_img, lung_mask_rotated, heatmap_path)
 
 
 if __name__ == "__main__":
