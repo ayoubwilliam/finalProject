@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
-from bspline import get_deformed_sphere_fast
+from deformed_mass_generator import get_deformed_sphere_fast
 from file_handler import load_nifti, save_nifti
 from drr_with_post_processing import create_drr_from_ct, save_drr
 import matplotlib.pyplot as plt

@@ -6,7 +6,7 @@ from skimage.transform import resize
 
 from file_handler import load_nifti, save_nifti
 from create_shapes import create_sphere, apply_mask
-from bspline import bspline
+from deformed_mass_generator import bspline
 from rotation import rotate_ct_scan
 from pooling import apply_pooling, KERNEL_SIZE as POOL_KERNEL
 from drr_with_post_processing import create_drr_with_processing, create_drr
