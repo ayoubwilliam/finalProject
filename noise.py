@@ -7,7 +7,7 @@ from file_handler import load_nifti, save_nifti
 MEAN = 100
 STD = 300
 # block size determines how many pixels share similar intensity (increase for larger smoother regions)
-BLOCK_FACTOR = 10
+BLOCK_FACTOR = 4
 
 
 def create_noise(data_shape: tuple) -> np.ndarray:

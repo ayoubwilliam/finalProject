@@ -3,6 +3,7 @@ import gryds
 
 from create_shapes import create_sphere, apply_mask
 from file_handler import load_nifti, save_nifti
+from project.finalProject.noise import create_noise
 # from drr_with_post_processing import create_drr_with_processing
 from rotation import rotate_ct_scan
 
@@ -24,7 +25,7 @@ def bspline(data, grid_density_factor, deformation_factor):
     return nifti_roi
 
 
-def add_deformed_sphere(data, intensity, pos, radius, grid_density_factor, deformation_factor):
+def get_deformed_sphere(data, intensity, pos, radius, grid_density_factor, deformation_factor):
     sphere = np.zeros_like(data, dtype=np.float32)
     sphere_mask = create_sphere(sphere, pos, radius)
     apply_mask(sphere, sphere_mask, intensity, True)
@@ -32,12 +33,13 @@ def add_deformed_sphere(data, intensity, pos, radius, grid_density_factor, defor
     deformed_sphere = bspline(sphere, grid_density_factor, deformation_factor)
 
     mask = np.round(deformed_sphere) != 0
-    data[mask] = deformed_sphere[mask]
+    # data[mask] = deformed_sphere[mask]
 
     return deformed_sphere, mask
 
 
-def add_deformed_sphere_fast(data, intensity, pos, radius, margin, grid_density_factor, deformation_factor):
+#todo instead of data send data.shape and chnage zeros_like to zeors
+def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_density_factor, deformation_factor):
     size = 2 * radius + margin
     small_sphere_volume = np.zeros((size, size, size), dtype=np.float32)
     center = size // 2
@@ -47,7 +49,7 @@ def add_deformed_sphere_fast(data, intensity, pos, radius, margin, grid_density_
 
     deformed_small_sphere = bspline(small_sphere_volume, grid_density_factor, deformation_factor)
 
-    sphere = np.zeros_like(data, dtype=np.float32)
+    sphere = np.zeros(data_shape, dtype=np.float32)
 
     x, y, z = pos
     half_size = size // 2
@@ -56,9 +58,12 @@ def add_deformed_sphere_fast(data, intensity, pos, radius, margin, grid_density_
     z - half_size:z - half_size + size] = deformed_small_sphere
 
     mask = np.round(sphere) != 0
-    data[mask] = sphere[mask]
+    # data[mask] = sphere[mask]
 
     return sphere, mask
+
+
+
 
 
 def main():
@@ -73,7 +78,7 @@ def main():
     # Test normal method
     print("Running add_deformed_sphere...")
     data, affine, header = load_nifti(input_path)
-    deformed_sphere, mask = add_deformed_sphere(data, intensity, pos, radius, grid_density_factor,
+    deformed_sphere, mask = get_deformed_sphere(data, intensity, pos, radius, grid_density_factor,
                                                 deformation_factor)
     save_nifti("./shapes_output/bspline_normal.nii.gz", data, affine, header)
     save_nifti("./shapes_output/bspline_normal_mask.nii.gz", deformed_sphere, affine, header)
@@ -82,7 +87,7 @@ def main():
     # Test fast method
     print("Running add_deformed_sphere_fast...")
     data, affine, header = load_nifti(input_path)
-    deformed_sphere, mask = add_deformed_sphere_fast(data, intensity, pos, radius, margin,
+    deformed_sphere, mask = get_deformed_sphere_fast(data, intensity, pos, radius, margin,
                                                      grid_density_factor, deformation_factor)
     save_nifti("./shapes_output/bspline_fast.nii.gz", data, affine, header)
     save_nifti("./shapes_output/bspline_fast_mask.nii.gz", deformed_sphere, affine, header)
