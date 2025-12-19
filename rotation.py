@@ -21,7 +21,9 @@ def rotate_ct_scan(data: np.array, angle_x: float, angle_y: float, angle_z: floa
 
     # Apply the 3D rotation
     rotated_tensor = kornia.geometry.transform.rotate3d(kornia_input_tensor,
-                                                        angles_x_tensor, angles_y_tensor, angles_z_tensor)
+                                                        angles_x_tensor, angles_y_tensor, angles_z_tensor
+                                                        # ,padding_mode='border'
+                                                        )
 
     # Convert the rotated tensor back to a Numpy array: removes the Batch and Channel dimensions (.cpu())
     rotated_numpy = rotated_tensor.squeeze().numpy()

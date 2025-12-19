@@ -93,24 +93,17 @@ def get_pooling(data: np.ndarray, mask: np.ndarray,
 
 def apply_pooling(data: np.ndarray, mask: np.ndarray, kernel_size: int) -> np.ndarray:
     """
-    This function smooths values around a mask using pooled ROI values and updates only masked voxels.
-        parameters:
-        1) data: 3D volume that will be updated in-place in the masked region.
-        2) mask: 3D boolean array that marks the object or region of interest.
-        3) kernel_size: radius used to expand the ROI and to build the dilation structuring element.
-        returns: updated_data: 3D volume after applying pooling-based smoothing near the mask.
+    This function smooths values strictly inside the mask using pooled ROI values.
+    Dilation has been removed.
     """
-    # Compute ROI bounds that will be shared with get_pooling
+    # Compute ROI bounds to work on a smaller chunk of data
     x0, x1, y0, y1, z0, z1 = get_expanded_roi(mask, kernel_size, data.shape)
 
-    # Compute pooled values for the ROI based on the original data
+    # Compute pooled values for the ROI
     pooled = get_pooling(data, mask, kernel_size, STRIDE, False)
 
-    # Dilate the original mask to slightly expand the update region
-    dilated_seg = binary_dilation(mask, ball(kernel_size))
-
-    # Restrict the dilated mask to the same ROI used for pooling
-    local_mask = dilated_seg[x0:x1, y0:y1, z0:z1]
+    # Cut the mask to the same ROI dimensions
+    local_mask = mask[x0:x1, y0:y1, z0:z1]
 
     # Get a writable view into the ROI portion of the original data
     region_view = data[x0:x1, y0:y1, z0:z1]
