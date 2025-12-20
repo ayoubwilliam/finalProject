@@ -2,10 +2,6 @@ import numpy as np
 import gryds
 
 from create_shapes import create_sphere, apply_mask
-from file_handler import load_nifti, save_nifti
-from project.finalProject.noise import create_noise
-# from drr_with_post_processing import create_drr_with_processing
-from rotation import rotate_ct_scan
 
 
 def bspline(data, grid_density_factor, deformation_factor):
@@ -33,13 +29,12 @@ def get_deformed_sphere(data, intensity, pos, radius, grid_density_factor, defor
     deformed_sphere = bspline(sphere, grid_density_factor, deformation_factor)
 
     mask = np.round(deformed_sphere) != 0
-    # data[mask] = deformed_sphere[mask]
 
     return deformed_sphere, mask
 
 
-#todo instead of data send data.shape and chnage zeros_like to zeors
-def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_density_factor, deformation_factor):
+def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_density_factor,
+                             deformation_factor):
     size = 2 * radius + margin
     small_sphere_volume = np.zeros((size, size, size), dtype=np.float32)
     center = size // 2
@@ -58,42 +53,5 @@ def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_de
     z - half_size:z - half_size + size] = deformed_small_sphere
 
     mask = np.round(sphere) != 0
-    # data[mask] = sphere[mask]
 
     return sphere, mask
-
-
-
-
-
-def main():
-    input_path = "../../ct/1.3.6.1.4.1.14519.5.2.1.6279.6001.100332161840553388986847034053.nii.gz"
-    intensity = 25
-    pos = [180, 250, 300]
-    radius = 20
-    margin = 4 * radius
-    grid_density_factor = 8
-    deformation_factor = 0.01
-
-    # Test normal method
-    print("Running add_deformed_sphere...")
-    data, affine, header = load_nifti(input_path)
-    deformed_sphere, mask = get_deformed_sphere(data, intensity, pos, radius, grid_density_factor,
-                                                deformation_factor)
-    save_nifti("./shapes_output/bspline_normal.nii.gz", data, affine, header)
-    save_nifti("./shapes_output/bspline_normal_mask.nii.gz", deformed_sphere, affine, header)
-
-    deformation_factor = 0.08
-    # Test fast method
-    print("Running add_deformed_sphere_fast...")
-    data, affine, header = load_nifti(input_path)
-    deformed_sphere, mask = get_deformed_sphere_fast(data, intensity, pos, radius, margin,
-                                                     grid_density_factor, deformation_factor)
-    save_nifti("./shapes_output/bspline_fast.nii.gz", data, affine, header)
-    save_nifti("./shapes_output/bspline_fast_mask.nii.gz", deformed_sphere, affine, header)
-
-    print("Done!")
-
-
-if __name__ == '__main__':
-    main()
