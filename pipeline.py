@@ -118,9 +118,10 @@ def insert_synthetic_structure(ct_data: np.ndarray,
     return ct_with_mass, mass_mask
 
 
-def smooth_mass_region(ct_with_mass: np.ndarray, mass_mask: np.ndarray, kernel_size: int) -> np.ndarray:
+def smooth_mass_region(ct_with_mass: np.ndarray, mass_mask: np.ndarray, lung_mask: np.ndarray,
+                       kernel_size: int) -> np.ndarray:
     """This function smooths only the mass region by applying pooling restricted to the provided mask"""
-    return apply_pooling(ct_with_mass, mass_mask, kernel_size)
+    return apply_pooling(ct_with_mass, mass_mask, lung_mask, kernel_size)
 
 
 def get_random_rotation_angles(range_deg: float = ROT_ANGLE_RANGE_DEG) -> tuple[float, float, float]:
@@ -175,10 +176,10 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
                  output_ct_path: str, is_prev) -> tuple[np.ndarray, tuple[int, int, int]]:
     # Load data
     ct_data, ct_affine, ct_header = load_nifti(ct_path)
-    lung_seg, _, _ = load_nifti(lung_mask_path)
+    lung_mask, _, _ = load_nifti(lung_mask_path)
 
     # Create mass
-    mass_mask = create_mass_mask_in_lungs(ct_data, lung_seg > 0, MASS_RADIUS_RANGE)
+    mass_mask = create_mass_mask_in_lungs(ct_data, lung_mask > 0, MASS_RADIUS_RANGE)
 
     # Apply bspline
     mass_intensity = get_random_intensity()
@@ -186,12 +187,12 @@ def run_pipeline(ct_path: str, lung_mask_path: str,
 
     # Embed the deformed synthetic structure into the CT volume
     ct_with_mass, deformed_mask = insert_synthetic_structure(ct_data, deformed_mass)
-    ct_with_mass, deformed_mask = clip_synthetic_to_lungs(ct_with_mass, deformed_mask, lung_seg, ct_data)
+    ct_with_mass, deformed_mask = clip_synthetic_to_lungs(ct_with_mass, deformed_mask, lung_mask, ct_data)
     # todo: maybe fix ct/mask with bspline- clip and lung mask
 
     # Apply pooling
-    deformed_mask = deformed_mask & (lung_seg > 0)  # restrict smoothing only to areas inside lungs
-    ct_smoothed = smooth_mass_region(ct_with_mass, deformed_mask, POOL_KERNEL)
+    deformed_mask = deformed_mask & (lung_mask > 0)  # restrict smoothing only to areas inside lungs
+    ct_smoothed = smooth_mass_region(ct_with_mass, deformed_mask, lung_mask, POOL_KERNEL)
 
     # Rotate ct
     angle_x, angle_y, angle_z = get_random_rotation_angles()
@@ -271,15 +272,15 @@ def create_synthetic_pair_and_heatmap(ct_path, lung_mask_path,
     #                                                prior_output_ct_path, True)
     # print(prior_rotation_angles)
     prior_ct, _, _ = load_nifti(prior_output_ct_path)
-    prior_rotation_angles = (30, 0, 0)
-    # prior_rotation_angles = (-0.7113819440275737, 12.488811990578263, -7.072103293641957)
+    # prior_rotation_angles = (30, 0, 0)
+    prior_rotation_angles = (-0.7113819440275737, 12.488811990578263, -7.072103293641957)
 
     # current_ct, current_rotation_angles = run_pipeline(ct_path, lung_mask_path,
     #                                                    current_output_ct_path, False)
     # print(current_rotation_angles)
     current_ct, _, _ = load_nifti(current_output_ct_path)
-    current_rotation_angles = (-30, 0, 0)
-    # current_rotation_angles = (13.825531308342274, -2.398305530544933, 12.422342910582081)
+    # current_rotation_angles = (-30, 0, 0)
+    current_rotation_angles = (13.825531308342274, -2.398305530544933, 12.422342910582081)
 
     # rotate prior ct
     prior_aligned = rotate_prior_by_current(prior_ct, prior_rotation_angles, current_rotation_angles)
