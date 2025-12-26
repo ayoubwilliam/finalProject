@@ -1,0 +1,57 @@
+import numpy as np
+import gryds
+
+from create_shapes import create_sphere, apply_mask
+
+
+def bspline(data, grid_density_factor, deformation_factor):
+    data = data.astype(np.float32)
+    x_shape = data.shape[0] // grid_density_factor
+    y_shape = data.shape[1] // grid_density_factor
+    z_shape = data.shape[2] // grid_density_factor
+    gridx = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+    gridy = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+    gridz = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+
+    transform = gryds.BSplineTransformation([gridx, gridy, gridz])
+
+    interpolator = gryds.Interpolator(data, order=3, mode="mirror")
+
+    nifti_roi = interpolator.transform(transform)
+    return nifti_roi
+
+
+def get_deformed_sphere(data, intensity, pos, radius, grid_density_factor, deformation_factor):
+    sphere = np.zeros_like(data, dtype=np.float32)
+    sphere_mask = create_sphere(sphere, pos, radius)
+    apply_mask(sphere, sphere_mask, intensity, True)
+
+    deformed_sphere = bspline(sphere, grid_density_factor, deformation_factor)
+
+    mask = np.round(deformed_sphere) != 0
+
+    return deformed_sphere, mask
+
+
+def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_density_factor,
+                             deformation_factor):
+    size = 2 * radius + margin
+    small_sphere_volume = np.zeros((size, size, size), dtype=np.float32)
+    center = size // 2
+
+    sphere_mask = create_sphere(small_sphere_volume, [center, center, center], radius)
+    apply_mask(small_sphere_volume, sphere_mask, intensity, True)
+
+    deformed_small_sphere = bspline(small_sphere_volume, grid_density_factor, deformation_factor)
+
+    sphere = np.zeros(data_shape, dtype=np.float32)
+
+    x, y, z = pos
+    half_size = size // 2
+    sphere[x - half_size:x - half_size + size,
+    y - half_size:y - half_size + size,
+    z - half_size:z - half_size + size] = deformed_small_sphere
+
+    mask = np.round(sphere) != 0
+
+    return sphere, mask

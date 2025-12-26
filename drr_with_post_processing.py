@@ -164,30 +164,26 @@ def sharpen_image(image, sharpness_factor=1.0):
     return sharpened_image
 
 
-def drr_post_processing(drr_xray, window_size=128, clip_limit=0.01, sharpness_factor=1.0):
+def apply_drr_post_processing(drr_xray, window_size=8, clip_limit=8.0, sharpness_factor=3.0):
     """Post-process DRR using PyTorch operations"""
     drr_xray = normalize(drr_xray)
-    drr_xray = flip(drr_xray)
     drr_xray = clahe(drr_xray, window_size, clip_limit)
     drr_xray = sharpen_image(drr_xray, sharpness_factor)
     return drr_xray
 
 
 ##################### main drr #####################
-def create_drr_from_ct(ct_data: np.array, output_path: str, projection_axis: int = 1,
-                       window_size: int = 128, clip_limit: float = 0.01,
-                       sharpness_factor: float = 1.0) -> None:
+def create_drr_from_ct(ct_data: np.array, projection_axis: int = 1):
     ct_pre_processed = ct_pre_processing(ct_data)
 
     # Sum using PyTorch
     drr_image = torch.sum(ct_pre_processed, dim=projection_axis)
+    rotated_image = flip(drr_image)
+    return rotated_image
 
-    xray_post_processed = drr_post_processing(drr_image, window_size, clip_limit, sharpness_factor)
 
-    # Convert to numpy for saving
-    xray_np = xray_post_processed.cpu().numpy()
-
-    plt.imsave(output_path, xray_np, cmap='gray')
+def save_drr(drr, output_path):
+    plt.imsave(output_path, drr.cpu().numpy(), cmap='gray')
 
 
 def create_drr_with_processing(ct_data: np.array, projection_axis: int = 1,
