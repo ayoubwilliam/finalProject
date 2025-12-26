@@ -166,7 +166,6 @@ def sharpen_image(image, sharpness_factor=1.0):
 
 def apply_drr_post_processing(drr_xray, window_size=8, clip_limit=8.0, sharpness_factor=3.0):
     """Post-process DRR using PyTorch operations"""
-    drr_xray = normalize(drr_xray)
     drr_xray = clahe(drr_xray, window_size, clip_limit)
     drr_xray = sharpen_image(drr_xray, sharpness_factor)
     return drr_xray
@@ -174,12 +173,19 @@ def apply_drr_post_processing(drr_xray, window_size=8, clip_limit=8.0, sharpness
 
 ##################### main drr #####################
 def create_drr_from_ct(ct_data: np.array, projection_axis: int = 1):
+    # perform pre-processing
     ct_pre_processed = ct_pre_processing(ct_data)
 
-    # Sum using PyTorch
+    # creating drr- sum using PyTorch
     drr_image = torch.sum(ct_pre_processed, dim=projection_axis)
+
+    # rotate 90 deg
     rotated_image = flip(drr_image)
-    return rotated_image
+
+    # normalize to 0-1
+    normalized_image = normalize(rotated_image)
+
+    return normalized_image
 
 
 def save_drr(drr, output_path):
