@@ -4,15 +4,19 @@ from file_handler import load_nifti
 from pipeline2 import pipeline
 
 # data paths
-INPUT_PATH = "ct/ct_file1.nii"
-SEG_PATH = "ct/lungs.nii.gz"
+INPUT_DIR = "./ct/"
+CT_FILENAME = "ct_file"
+SEG_FILENAME = "lungs"
+FILE_EXTENSION = ".nii.gz"
+
+# generation numbers
+NUMBER_OF_CT_SCANS = 3
+NUMBER_OF_PAIRS_IN_SCAN = 1
 
 # randomization parameters
 R_MIN = 20
 R_MAX = 40
 ROT_ANGLE_RANGE_DEG = 15.0  # sample angles in [-15, 15]
-
-NUMBER_OF_PAIRS = 10
 
 
 def get_random_radius(r_min=R_MIN, r_max=R_MAX):
@@ -50,10 +54,10 @@ def get_random_rotation_angles(range_deg: float = ROT_ANGLE_RANGE_DEG) -> tuple[
     return float(angles[0]), float(angles[1]), float(angles[2])
 
 
-def create_pair(pair_index):
+def create_pair(pair_index: int, input_path: str, seg_path: str) -> None:
     print("\nPair number: ", pair_index)
     # load lungs seg
-    lung_mask, _, _ = load_nifti(SEG_PATH)
+    lung_mask, _, _ = load_nifti(seg_path)
 
     # get random radius
     radius = get_random_radius()
@@ -67,12 +71,28 @@ def create_pair(pair_index):
     current_angle = get_random_rotation_angles()
 
     # run pipeline for prior and current
-    pipeline(pair_index, INPUT_PATH, SEG_PATH, radius,
+    pipeline(pair_index, input_path, seg_path, radius,
              prior_pos, current_pos,
              prior_angle, current_angle)
 
 
+def create_pairs_for_scan(input_path: str, seg_path: str) -> None:
+    for index in range(1, NUMBER_OF_PAIRS_IN_SCAN + 1):
+        create_pair(index, input_path, seg_path)
+
+
+def create_path(filename: str, scan_index: int) -> str:
+    return INPUT_DIR + filename + str(scan_index) + FILE_EXTENSION
+
+
+def create_pairs_for_all_scans() -> None:
+    for scan_index in range(1, NUMBER_OF_CT_SCANS + 1):
+        input_path = create_path(CT_FILENAME, scan_index)
+        print("Creating pairs for ", input_path)
+        seg_path = create_path(SEG_FILENAME, scan_index)
+        create_pairs_for_scan(input_path, seg_path)
+
+
 if __name__ == '__main__':
-    for index in range(1, NUMBER_OF_PAIRS + 1):
-        create_pair(index)
-    print("\nDone with all Pairs!!!")
+    create_pairs_for_all_scans()
+    print("\nDone with all Pairs for all scans!!!")

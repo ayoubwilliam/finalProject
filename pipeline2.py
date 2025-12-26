@@ -57,15 +57,15 @@ def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
                                                      GRID_DENSITY_FACTOR, DEFORMATION_FACTOR)
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(prior, deformed_sphere, mask)
-    save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
-    save_nifti(pair_dir + PRIOR_DEFORMED_MASS, prior, affine, header)
+    # save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
+    # save_nifti(pair_dir + PRIOR_DEFORMED_MASS, prior, affine, header)
 
     # apply pooling
     print("start pooling...")
     pooled_data, mask = apply_pooling(prior, mask, POOLING_KERNEL_SIZE)
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(prior, pooled_data, mask)
-    save_nifti(pair_dir + PRIOR_POOLED_MASK, prior, affine, header)
+    # save_nifti(pair_dir + PRIOR_POOLED_MASK, prior, affine, header)
     print("finished pooling.")
 
     return prior
@@ -80,15 +80,15 @@ def create_current_ct(current: np.ndarray, seg: np.ndarray,
                                                      GRID_DENSITY_FACTOR, DEFORMATION_FACTOR)
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(current, deformed_sphere, mask)
-    save_nifti(pair_dir + CURRENT_POOLED_MASK, deformed_sphere, affine, header)
-    save_nifti(pair_dir + CURRENT_DEFORMED_MASS, current, affine, header)
+    # save_nifti(pair_dir + CURRENT_DEFORMED_MASK, deformed_sphere, affine, header)
+    # save_nifti(pair_dir + CURRENT_DEFORMED_MASS, current, affine, header)
 
     # Apply pooling
     print("start pooling...")
     pooled_data, mask = apply_pooling(current, mask, POOLING_KERNEL_SIZE)
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(current, pooled_data, mask)
-    save_nifti(pair_dir + CURRENT_POOLED_MASK, current, affine, header)
+    # save_nifti(pair_dir + CURRENT_POOLED_MASK, current, affine, header)
     print("finished pooling.")
 
     return current
@@ -135,8 +135,13 @@ def create_heatmap(current_drr: np.ndarray, prior_rotated_to_current_drr: np.nda
     plt.close(fig)
 
 
-def get_pair_dir(pair_index: int) -> str:
-    path = OUTPUT_DIR + "Pair" + str(pair_index) + "/"
+def get_filename_from_path(path: str) -> str:
+    return path.split('/')[-1].split('.')[0]
+
+
+def get_pair_dir(pair_index: int, input_path: str) -> str:
+    input_filename = get_filename_from_path(input_path)
+    path = OUTPUT_DIR + input_filename + "/Pair" + str(pair_index) + "/"
     os.makedirs(path, exist_ok=True)  # Creates the folder if it doesn't exist
     return path
 
@@ -149,7 +154,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
     seg, _, _ = load_nifti(seg_path)
 
     margin = radius
-    pair_dir = get_pair_dir(pair_index)
+    pair_dir = get_pair_dir(pair_index, input_path)
 
     # create prior ct
     prior_data = data.copy()
