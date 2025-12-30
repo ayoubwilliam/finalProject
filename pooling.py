@@ -69,7 +69,6 @@ def apply_pooling(data: np.ndarray, mask: np.ndarray, kernel_size: int) -> np.nd
     """
     # 1. Get the ROI bounds (expanded to fit the dilation/kernel)
 
-    data = data.copy()
     x0, x1, y0, y1, z0, z1 = get_expanded_roi(mask, kernel_size, data.shape)
 
     # 2. Extract the local view of the mask

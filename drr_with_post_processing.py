@@ -164,6 +164,16 @@ def sharpen_image(image, sharpness_factor=1.0):
     return sharpened_image
 
 
+
+from torchvision.transforms.functional import resize
+
+def resize_image(image, target_size=(512, 512)):
+    """Simple resize with stretching. Expects a Tensor."""
+    # We unsqueeze(0) to add a channel dimension (H,W -> 1,H,W) for the function to work,
+    # then squeeze(0) to remove it back to (H,W).
+    return resize(image.unsqueeze(0), target_size, antialias=True).squeeze(0)
+
+
 def apply_drr_post_processing(drr_xray, window_size=8, clip_limit=8.0, sharpness_factor=3.0):
     """Post-process DRR using PyTorch operations"""
     drr_xray = clahe(drr_xray, window_size, clip_limit)
@@ -185,6 +195,9 @@ def create_drr_from_ct(ct_data: np.array, projection_axis: int = 1):
     # normalize to 0-1
     normalized_image = normalize(rotated_image)
 
+    # UPDATED: Call the simple resize function
+    normalized_image = resize_image(normalized_image)
+
     return normalized_image
 
 
@@ -200,7 +213,7 @@ def create_drr_with_processing(ct_data: np.array, projection_axis: int = 1,
     # Sum using PyTorch
     drr_image = torch.sum(ct_pre_processed, dim=projection_axis)
 
-    xray_post_processed = drr_post_processing(drr_image, window_size, clip_limit, sharpness_factor)
+    xray_post_processed = apply_drr_post_processing(drr_image, window_size, clip_limit, sharpness_factor)
 
     # Convert to numpy
     xray_np = xray_post_processed.cpu().numpy()

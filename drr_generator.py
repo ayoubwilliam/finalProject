@@ -11,7 +11,7 @@ FILE_EXTENSION = ".nii.gz"
 
 # generation numbers
 NUMBER_OF_CT_SCANS = 3
-NUMBER_OF_PAIRS_IN_SCAN = 1
+NUMBER_OF_PAIRS_IN_SCAN = 2
 
 # randomization parameters
 R_MIN = 20
