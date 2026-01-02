@@ -33,6 +33,9 @@ def get_deformed_sphere(data, intensity, pos, radius, grid_density_factor, defor
     return deformed_sphere, mask
 
 
+import numpy as np
+
+
 def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_density_factor,
                              deformation_factor):
     size = 2 * radius + margin
@@ -48,9 +51,47 @@ def get_deformed_sphere_fast(data_shape, intensity, pos, radius, margin, grid_de
 
     x, y, z = pos
     half_size = size // 2
-    sphere[x - half_size:x - half_size + size,
-    y - half_size:y - half_size + size,
-    z - half_size:z - half_size + size] = deformed_small_sphere
+
+    # --- 1. Calculate raw coordinates (might be out of bounds) ---
+    x_start = x - half_size
+    x_end = x_start + size
+    y_start = y - half_size
+    y_end = y_start + size
+    z_start = z - half_size
+    z_end = z_start + size
+
+    # --- 2. Clamp coordinates to fit within the main volume (Destination) ---
+    # max(0, ...) handles the left/top edges
+    # min(limit, ...) handles the right/bottom edges
+    sphere_x_start = max(0, x_start)
+    sphere_x_end = min(data_shape[0], x_end)
+    sphere_y_start = max(0, y_start)
+    sphere_y_end = min(data_shape[1], y_end)
+    sphere_z_start = max(0, z_start)
+    sphere_z_end = min(data_shape[2], z_end)
+
+    # --- 3. Calculate corresponding coordinates for the small sphere (Source) ---
+    # We essentially crop the small sphere by the same amount we cropped the destination
+    small_x_start = sphere_x_start - x_start
+    small_x_end = small_x_start + (sphere_x_end - sphere_x_start)
+
+    small_y_start = sphere_y_start - y_start
+    small_y_end = small_y_start + (sphere_y_end - sphere_y_start)
+
+    small_z_start = sphere_z_start - z_start
+    small_z_end = small_z_start + (sphere_z_end - sphere_z_start)
+
+    # --- 4. Apply the safe assignment ---
+    # Only assign if the computed ranges are valid (i.e., volume is not completely off-screen)
+    if (sphere_x_end > sphere_x_start and
+            sphere_y_end > sphere_y_start and
+            sphere_z_end > sphere_z_start):
+        sphere[sphere_x_start:sphere_x_end,
+        sphere_y_start:sphere_y_end,
+        sphere_z_start:sphere_z_end] = deformed_small_sphere[
+            small_x_start:small_x_end,
+            small_y_start:small_y_end,
+            small_z_start:small_z_end]
 
     mask = np.round(sphere) != 0
 
