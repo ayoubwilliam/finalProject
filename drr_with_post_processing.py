@@ -8,14 +8,8 @@ import kornia
 from torchvision.transforms.v2.functional import adjust_sharpness
 
 from file_handler import load_nifti
+from constants import DEVICE
 
-# Set device
-if torch.cuda.is_available():
-    DEVICE = 'cuda'
-else:
-    DEVICE = 'cpu'
-
-print(f"Using device: {DEVICE}")
 
 ##################### pre processing #####################
 
@@ -26,7 +20,8 @@ CROP_MAX = 3000
 def ct_pre_processing(ct_data):
     """Pre-process CT data using PyTorch"""
     # Convert to torch tensor and move to device
-    ct_tensor = torch.from_numpy(ct_data).float().to(DEVICE)
+    # ct_tensor = torch.from_numpy(ct_data).float().to(DEVICE)
+    ct_tensor = ct_data
 
     # Clip values
     ct_pre_processed = torch.clip(ct_tensor, AIR_CT_THRESHOLD, CROP_MAX)
@@ -202,6 +197,7 @@ def create_drr_from_ct(ct_data: np.array, projection_axis: int = 1):
 
 
 def save_drr(drr, output_path):
+    print(f"saving to {output_path}")
     plt.imsave(output_path, drr.cpu().numpy(), cmap='gray')
 
 

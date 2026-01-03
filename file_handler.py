@@ -16,7 +16,7 @@ def load_nifti(path: str) -> tuple[np.ndarray, np.ndarray, nib.Nifti1Header]:
     return img.get_fdata(dtype=np.float32), img.affine, img.header
 
 
-def save_nifti(path: str, data: np.ndarray, affine: np.ndarray, header: nib.Nifti1Header) -> None:
+def save_nifti(path: str, data, affine: np.ndarray, header: nib.Nifti1Header) -> None:
     """
     Parameters:
         path: Output file path (.nii or .nii.gz).
@@ -24,6 +24,7 @@ def save_nifti(path: str, data: np.ndarray, affine: np.ndarray, header: nib.Nift
         affine: 4x4 affine transformation matrix.
         header: Header to copy metadata from.
     """
+    data = data.cpu().numpy()
     nib.save(nib.Nifti1Image(data, affine, header), path)
 
 
