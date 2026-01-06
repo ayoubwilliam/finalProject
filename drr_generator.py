@@ -3,15 +3,15 @@ from file_handler import load_nifti
 from pipeline2 import pipeline
 import time
 
-# data pathsun
+# data paths
 INPUT_DIR = "./ct/"
 CT_FILENAME = "ct_file"
 SEG_FILENAME = "lungs"
 FILE_EXTENSION = ".nii.gz"
 
-# generation numbers
+# generation numbers§
 NUMBER_OF_CT_SCANS = 3
-NUMBER_OF_PAIRS_IN_SCAN = 3
+NUMBER_OF_PAIRS_IN_SCAN = 1
 
 # randomization parameters
 R_MIN = 20
@@ -21,7 +21,6 @@ ROT_ANGLE_RANGE_DEG = 15.0  # sample angles in [-15, 15]
 
 def get_random_radius(r_min=R_MIN, r_max=R_MAX):
     return np.random.randint(r_min, r_max + 1)
-
 
 
 def sample_point_in_lungs(lung_mask: np.ndarray) -> tuple[int, int, int]:
@@ -89,7 +88,7 @@ def create_path(filename: str, scan_index: int) -> str:
 def create_pairs_for_all_scans() -> None:
     for scan_index in range(1, NUMBER_OF_CT_SCANS + 1):
         input_path = create_path(CT_FILENAME, scan_index)
-        print("Creating pairs for ", input_path)
+        print("\nCreating pairs for ", input_path)
         seg_path = create_path(SEG_FILENAME, scan_index)
         create_pairs_for_scan(input_path, seg_path)
 
@@ -99,5 +98,4 @@ if __name__ == '__main__':
     create_pairs_for_all_scans()
     end_time = time.time()
     print("\nDone with all Pairs for all scans!!!")
-    print("Time elapsed: ", end_time - start_time," seconds")
-
+    print("Time elapsed: ", end_time - start_time, " seconds")

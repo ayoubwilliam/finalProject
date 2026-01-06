@@ -49,6 +49,7 @@ def apply_mask(destination_data, source_data, mask) -> None:
     positive_mask = (destination_data < source_data) & mask
     destination_data[positive_mask] = source_data[positive_mask]
 
+
 import torch
 
 
@@ -62,20 +63,13 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
     working_data = data.clone()
     print("Running add_deformed_sphere_fast...")
 
-    # FIX 1: Pass the actual 'working_data' tensor, not just the shape
+    # Pass the actual 'working_data' tensor, not just the shape
     deformed_sphere, mask = get_deformed_sphere_fast(working_data, INTENSITY, pos, radius, margin,
                                                      GRID_DENSITY_FACTOR, DEFORMATION_FACTOR)
 
-    # --- FIX 2: Transfer to CPU/Numpy for the rest of the function ---
-    # Since the subsequent lines use 'save_nifti' and likely Numpy-based helper functions,
-    # we convert everything back to Numpy here as requested.
-
-
-    # --- Resume original logic (Numpy/CPU) ---
+    # Resume original logic (Numpy/CPU)
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(working_data, deformed_sphere, mask)
-
-
 
     # save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
     # save_nifti(pair_dir + PRIOR_DEFORMED_MASS, working_data, affine, header)
@@ -83,7 +77,6 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
 
     # apply pooling
     print("start pooling...")
-
 
     pooled_data, mask = apply_pooling(working_data, mask, POOLING_KERNEL_SIZE)
     mask = correct_mask_by_seg(mask, seg)
@@ -99,7 +92,7 @@ def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
                     prior_pos: tuple[int, int, int], radius: int, margin: int,
                     affine: np.ndarray, header: nib.Nifti1Header, pair_dir: str):
     # create deformed mass
-    working_data, mask = add_mass(prior, seg, prior_pos, radius, margin,pair_dir,affine,header)
+    working_data, mask = add_mass(prior, seg, prior_pos, radius, margin, pair_dir, affine, header)
     apply_mask(prior, working_data, mask)
     return prior
 
@@ -107,7 +100,7 @@ def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
 def create_current_ct(current: np.ndarray, seg: np.ndarray,
                       current_pos: tuple[int, int, int], radius: int, margin: int,
                       affine: np.ndarray, header: nib.Nifti1Header, pair_dir: str):
-    working_data, mask = add_mass(current, seg, current_pos, radius, margin,pair_dir,affine,header)
+    working_data, mask = add_mass(current, seg, current_pos, radius, margin, pair_dir, affine, header)
     apply_mask(current, working_data, mask)
     return current
 
@@ -122,7 +115,7 @@ def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float]) -> np.n
 
 def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr,
                    heatmap_path: str) -> None:
-    # --- Helper: Ensure data is on CPU and Numpy ---
+    # Ensure data is on CPU and Numpy ---
     def ensure_numpy(data):
         if isinstance(data, torch.Tensor):
             # Detach from graph, move to CPU, convert to numpy
@@ -195,6 +188,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
     # PHASE 1: Process Current CT
     # ==========================================
     # 1. Create a copy for 'current'
+    print("current: ")
     current_data = data.clone()
 
     # 2. Add mass (GPU)
@@ -214,6 +208,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
     # PHASE 2: Process Prior CT
     # ==========================================
     # 1. Create a copy for 'prior' (Now we have space again!)
+    print("prior: ")
     prior_data = data.clone()
 
     # 2. Add mass (GPU)
@@ -237,6 +232,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
     # PHASE 3: Post-Processing (CPU / Lightweight)
     # ==========================================
     # At this point, VRAM is empty. We only have the small 2D DRR images on CPU.
+    print("post processing and drr...")
 
     # pp and save drr
     current_pp = apply_drr_post_processing(current_drr)
@@ -249,7 +245,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
     save_drr(prior_by_current_pp, pair_dir + PRIOR_BY_CURRENT_FILENAME)
 
     # create heatmap
+    print("heatmap...")
     create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr, pair_dir + HEATMAP_FILENAME)
 
     print("Done!")
-
