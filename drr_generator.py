@@ -88,7 +88,11 @@ def create_pairs_for_all_scans() -> None:
 
         seg_path = create_seg_path(filename)
 
-        create_pairs_for_scan(input_path, seg_path)
+        if not os.path.exists(seg_path):
+            print(f"Can't find {seg_path} file to load. Make sure to run seg_generator.py first"
+                  f" to create the lungs segmentation!")
+        else:
+            create_pairs_for_scan(input_path, seg_path)
 
 
 if __name__ == '__main__':
