@@ -3,13 +3,15 @@ import os
 import nibabel as nib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+import torch
 
-from file_handler import load_nifti, save_nifti
+from file_handler import load_nifti
 from deformed_mass_generator import get_deformed_sphere_fast
 from pooling import apply_pooling
 from rotation import rotate_ct_scan
 from drr_with_post_processing import create_drr_from_ct, save_drr, apply_drr_post_processing
-from constants import DEVICE
+from device_constants import DEVICE
+from project_paths import OUTPUT_DIR
 
 # numeric constants
 POOLING_KERNEL_SIZE = 8
@@ -18,19 +20,18 @@ GRID_DENSITY_FACTOR = 16
 DEFORMATION_FACTOR = 0.2
 
 # images filenames
-OUTPUT_DIR = "pipeline_output/"
 CURRENT_FILENAME = "current.png"
 PRIOR_BY_PRIOR_FILENAME = "prior_rotated_to_prior.png"
 PRIOR_BY_CURRENT_FILENAME = "prior_rotated_to_current.png"
 HEATMAP_FILENAME = "heatmap.png"
 
 # ct filename
-PRIOR_DEFORMED_MASK = "prior_bspline_fast_mask.nii.gz"
-PRIOR_DEFORMED_MASS = "prior_bspline_fast.nii.gz"
-PRIOR_POOLED_MASK = "prior_pooling.nii.gz"
-CURRENT_DEFORMED_MASK = "current_bspline_fast_mask.nii.gz"
-CURRENT_DEFORMED_MASS = "current_bspline_fast.nii.gz"
-CURRENT_POOLED_MASK = "current_pooling.nii.gz"
+# PRIOR_DEFORMED_MASK = "prior_bspline_fast_mask.nii.gz"
+# PRIOR_DEFORMED_MASS = "prior_bspline_fast.nii.gz"
+# PRIOR_POOLED_MASK = "prior_pooling.nii.gz"
+# CURRENT_DEFORMED_MASK = "current_bspline_fast_mask.nii.gz"
+# CURRENT_DEFORMED_MASS = "current_bspline_fast.nii.gz"
+# CURRENT_POOLED_MASK = "current_pooling.nii.gz"
 
 colors = [
     (0, 1, 0, 1),  # Green (neg values)
@@ -48,9 +49,6 @@ def correct_mask_by_seg(mask, seg) -> np.ndarray:
 def apply_mask(destination_data, source_data, mask) -> None:
     positive_mask = (destination_data < source_data) & mask
     destination_data[positive_mask] = source_data[positive_mask]
-
-
-import torch
 
 
 def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):

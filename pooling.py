@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from constants import DEVICE
+from device_constants import DEVICE
 
 
 def get_structural_element_kernel(kernel_size):

@@ -8,7 +8,7 @@ import kornia
 from torchvision.transforms.v2.functional import adjust_sharpness
 
 from file_handler import load_nifti
-from constants import DEVICE
+from device_constants import DEVICE
 
 
 ##################### pre processing #####################

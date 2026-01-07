@@ -4,7 +4,7 @@ import sys
 import torch
 
 from file_handler import load_nifti, save_nifti
-from constants import DEVICE
+from device_constants import DEVICE
 
 def rotate_ct_scan(data, angle_x: float, angle_y: float, angle_z: float):
     # 1. Move to GPU

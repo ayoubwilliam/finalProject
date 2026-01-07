@@ -3,10 +3,8 @@ import time
 import os
 
 from file_handler import load_nifti, create_seg_path
+from project_paths import INPUT_DIR
 from pipeline2 import pipeline
-
-# data paths
-INPUT_DIR = "./ct/"
 
 # generation numbers§
 NUMBER_OF_CT_SCANS = 3

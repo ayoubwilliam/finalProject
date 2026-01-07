@@ -2,9 +2,8 @@ import numpy as np
 import nibabel as nib
 import os
 
-# data paths
-SEG_DIR = "./segmentations/"
-FILE_EXTENSION = ".nii.gz"
+from project_paths import SEG_DIR, FILE_EXTENSION
+
 SEG_SUFFIX = "_lungs_seg"
 
 

@@ -3,9 +3,7 @@ import os
 import tempfile
 
 from file_handler import merge_nifti, create_seg_path
-
-# data paths
-INPUT_DIR = "./ct/"
+from project_paths import INPUT_DIR
 
 # segmentation constants
 SEG_TASK = "total"

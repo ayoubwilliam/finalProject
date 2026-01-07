@@ -3,7 +3,7 @@ import numpy as np
 import gryds
 
 from create_shapes import create_sphere, apply_mask
-from constants import DEVICE
+from device_constants import DEVICE
 
 
 def bspline(data, grid_density_factor, deformation_factor):
