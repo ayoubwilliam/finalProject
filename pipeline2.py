@@ -162,6 +162,7 @@ def get_filename_from_path(path: str) -> str:
 
 def get_pair_dir(pair_index: int, input_path: str) -> str:
     input_filename = get_filename_from_path(input_path)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     path = OUTPUT_DIR + input_filename + "/Pair" + str(pair_index) + "/"
     os.makedirs(path, exist_ok=True)  # Creates the folder if it doesn't exist
     return path

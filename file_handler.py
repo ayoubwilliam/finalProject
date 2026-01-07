@@ -1,6 +1,11 @@
 import numpy as np
 import nibabel as nib
-import sys
+import os
+
+# data paths
+SEG_DIR = "./segmentations/"
+FILE_EXTENSION = ".nii.gz"
+SEG_SUFFIX = "_lungs_seg"
 
 
 def load_nifti(path: str) -> tuple[np.ndarray, np.ndarray, nib.Nifti1Header]:
@@ -64,5 +69,6 @@ def merge_nifti(output_path: str, *input_paths: str) -> None:
     save_nifti(output_path, union_mask, affine_ref, header_ref)
 
 
-if __name__ == "__main__":
-    merge_nifti(sys.argv[-1], *sys.argv[1:-1])
+def create_seg_path(filename: str) -> str:
+    os.makedirs(SEG_DIR, exist_ok=True)
+    return SEG_DIR + filename.split(FILE_EXTENSION)[0] + SEG_SUFFIX + FILE_EXTENSION
