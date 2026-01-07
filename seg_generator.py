@@ -2,20 +2,15 @@ from totalsegmentator.python_api import totalsegmentator
 import os
 import tempfile
 
-from file_handler import merge_nifti
-
-SEG_TASK = "total"
-ROI_SUBSET = ["lung_lower_lobe_right", "lung_upper_lobe_right", "lung_middle_lobe_right",
-              "lung_lower_lobe_left", "lung_upper_lobe_left"]
+from file_handler import merge_nifti, create_seg_path
 
 # data paths
 INPUT_DIR = "./ct/"
-SEG_DIR = "./segmentations/"
-CT_FILENAME = "ct_file"
-SEG_FILENAME = "lungs"
-FILE_EXTENSION = ".nii.gz"
 
-NUMBER_OF_CT_SCANS = 3
+# segmentation constants
+SEG_TASK = "total"
+ROI_SUBSET = ["lung_lower_lobe_right", "lung_upper_lobe_right", "lung_middle_lobe_right",
+              "lung_lower_lobe_left", "lung_upper_lobe_left"]
 
 
 def run_segmentation(input_path: str, output_path: str, task: str, subset: list,
@@ -33,24 +28,17 @@ def run_segmentation(input_path: str, output_path: str, task: str, subset: list,
     )
 
 
-def create_path(folder: str, filename: str, scan_index: int, is_folder: bool = False) -> str:
-    path = folder + filename + str(scan_index)
-    return path if is_folder else path + FILE_EXTENSION
-
-
 def create_lungs_seg() -> None:
-    os.makedirs(SEG_DIR, exist_ok=True)
-
-    for scan_index in range(1, NUMBER_OF_CT_SCANS + 1):
+    for filename in os.listdir(INPUT_DIR):
         # create paths
-        input_path = create_path(INPUT_DIR, CT_FILENAME, scan_index)
-        seg_filename = create_path(SEG_DIR, SEG_FILENAME, scan_index)
+        input_path = os.path.join(INPUT_DIR, filename)
+        seg_path = create_seg_path(filename)
 
         # Temporary folder for this scan's lobe outputs
-        with tempfile.TemporaryDirectory(prefix=f"totseg_scan{scan_index}_") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix=f"totseg_scan_{filename}_") as tmp_dir:
             run_segmentation(input_path, tmp_dir, SEG_TASK, ROI_SUBSET)
             lobes = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
-            merge_nifti(seg_filename, *lobes)
+            merge_nifti(seg_path, *lobes)
 
 
 if __name__ == '__main__':

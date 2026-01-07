@@ -1,14 +1,12 @@
 import numpy as np
 import time
+import os
 
-from file_handler import load_nifti
+from file_handler import load_nifti, create_seg_path
 from pipeline2 import pipeline
 
 # data paths
 INPUT_DIR = "./ct/"
-CT_FILENAME = "ct_file"
-SEG_FILENAME = "lungs"
-FILE_EXTENSION = ".nii.gz"
 
 # generation numbers§
 NUMBER_OF_CT_SCANS = 3
@@ -82,15 +80,14 @@ def create_pairs_for_scan(input_path: str, seg_path: str) -> None:
         create_pair(index, input_path, seg_path)
 
 
-def create_path(filename: str, scan_index: int) -> str:
-    return INPUT_DIR + filename + str(scan_index) + FILE_EXTENSION
-
-
 def create_pairs_for_all_scans() -> None:
-    for scan_index in range(1, NUMBER_OF_CT_SCANS + 1):
-        input_path = create_path(CT_FILENAME, scan_index)
+    for filename in os.listdir(INPUT_DIR):
+        # create paths
+        input_path = os.path.join(INPUT_DIR, filename)
         print("\nCreating pairs for ", input_path)
-        seg_path = create_path(SEG_FILENAME, scan_index)
+
+        seg_path = create_seg_path(filename)
+
         create_pairs_for_scan(input_path, seg_path)
 
 
