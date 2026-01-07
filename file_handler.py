@@ -24,7 +24,7 @@ def save_nifti(path: str, data, affine: np.ndarray, header: nib.Nifti1Header) ->
         affine: 4x4 affine transformation matrix.
         header: Header to copy metadata from.
     """
-    data = data.cpu().numpy()
+
     nib.save(nib.Nifti1Image(data, affine, header), path)
 
 

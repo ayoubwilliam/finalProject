@@ -1,7 +1,8 @@
 import numpy as np
+import time
+
 from file_handler import load_nifti
 from pipeline2 import pipeline
-import time
 
 # data paths
 INPUT_DIR = "./ct/"
