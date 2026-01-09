@@ -32,10 +32,12 @@ CURRENT_DEFORMED_MASK = "current_bspline_fast_mask.nii.gz"
 CURRENT_DEFORMED_MASS = "current_bspline_fast.nii.gz"
 CURRENT_POOLED_MASK = "current_pooling.nii.gz"
 
+
 colors = [
     (0, 1, 0, 1),  # Green (neg values)
-    (0, 1, 0, 0),  # Transparent (Approaching 0 from positive)
-    (1, 0, 0, 0),  # Transparent (Approaching 0 from negative)
+    (0, 1, 0, 0.5),  # Transparent (Approaching 0 from positive)
+    (0, 0, 0, 0),  # Transparent (Approaching 0 from positive)
+    (1, 0, 0, 0.5),  # Transparent (Approaching 0 from negative)
     (1, 0, 0, 1)  # Red (pos values)
 ]
 custom_cmap = LinearSegmentedColormap.from_list("RedClearGreen", colors, N=256)
@@ -77,8 +79,8 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
 
 
 
-    save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
-    save_nifti(pair_dir + PRIOR_DEFORMED_MASS, working_data, affine, header)
+    # save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
+    # save_nifti(pair_dir + PRIOR_DEFORMED_MASS, working_data, affine, header)
     print("finished deformed_sphere_fast...")
 
     # apply pooling
@@ -89,7 +91,7 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(working_data, pooled_data, mask)
 
-    save_nifti(pair_dir + PRIOR_POOLED_MASK, working_data, affine, header)
+    # save_nifti(pair_dir + PRIOR_POOLED_MASK, working_data, affine, header)
 
     print("finished pooling.")
     return working_data, mask

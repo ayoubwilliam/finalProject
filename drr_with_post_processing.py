@@ -174,7 +174,7 @@ def save_drr(drr, output_path):
 
 
 def create_drr_with_processing(ct_data: np.array, projection_axis: int = 1,
-                               window_size: int = 8, clip_limit: float = 8.0,
+                               window_size: int = 8, clip_limit: float = 4.0,
                                sharpness_factor: float = 3.0) -> np.ndarray:
     ct_pre_processed = ct_pre_processing(ct_data)
 
