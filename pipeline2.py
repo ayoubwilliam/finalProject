@@ -36,8 +36,9 @@ HEATMAP_FILENAME = "heatmap.png"
 
 colors = [
     (0, 1, 0, 1),  # Green (neg values)
-    (0, 1, 0, 0),  # Transparent (Approaching 0 from positive)
-    (1, 0, 0, 0),  # Transparent (Approaching 0 from negative)
+    (0, 1, 0, 0.5),  # Transparent (Approaching 0 from positive)
+    (0, 0, 0, 0),  # Transparent (Approaching 0 from positive)
+    (1, 0, 0, 0.5),  # Transparent (Approaching 0 from negative)
     (1, 0, 0, 1)  # Red (pos values)
 ]
 custom_cmap = LinearSegmentedColormap.from_list("RedClearGreen", colors, N=256)

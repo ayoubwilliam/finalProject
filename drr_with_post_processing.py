@@ -5,6 +5,7 @@ import os
 import torch
 import kornia
 from torchvision.transforms.v2.functional import adjust_sharpness
+from torchvision.transforms.functional import resize
 
 from file_handler import load_nifti
 from device_constants import DEVICE
@@ -126,9 +127,6 @@ def sharpen_image(image, sharpness_factor=1.0):
     return sharpened_image
 
 
-from torchvision.transforms.functional import resize
-
-
 def resize_image(image, target_size=(512, 512)):
     """Simple resize with stretching. Expects a Tensor."""
     # We unsqueeze(0) to add a channel dimension (H,W -> 1,H,W) for the function to work,
@@ -136,7 +134,7 @@ def resize_image(image, target_size=(512, 512)):
     return resize(image.unsqueeze(0), target_size, antialias=True).squeeze(0)
 
 
-def apply_drr_post_processing(drr_xray, window_size=8, clip_limit=8.0, sharpness_factor=3.0):
+def apply_drr_post_processing(drr_xray, window_size=8, clip_limit=4.0, sharpness_factor=3.0):
     """Post-process DRR using PyTorch operations"""
     drr_xray = clahe(drr_xray, window_size, clip_limit)
     drr_xray = sharpen_image(drr_xray, sharpness_factor)

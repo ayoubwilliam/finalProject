@@ -6,9 +6,9 @@ from file_handler import load_nifti, create_seg_path
 from project_paths import INPUT_DIR
 from pipeline2 import pipeline
 
-# generation numbers§
+# generation numbers
 NUMBER_OF_CT_SCANS = 3
-NUMBER_OF_PAIRS_IN_SCAN = 1
+NUMBER_OF_PAIRS_IN_SCAN = 20
 
 # randomization parameters
 R_MIN = 20
