@@ -2,14 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import torch
+import os
 
-from file_handler import load_nifti
 from deformed_mass_generator import get_deformed_sphere_fast
 from pooling import apply_pooling
 from rotation import rotate_ct_scan
 from drr_with_post_processing import create_drr_from_ct, save_drr, apply_drr_post_processing
 from device_constants import DEVICE
 from crop import get_segmentation_bounds
+from file_handler import save_image_as_nifti, load_image_from_nifti
 
 # numeric constants
 POOLING_KERNEL_SIZE = 8
@@ -127,56 +128,46 @@ def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float], seg, cr
 
 def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr,
                    heatmap_path: str) -> None:
-    # Ensure data is on CPU and Numpy ---
     def ensure_numpy(data):
         if isinstance(data, torch.Tensor):
-            # Detach from graph, move to CPU, convert to numpy
             return data.detach().cpu().numpy()
-        # If it's already numpy (or list), just ensure it's an array
         return np.asarray(data)
 
-    # 1. Convert ALL inputs to Numpy
     current_drr = ensure_numpy(current_drr)
     prior_rotated_to_current_drr = ensure_numpy(prior_rotated_to_current_drr)
-    current_pp = ensure_numpy(current_pp)  # <--- This was the one causing your specific error
+    current_pp = ensure_numpy(current_pp)
 
-    # 2. Calculate the difference
     heatmap = current_drr - prior_rotated_to_current_drr
 
-    # 3. Create a figure with a single axis
-    fig, ax = plt.subplots(figsize=(6, 6))
-
-    # Plot Background (Current Image)
-    ax.imshow(current_pp, cmap='gray')
-
-    # Plot Heatmap Overlay
     max_error = np.max(np.abs(heatmap))
+
+    base, ext = os.path.splitext(heatmap_path)
+    overlay_path = f"{base}_overlay{ext}"
+
+    # --- 1. Save WITH Background (Overlay) ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.imshow(current_pp, cmap='gray')
     im = ax.imshow(heatmap, cmap=custom_cmap, alpha=1, vmin=-max_error, vmax=max_error)
-
-    # Styling
-    ax.set_title("Difference Heatmap")
+    ax.set_title("Difference Heatmap (Overlay)")
     ax.axis('off')
-
-    # Add colorbar
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label('Difference Intensity')
 
-    # Save the figure
-    plt.savefig(heatmap_path, bbox_inches='tight', dpi=300)
-
-    # Close the plot to free up memory
+    print(f"Saving overlay heatmap to {overlay_path}")
+    plt.savefig(overlay_path, bbox_inches='tight', dpi=300)
     plt.close(fig)
 
+    # --- 2. Save WITHOUT Background (Heatmap Only) ---
+    save_image_as_nifti(heatmap, base + ".nii.gz")
 
-def pipeline(pair_dir: str, ct_data: np.ndarray, seg_data: np.ndarray, radius: int,
+
+def pipeline(pair_dir: str, ct_data: np.ndarray, lungs_mask: np.ndarray, radius: int,
              prior_pos: tuple[int, int, int], current_pos: tuple[int, int, int],
              prior_angles: tuple[float, float, float], current_angles: tuple[float, float, float]) -> None:
     # --- MOVE TO GPU ---
     # 'data' acts as our read-only template. We keep it until the very end.
     data = torch.from_numpy(ct_data).float().to(DEVICE)
-    seg = torch.from_numpy(seg_data).bool().to(DEVICE)
-
-    print("finished loading data")
+    seg = torch.from_numpy(lungs_mask).bool().to(DEVICE)
 
     margin = radius
 
@@ -233,9 +224,11 @@ def pipeline(pair_dir: str, ct_data: np.ndarray, seg_data: np.ndarray, radius: i
     save_drr(current_pp, pair_dir + CURRENT_FILENAME)
 
     prior_by_prior_pp = apply_drr_post_processing(prior_rotated_to_prior_drr)
+    save_image_as_nifti(current_pp.cpu().numpy(), pair_dir + "current.nii.gz")
     save_drr(prior_by_prior_pp, pair_dir + PRIOR_BY_PRIOR_FILENAME)
 
     prior_by_current_pp = apply_drr_post_processing(prior_rotated_to_current_drr)
+    save_image_as_nifti(prior_by_prior_pp.cpu().numpy(), pair_dir + "prior.nii.gz")
     save_drr(prior_by_current_pp, pair_dir + PRIOR_BY_CURRENT_FILENAME)
 
     # create heatmap

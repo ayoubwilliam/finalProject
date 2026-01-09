@@ -71,3 +71,21 @@ def merge_nifti(output_path: str, *input_paths: str) -> None:
 def create_seg_path(filename: str) -> str:
     os.makedirs(SEG_DIR, exist_ok=True)
     return SEG_DIR + filename.split(FILE_EXTENSION)[0] + SEG_SUFFIX + FILE_EXTENSION
+
+
+def save_image_as_nifti(data: np.ndarray, path: str) -> None:
+    if data.ndim == 2:
+        data = data[:, :, np.newaxis]
+
+    generic_affine = np.eye(4)
+    nifti_img = nib.Nifti1Image(data, generic_affine)
+
+    nib.save(nifti_img, path)
+
+
+def load_image_from_nifti(path: str) -> np.ndarray:
+    img = nib.load(path)
+    data = img.get_fdata()
+    data = np.squeeze(data)
+
+    return data

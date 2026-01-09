@@ -3,7 +3,7 @@ import time
 import os
 
 from file_handler import load_nifti, create_seg_path
-from project_paths import INPUT_DIR, OUTPUT_DIR
+from project_paths import INPUT_DIR, OUTPUT_DIR, DATA_FOLDER
 from pipeline2 import pipeline
 
 # generation numbers
@@ -19,16 +19,7 @@ def get_random_radius(r_min=R_MIN, r_max=R_MAX):
     return np.random.randint(r_min, r_max + 1)
 
 
-def sample_point_in_lungs(lung_mask: np.ndarray) -> tuple[int, int, int]:
-    """
-    This function samples one random voxel location inside a 3D lung mask.
-        parameters:
-        1) lung_mask: boolean or integer 3D array where lung voxels are nonzero.
-        returns: point: tuple (x, y, z) of a randomly selected lung voxel.
-    """
-    # Collect coordinates of all voxels that belong to lungs
-    coords = np.argwhere(lung_mask > 0)
-
+def sample_point_in_lungs(coords: np.ndarray) -> tuple[int, int, int]:
     # Sample a random index from the available lung voxels
     idx = np.random.randint(0, len(coords))
 
@@ -57,49 +48,45 @@ def get_filename_from_path(path: str) -> str:
 def get_pair_dir(pair_index: int, input_path: str) -> str:
     input_filename = get_filename_from_path(input_path)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    path = OUTPUT_DIR + input_filename + "/Pair" + str(pair_index) + "/"
+    path = OUTPUT_DIR + DATA_FOLDER + input_filename + "/Pair" + str(pair_index) + "/"
     os.makedirs(path, exist_ok=True)  # Creates the folder if it doesn't exist
     return path
 
 
-def create_pair(pair_index: int, input_path: str, seg_path: str) -> None:
-    print("\nPair number: ", pair_index)
-    # load lungs seg
-    lung_mask, _, _ = load_nifti(seg_path)
-
+def create_pair(pair_dir: str, ct_data: np.ndarray, lung_mask: np.ndarray) -> None:
     # get random radius
     radius = get_random_radius()
 
     # sample valid locations inside lungs for the spheres' center
-    prior_pos = sample_point_in_lungs(lung_mask)
-    current_pos = sample_point_in_lungs(lung_mask)
+    coords = np.argwhere(lung_mask > 0)  # Collect coordinates of all voxels that belong to lungs
+    prior_pos = sample_point_in_lungs(coords)
+    current_pos = sample_point_in_lungs(coords)
 
     # get random rotation angles for prior and current
     prior_angle = get_random_rotation_angles()
     current_angle = get_random_rotation_angles()
 
-    # load data and create pair dir
-    ct_data, _, _ = load_nifti(input_path)
-    seg_data, _, _ = load_nifti(seg_path)
-    pair_dir = get_pair_dir(pair_index, input_path)
-
     # run pipeline for prior and current
-    pipeline(pair_dir, ct_data, seg_data, radius,
+    pipeline(pair_dir, ct_data, lung_mask, radius,
              prior_pos, current_pos,
              prior_angle, current_angle)
 
 
 def create_pairs_for_scan(input_path: str, seg_path: str) -> None:
+    print("\nCreating pairs for ", input_path)
+    ct_data, _, _ = load_nifti(input_path)
+    seg_data, _, _ = load_nifti(seg_path)
+
     for index in range(1, NUMBER_OF_PAIRS_IN_SCAN + 1):
-        create_pair(index, input_path, seg_path)
+        pair_dir = get_pair_dir(index, input_path)
+        print("\nPair number: ", index)
+        create_pair(pair_dir, ct_data, seg_data)
 
 
 def create_pairs_for_all_scans() -> None:
     for filename in os.listdir(INPUT_DIR):
         # create paths
         input_path = os.path.join(INPUT_DIR, filename)
-        print("\nCreating pairs for ", input_path)
-
         seg_path = create_seg_path(filename)
 
         if not os.path.exists(seg_path):
