@@ -12,7 +12,7 @@ from drr_with_post_processing import create_drr_from_ct, save_drr, apply_drr_pos
 from constants import DEVICE
 
 # numeric constants
-POOLING_KERNEL_SIZE = 8
+POOLING_KERNEL_SIZE = 13
 INTENSITY = 25
 GRID_DENSITY_FACTOR = 16
 DEFORMATION_FACTOR = 0.2
@@ -77,8 +77,8 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
 
 
 
-    # save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
-    # save_nifti(pair_dir + PRIOR_DEFORMED_MASS, working_data, affine, header)
+    save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
+    save_nifti(pair_dir + PRIOR_DEFORMED_MASS, working_data, affine, header)
     print("finished deformed_sphere_fast...")
 
     # apply pooling
@@ -89,7 +89,7 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(working_data, pooled_data, mask)
 
-    # save_nifti(pair_dir + PRIOR_POOLED_MASK, working_data, affine, header)
+    save_nifti(pair_dir + PRIOR_POOLED_MASK, working_data, affine, header)
 
     print("finished pooling.")
     return working_data, mask
@@ -112,11 +112,45 @@ def create_current_ct(current: np.ndarray, seg: np.ndarray,
     return current
 
 
-def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float]) -> np.ndarray:
-    rotated_ct = rotate_ct_scan(data, angles[0], angles[1], angles[2])
-    # rotated_ct = rotated_ct.detach().cpu().numpy()
-    drr = create_drr_from_ct(rotated_ct)
-    # save_drr(drr, output_filename)
+
+
+from crop import get_segmentation_bounds
+def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float], seg, crop_margin=10) -> np.ndarray:
+
+    rotated_ct_gpu = rotate_ct_scan(data, angles[0], angles[1], angles[2])
+
+    #clear gpu memory
+    rotated_ct_cpu = rotated_ct_gpu.detach().cpu()
+    del rotated_ct_gpu
+    torch.cuda.empty_cache()
+
+
+    bounds = get_segmentation_bounds(seg, angles, crop_margin)
+
+
+    # Clear cache again just to be safe after segmentation work
+    torch.cuda.empty_cache()
+
+    # --- STEP 3: Apply Crop and Reload to GPU ---
+    if bounds is None:
+        print("Warning: Empty segmentation. Using full rotated volume.")
+        # If seg is empty, we must send the whole thing back (RISK of OOM, but unavoidable)
+        cropped_ct_gpu = rotated_ct_cpu.to(DEVICE)
+    else:
+        z1, z2, y1, y2, x1, x2 = bounds
+
+        # Apply crop on the CPU tensor first (Fast and Memory Safe)
+        cropped_ct_cpu = rotated_ct_cpu[z1:z2, y1:y2, x1:x2]
+
+        # Reload ONLY the cropped portion into GPU memory
+        cropped_ct_gpu = cropped_ct_cpu.to(DEVICE)
+
+    # Clean up the large CPU tensor
+    del rotated_ct_cpu
+
+    # --- STEP 4: Create DRR ---
+    drr = create_drr_from_ct(cropped_ct_gpu)
+
     return drr
 
 
@@ -204,7 +238,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
 
     # 3. Generate DRR (Heavy GPU Operation)
     # The result 'current_drr' should be a small 2D image (CPU/Numpy)
-    current_drr = rotate_and_drr(current_data, current_angles)
+    current_drr = rotate_and_drr(current_data, current_angles,seg)
 
     # 4. CRITICAL: Delete 'current_data' immediately to free VRAM
     del current_data
@@ -224,8 +258,8 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
     # 3. Generate DRRs
     # We use the same 'prior_data' 3D volume for both rotations.
     # We do NOT need to clone() it again here, saving another chunk of VRAM.
-    prior_rotated_to_current_drr = rotate_and_drr(prior_data, current_angles)
-    prior_rotated_to_prior_drr = rotate_and_drr(prior_data, prior_angles)
+    prior_rotated_to_current_drr = rotate_and_drr(prior_data, current_angles,seg)
+    prior_rotated_to_prior_drr = rotate_and_drr(prior_data, prior_angles,seg)
 
     # 4. CRITICAL: Delete 'prior_data' and original 'data'
     del prior_data
