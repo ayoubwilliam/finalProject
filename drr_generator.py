@@ -3,12 +3,11 @@ import time
 import os
 
 from file_handler import load_nifti, create_seg_path
-from project_paths import INPUT_DIR
+from project_paths import INPUT_DIR, OUTPUT_DIR
 from pipeline2 import pipeline
 
 # generation numbers
-NUMBER_OF_CT_SCANS = 3
-NUMBER_OF_PAIRS_IN_SCAN = 20
+NUMBER_OF_PAIRS_IN_SCAN = 2
 
 # randomization parameters
 R_MIN = 20
@@ -51,6 +50,18 @@ def get_random_rotation_angles(range_deg: float = ROT_ANGLE_RANGE_DEG) -> tuple[
     return float(angles[0]), float(angles[1]), float(angles[2])
 
 
+def get_filename_from_path(path: str) -> str:
+    return path.split('/')[-1].split('.')[0]
+
+
+def get_pair_dir(pair_index: int, input_path: str) -> str:
+    input_filename = get_filename_from_path(input_path)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    path = OUTPUT_DIR + input_filename + "/Pair" + str(pair_index) + "/"
+    os.makedirs(path, exist_ok=True)  # Creates the folder if it doesn't exist
+    return path
+
+
 def create_pair(pair_index: int, input_path: str, seg_path: str) -> None:
     print("\nPair number: ", pair_index)
     # load lungs seg
@@ -67,8 +78,13 @@ def create_pair(pair_index: int, input_path: str, seg_path: str) -> None:
     prior_angle = get_random_rotation_angles()
     current_angle = get_random_rotation_angles()
 
+    # load data and create pair dir
+    ct_data, _, _ = load_nifti(input_path)
+    seg_data, _, _ = load_nifti(seg_path)
+    pair_dir = get_pair_dir(pair_index, input_path)
+
     # run pipeline for prior and current
-    pipeline(pair_index, input_path, seg_path, radius,
+    pipeline(pair_dir, ct_data, seg_data, radius,
              prior_pos, current_pos,
              prior_angle, current_angle)
 

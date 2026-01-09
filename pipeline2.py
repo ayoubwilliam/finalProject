@@ -1,6 +1,4 @@
 import numpy as np
-import os
-import nibabel as nib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import torch
@@ -11,7 +9,6 @@ from pooling import apply_pooling
 from rotation import rotate_ct_scan
 from drr_with_post_processing import create_drr_from_ct, save_drr, apply_drr_post_processing
 from device_constants import DEVICE
-from project_paths import OUTPUT_DIR
 from crop import get_segmentation_bounds
 
 # numeric constants
@@ -26,20 +23,14 @@ PRIOR_BY_PRIOR_FILENAME = "prior_rotated_to_prior.png"
 PRIOR_BY_CURRENT_FILENAME = "prior_rotated_to_current.png"
 HEATMAP_FILENAME = "heatmap.png"
 
-# ct filename
-# PRIOR_DEFORMED_MASK = "prior_bspline_fast_mask.nii.gz"
-# PRIOR_DEFORMED_MASS = "prior_bspline_fast.nii.gz"
-# PRIOR_POOLED_MASK = "prior_pooling.nii.gz"
-# CURRENT_DEFORMED_MASK = "current_bspline_fast_mask.nii.gz"
-# CURRENT_DEFORMED_MASS = "current_bspline_fast.nii.gz"
-# CURRENT_POOLED_MASK = "current_pooling.nii.gz"
-
 colors = [
-    (0, 1, 0, 1),  # Green (neg values)
-    (0, 1, 0, 0.5),  # Transparent (Approaching 0 from positive)
-    (0, 0, 0, 0),  # Transparent (Approaching 0 from positive)
-    (1, 0, 0, 0.5),  # Transparent (Approaching 0 from negative)
-    (1, 0, 0, 1)  # Red (pos values)
+    # --- Negative Side (Green) ---
+    (0.0, (0, 1, 0, 1.0)),  # -1.0 : Green, Opaque
+    (0.5, (0, 1, 0, 0.0)),  # 0.0 : Green, Transparent
+
+    # --- Positive Side (Red) ---
+    (0.5, (1, 0, 0, 0.0)),  # 0.0 : Red,   Transparent (Instant Color Switch)
+    (1.0, (1, 0, 0, 1.0))  # +1.0 : Red,   Opaque
 ]
 custom_cmap = LinearSegmentedColormap.from_list("RedClearGreen", colors, N=256)
 
@@ -53,7 +44,7 @@ def apply_mask(destination_data, source_data, mask) -> None:
     destination_data[positive_mask] = source_data[positive_mask]
 
 
-def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
+def add_mass(data, seg, pos, radius, margin):
     # 1. Ensure inputs are on GPU for the fast generation step
     if isinstance(data, np.ndarray):
         data = torch.from_numpy(data).float().to(DEVICE)
@@ -70,9 +61,6 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
     # Resume original logic (Numpy/CPU)
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(working_data, deformed_sphere, mask)
-
-    # save_nifti(pair_dir + PRIOR_DEFORMED_MASK, deformed_sphere, affine, header)
-    # save_nifti(pair_dir + PRIOR_DEFORMED_MASS, working_data, affine, header)
     print("finished deformed_sphere_fast...")
 
     # apply pooling
@@ -82,25 +70,21 @@ def add_mass(data, seg, pos, radius, margin, pair_dir, affine, header):
     mask = correct_mask_by_seg(mask, seg)
     apply_mask(working_data, pooled_data, mask)
 
-    # save_nifti(pair_dir + PRIOR_POOLED_MASK, working_data, affine, header)
-
     print("finished pooling.")
     return working_data, mask
 
 
 def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
-                    prior_pos: tuple[int, int, int], radius: int, margin: int,
-                    affine: np.ndarray, header: nib.Nifti1Header, pair_dir: str):
+                    prior_pos: tuple[int, int, int], radius: int, margin: int):
     # create deformed mass
-    working_data, mask = add_mass(prior, seg, prior_pos, radius, margin, pair_dir, affine, header)
+    working_data, mask = add_mass(prior, seg, prior_pos, radius, margin)
     apply_mask(prior, working_data, mask)
     return prior
 
 
 def create_current_ct(current: np.ndarray, seg: np.ndarray,
-                      current_pos: tuple[int, int, int], radius: int, margin: int,
-                      affine: np.ndarray, header: nib.Nifti1Header, pair_dir: str):
-    working_data, mask = add_mass(current, seg, current_pos, radius, margin, pair_dir, affine, header)
+                      current_pos: tuple[int, int, int], radius: int, margin: int):
+    working_data, mask = add_mass(current, seg, current_pos, radius, margin)
     apply_mask(current, working_data, mask)
     return current
 
@@ -184,34 +168,17 @@ def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr,
     plt.close(fig)
 
 
-def get_filename_from_path(path: str) -> str:
-    return path.split('/')[-1].split('.')[0]
-
-
-def get_pair_dir(pair_index: int, input_path: str) -> str:
-    input_filename = get_filename_from_path(input_path)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    path = OUTPUT_DIR + input_filename + "/Pair" + str(pair_index) + "/"
-    os.makedirs(path, exist_ok=True)  # Creates the folder if it doesn't exist
-    return path
-
-
-def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
+def pipeline(pair_dir: str, ct_data: np.ndarray, seg_data: np.ndarray, radius: int,
              prior_pos: tuple[int, int, int], current_pos: tuple[int, int, int],
              prior_angles: tuple[float, float, float], current_angles: tuple[float, float, float]) -> None:
-    print("loading data")
-    data_np, affine, header = load_nifti(input_path)
-    seg_np, _, _ = load_nifti(seg_path)
-
     # --- MOVE TO GPU ---
     # 'data' acts as our read-only template. We keep it until the very end.
-    data = torch.from_numpy(data_np).float().to(DEVICE)
-    seg = torch.from_numpy(seg_np).bool().to(DEVICE)
+    data = torch.from_numpy(ct_data).float().to(DEVICE)
+    seg = torch.from_numpy(seg_data).bool().to(DEVICE)
 
     print("finished loading data")
 
     margin = radius
-    pair_dir = get_pair_dir(pair_index, input_path)
 
     # ==========================================
     # PHASE 1: Process Current CT
@@ -222,8 +189,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
 
     # 2. Add mass (GPU)
     current_data = create_current_ct(current_data, seg,
-                                     current_pos, radius, margin,
-                                     affine, header, pair_dir)
+                                     current_pos, radius, margin)
 
     # 3. Generate DRR (Heavy GPU Operation)
     # The result 'current_drr' should be a small 2D image (CPU/Numpy)
@@ -242,8 +208,7 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
 
     # 2. Add mass (GPU)
     prior_data = create_prior_ct(prior_data, seg,
-                                 prior_pos, radius, margin,
-                                 affine, header, pair_dir)
+                                 prior_pos, radius, margin)
 
     # 3. Generate DRRs
     # We use the same 'prior_data' 3D volume for both rotations.
