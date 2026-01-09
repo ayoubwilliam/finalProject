@@ -27,16 +27,37 @@ def run_segmentation(input_path: str, output_path: str, task: str, subset: list,
 
 
 def create_lungs_seg() -> None:
+    total, skipped_exists, created, skipped_perm = 0, 0, 0, 0
+
     for filename in os.listdir(INPUT_DIR):
+        total += 1
+
         # create paths
         input_path = os.path.join(INPUT_DIR, filename)
         seg_path = create_seg_path(filename)
 
+        if os.path.exists(seg_path):
+            skipped_exists += 1
+            print(f"Segmentation already exists, skipping: {seg_path}")
+            continue
+
         # Temporary folder for this scan's lobe outputs
         with tempfile.TemporaryDirectory(prefix=f"totseg_scan_{filename}_") as tmp_dir:
-            run_segmentation(input_path, tmp_dir, SEG_TASK, ROI_SUBSET)
+            try:
+                run_segmentation(input_path, tmp_dir, SEG_TASK, ROI_SUBSET)
+            except PermissionError:
+                skipped_perm += 1
+                print(f"Permission denied, skipping: {input_path}")
+                continue
+
             lobes = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
             merge_nifti(seg_path, *lobes)
+            created += 1
+
+    print("total: ", total)
+    print("skipped_exists: ", skipped_exists)
+    print("skipped_perm: ", skipped_perm)
+    print("created: ", created)
 
 
 if __name__ == '__main__':

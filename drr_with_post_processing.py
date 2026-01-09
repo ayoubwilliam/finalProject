@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import exposure
-import sys
 import os
 import torch
 import kornia
@@ -9,7 +8,6 @@ from torchvision.transforms.v2.functional import adjust_sharpness
 
 from file_handler import load_nifti
 from device_constants import DEVICE
-
 
 ##################### pre processing #####################
 
@@ -96,37 +94,6 @@ def clahe(image, window_size=128, clip_limit=0.01):
     return equalized_image
 
 
-def crop(image, y_start, y_end, x_start, x_end):
-    """
-    Manually crops an image based on specified pixel coordinates.
-
-    Args:
-        image (torch.Tensor or np.ndarray): The input image (2D array).
-        y_start (int): Starting row index (top, inclusive).
-        y_end (int): Ending row index (bottom, exclusive).
-        x_start (int): Starting column index (left, inclusive).
-        x_end (int): Ending column index (right, exclusive).
-
-    Returns:
-        torch.Tensor: The manually cropped image.
-    """
-    # Convert to torch tensor if needed
-    if not isinstance(image, torch.Tensor):
-        image = torch.from_numpy(image).float().to(DEVICE)
-
-    # Basic bounds checking
-    rows, cols = image.shape
-    y_start = max(0, y_start)
-    y_end = min(rows, y_end)
-    x_start = max(0, x_start)
-    x_end = min(cols, x_end)
-
-    # Use PyTorch slicing
-    cropped_image = image[y_start:y_end, x_start:x_end]
-
-    return cropped_image
-
-
 def sharpen_image(image, sharpness_factor=1.0):
     """
     Apply sharpness adjustment to an image.
@@ -159,8 +126,8 @@ def sharpen_image(image, sharpness_factor=1.0):
     return sharpened_image
 
 
-
 from torchvision.transforms.functional import resize
+
 
 def resize_image(image, target_size=(512, 512)):
     """Simple resize with stretching. Expects a Tensor."""
