@@ -3,7 +3,7 @@ import time
 import os
 
 from file_handler import load_nifti, create_seg_path
-from project_paths import INPUT_DIR, OUTPUT_DIR, DATA_FOLDER
+from project_paths import INPUT_DIR, OUTPUT_DIR, FILE_EXTENSION
 from pipeline2 import pipeline
 
 # generation numbers
@@ -41,14 +41,23 @@ def get_random_rotation_angles(range_deg: float = ROT_ANGLE_RANGE_DEG) -> tuple[
     return float(angles[0]), float(angles[1]), float(angles[2])
 
 
-def get_filename_from_path(path: str) -> str:
-    return path.split('/')[-1].split('.')[0]
+def remove_extension(path: str) -> str:
+    return path.split(FILE_EXTENSION)[0]
+
+
+def convert_path_to_relative(path: str) -> str:
+    return path.split("/")[-1]
+
+
+def create_output_path(path: str) -> str:
+    removed_path = remove_extension(path)
+    relative_path = convert_path_to_relative(removed_path)
+    return OUTPUT_DIR + relative_path
 
 
 def get_pair_dir(pair_index: int, input_path: str) -> str:
-    input_filename = get_filename_from_path(input_path)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    path = OUTPUT_DIR + DATA_FOLDER + input_filename + "/Pair" + str(pair_index) + "/"
+    output_path = create_output_path(input_path)
+    path = output_path + "/Pair" + str(pair_index) + "/"
     os.makedirs(path, exist_ok=True)  # Creates the folder if it doesn't exist
     return path
 
@@ -59,6 +68,8 @@ def create_pair(pair_dir: str, ct_data: np.ndarray, lung_mask: np.ndarray) -> No
 
     # sample valid locations inside lungs for the spheres' center
     coords = np.argwhere(lung_mask > 0)  # Collect coordinates of all voxels that belong to lungs
+    if len(coords) == 0:
+        return
     prior_pos = sample_point_in_lungs(coords)
     current_pos = sample_point_in_lungs(coords)
 
@@ -87,9 +98,13 @@ def create_pairs_for_all_scans() -> None:
     for filename in os.listdir(INPUT_DIR):
         # create paths
         input_path = os.path.join(INPUT_DIR, filename)
+        output_path = create_output_path(input_path)
         seg_path = create_seg_path(filename)
 
-        if not os.path.exists(seg_path):
+        if os.path.exists(output_path):
+            print(f"Output dir exists, skipping scan: {output_path}")
+            continue
+        elif not os.path.exists(seg_path):
             print(f"Can't find {seg_path} file to load. Make sure to run seg_generator.py first"
                   f" to create the lungs segmentation!")
         else:
