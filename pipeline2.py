@@ -33,13 +33,19 @@ CURRENT_DEFORMED_MASS = "current_bspline_fast.nii.gz"
 CURRENT_POOLED_MASK = "current_pooling.nii.gz"
 
 
+from matplotlib.colors import LinearSegmentedColormap
+
 colors = [
-    (0, 1, 0, 1),  # Green (neg values)
-    (0, 1, 0, 0.5),  # Transparent (Approaching 0 from positive)
-    (0, 0, 0, 0),  # Transparent (Approaching 0 from positive)
-    (1, 0, 0, 0.5),  # Transparent (Approaching 0 from negative)
-    (1, 0, 0, 1)  # Red (pos values)
+    # --- Negative Side (Green) ---
+    (0.0,  (0, 1, 0, 1.0)),  # -1.0 : Green, Opaque
+    (0.5,  (0, 1, 0, 0.0)),  #  0.0 : Green, Transparent
+
+    # --- Positive Side (Red) ---
+    (0.5,  (1, 0, 0, 0.0)),  #  0.0 : Red,   Transparent (Instant Color Switch)
+    (1.0,  (1, 0, 0, 1.0))   # +1.0 : Red,   Opaque
 ]
+
+custom_cmap = LinearSegmentedColormap.from_list("HardSwitch_SmoothAlpha", colors)
 custom_cmap = LinearSegmentedColormap.from_list("RedClearGreen", colors, N=256)
 
 
@@ -156,47 +162,41 @@ def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float], seg, cr
     return drr
 
 
+import os
+from file_handler import save_image_as_nifti, load_image_from_nifti
 def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr,
                    heatmap_path: str) -> None:
-    # --- Helper: Ensure data is on CPU and Numpy ---
     def ensure_numpy(data):
         if isinstance(data, torch.Tensor):
-            # Detach from graph, move to CPU, convert to numpy
             return data.detach().cpu().numpy()
-        # If it's already numpy (or list), just ensure it's an array
         return np.asarray(data)
 
-    # 1. Convert ALL inputs to Numpy
     current_drr = ensure_numpy(current_drr)
     prior_rotated_to_current_drr = ensure_numpy(prior_rotated_to_current_drr)
-    current_pp = ensure_numpy(current_pp)  # <--- This was the one causing your specific error
+    current_pp = ensure_numpy(current_pp)
 
-    # 2. Calculate the difference
     heatmap = current_drr - prior_rotated_to_current_drr
 
-    # 3. Create a figure with a single axis
-    fig, ax = plt.subplots(figsize=(6, 6))
-
-    # Plot Background (Current Image)
-    ax.imshow(current_pp, cmap='gray')
-
-    # Plot Heatmap Overlay
     max_error = np.max(np.abs(heatmap))
+
+    base, ext = os.path.splitext(heatmap_path)
+    overlay_path = f"{base}_overlay{ext}"
+
+    # --- 1. Save WITH Background (Overlay) ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.imshow(current_pp, cmap='gray')
     im = ax.imshow(heatmap, cmap=custom_cmap, alpha=1, vmin=-max_error, vmax=max_error)
-
-    # Styling
-    ax.set_title("Difference Heatmap")
+    ax.set_title("Difference Heatmap (Overlay)")
     ax.axis('off')
-
-    # Add colorbar
     cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label('Difference Intensity')
 
-    # Save the figure
-    plt.savefig(heatmap_path, bbox_inches='tight', dpi=300)
-
-    # Close the plot to free up memory
+    print(f"Saving overlay heatmap to {overlay_path}")
+    plt.savefig(overlay_path, bbox_inches='tight', dpi=300)
     plt.close(fig)
+
+    # --- 2. Save WITHOUT Background (Heatmap Only) ---
+    save_image_as_nifti(heatmap, base + ".nii.gz")
 
 
 def get_filename_from_path(path: str) -> str:
@@ -276,9 +276,11 @@ def pipeline(pair_index: int, input_path: str, seg_path: str, radius: int,
 
     # pp and save drr
     current_pp = apply_drr_post_processing(current_drr)
+    save_image_as_nifti(current_pp.cpu().numpy(), pair_dir + "current.nii.gz")
     save_drr(current_pp, pair_dir + CURRENT_FILENAME)
 
     prior_by_prior_pp = apply_drr_post_processing(prior_rotated_to_prior_drr)
+    save_image_as_nifti(prior_by_prior_pp.cpu().numpy(), pair_dir + "prior.nii.gz")
     save_drr(prior_by_prior_pp, pair_dir + PRIOR_BY_PRIOR_FILENAME)
 
     prior_by_current_pp = apply_drr_post_processing(prior_rotated_to_current_drr)

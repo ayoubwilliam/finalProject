@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import nibabel as nib
 import sys
@@ -64,5 +65,26 @@ def merge_nifti(output_path: str, *input_paths: str) -> None:
     save_nifti(output_path, union_mask, affine_ref, header_ref)
 
 
-if __name__ == "__main__":
-    merge_nifti(sys.argv[-1], *sys.argv[1:-1])
+
+import numpy as np
+import nibabel as nib
+import os
+
+def save_image_as_nifti(data: np.ndarray, path: str) -> None:
+
+    if data.ndim == 2:
+        data = data[:, :, np.newaxis]
+
+    generic_affine = np.eye(4)
+    nifti_img = nib.Nifti1Image(data, generic_affine)
+
+    nib.save(nifti_img, path)
+
+
+def load_image_from_nifti(path: str) -> np.ndarray:
+
+    img = nib.load(path)
+    data = img.get_fdata()
+    data = np.squeeze(data)
+
+    return data
