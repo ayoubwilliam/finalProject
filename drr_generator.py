@@ -9,6 +9,7 @@ from pipeline2 import pipeline
 # generation numbers
 NUMBER_OF_PAIRS_IN_SCAN = 1
 
+
 # randomization parameters
 R_MIN = 20
 R_MAX = 40
