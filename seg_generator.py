@@ -7,8 +7,7 @@ from project_paths import INPUT_DIR
 
 # segmentation constants
 SEG_TASK = "total"
-ROI_SUBSET = ["lung_lower_lobe_right", "lung_upper_lobe_right", "lung_middle_lobe_right",
-              "lung_lower_lobe_left", "lung_upper_lobe_left"]
+ROI_SUBSET = ["trachea"]
 
 
 def run_segmentation(input_path: str, output_path: str, task: str, subset: list,

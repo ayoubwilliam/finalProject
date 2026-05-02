@@ -11,10 +11,11 @@ from drr_with_post_processing import create_drr_from_ct, save_drr, apply_drr_pos
 from device_constants import DEVICE
 from crop import get_segmentation_bounds
 from file_handler import save_image_as_nifti, load_image_from_nifti
+from file_handler import save_nifti
 
 # numeric constants
 POOLING_KERNEL_SIZE = 8
-INTENSITY = 25
+INTENSITY = 1250
 GRID_DENSITY_FACTOR = 16
 DEFORMATION_FACTOR = 0.2
 
@@ -45,7 +46,7 @@ def apply_mask(destination_data, source_data, mask) -> None:
     destination_data[positive_mask] = source_data[positive_mask]
 
 
-def add_mass(data, seg, pos, radius, margin):
+def add_mass(data, seg, pos, radius, height, margin):
     # 1. Ensure inputs are on GPU for the fast generation step
     if isinstance(data, np.ndarray):
         data = torch.from_numpy(data).float().to(DEVICE)
@@ -56,7 +57,7 @@ def add_mass(data, seg, pos, radius, margin):
     print("Running add_deformed_sphere_fast...")
 
     # Pass the actual 'working_data' tensor, not just the shape
-    deformed_sphere, mask = get_deformed_sphere_fast(working_data, INTENSITY, pos, radius, margin,
+    deformed_sphere, mask = get_deformed_sphere_fast(working_data, INTENSITY, pos, radius, height, margin,
                                                      GRID_DENSITY_FACTOR, DEFORMATION_FACTOR)
 
     # Resume original logic (Numpy/CPU)
@@ -64,28 +65,29 @@ def add_mass(data, seg, pos, radius, margin):
     apply_mask(working_data, deformed_sphere, mask)
     print("finished deformed_sphere_fast...")
 
-    # apply pooling
-    print("start pooling...")
+    # # apply pooling
+    # print("start pooling...")
+    #
+    # pooled_data, mask = apply_pooling(working_data, mask, POOLING_KERNEL_SIZE)
+    # mask = correct_mask_by_seg(mask, seg)
+    # apply_mask(working_data, pooled_data, mask)
+    #
+    # print("finished pooling.")
 
-    pooled_data, mask = apply_pooling(working_data, mask, POOLING_KERNEL_SIZE)
-    mask = correct_mask_by_seg(mask, seg)
-    apply_mask(working_data, pooled_data, mask)
-
-    print("finished pooling.")
     return working_data, mask
 
 
 def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
-                    prior_pos: tuple[int, int, int], radius: int, margin: int):
+                    prior_pos: tuple[int, int, int], radius: int, height: int, margin: int):
     # create deformed mass
-    working_data, mask = add_mass(prior, seg, prior_pos, radius, margin)
+    working_data, mask = add_mass(prior, seg, prior_pos, radius, height, margin)
     apply_mask(prior, working_data, mask)
     return prior
 
 
 def create_current_ct(current: np.ndarray, seg: np.ndarray,
-                      current_pos: tuple[int, int, int], radius: int, margin: int):
-    working_data, mask = add_mass(current, seg, current_pos, radius, margin)
+                      current_pos: tuple[int, int, int], radius: int, height: int, margin: int):
+    working_data, mask = add_mass(current, seg, current_pos, radius, height, margin)
     apply_mask(current, working_data, mask)
     return current
 
@@ -161,9 +163,10 @@ def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr,
     save_image_as_nifti(heatmap, base + ".nii.gz")
 
 
-def pipeline(pair_dir: str, ct_data: np.ndarray, lungs_mask: np.ndarray, radius: int,
+def pipeline(pair_dir: str, ct_data: np.ndarray, lungs_mask: np.ndarray, radius: int, height: int,
              prior_pos: tuple[int, int, int], current_pos: tuple[int, int, int],
-             prior_angles: tuple[float, float, float], current_angles: tuple[float, float, float]) -> None:
+             prior_angles: tuple[float, float, float], current_angles: tuple[float, float, float],
+             affine, header) -> None:
     # --- MOVE TO GPU ---
     # 'data' acts as our read-only template. We keep it until the very end.
     data = torch.from_numpy(ct_data).float().to(DEVICE)
@@ -180,59 +183,60 @@ def pipeline(pair_dir: str, ct_data: np.ndarray, lungs_mask: np.ndarray, radius:
 
     # 2. Add mass (GPU)
     current_data = create_current_ct(current_data, seg,
-                                     current_pos, radius, margin)
+                                     current_pos, radius, height, margin)
+    save_nifti(pair_dir + "result.nii.gz", current_data, affine, header)
 
-    # 3. Generate DRR (Heavy GPU Operation)
-    # The result 'current_drr' should be a small 2D image (CPU/Numpy)
-    current_drr = rotate_and_drr(current_data, current_angles, seg)
-
-    # 4. CRITICAL: Delete 'current_data' immediately to free VRAM
-    del current_data
-    torch.cuda.empty_cache()  # Force PyTorch to release the memory for the next step
-
-    # ==========================================
-    # PHASE 2: Process Prior CT
-    # ==========================================
-    # 1. Create a copy for 'prior' (Now we have space again!)
-    print("prior: ")
-    prior_data = data.clone()
-
-    # 2. Add mass (GPU)
-    prior_data = create_prior_ct(prior_data, seg,
-                                 prior_pos, radius, margin)
-
-    # 3. Generate DRRs
-    # We use the same 'prior_data' 3D volume for both rotations.
-    # We do NOT need to clone() it again here, saving another chunk of VRAM.
-    prior_rotated_to_current_drr = rotate_and_drr(prior_data, current_angles, seg)
-    prior_rotated_to_prior_drr = rotate_and_drr(prior_data, prior_angles, seg)
-
-    # 4. CRITICAL: Delete 'prior_data' and original 'data'
-    del prior_data
-    del data
-    del seg
-    torch.cuda.empty_cache()
-
-    # ==========================================
-    # PHASE 3: Post-Processing (CPU / Lightweight)
-    # ==========================================
-    # At this point, VRAM is empty. We only have the small 2D DRR images on CPU.
-    print("post processing and drr...")
-
-    # pp and save drr
-    current_pp = apply_drr_post_processing(current_drr)
-    save_drr(current_pp, pair_dir + CURRENT_FILENAME)
-
-    prior_by_prior_pp = apply_drr_post_processing(prior_rotated_to_prior_drr)
-    save_image_as_nifti(current_pp.cpu().numpy(), pair_dir + "current.nii.gz")
-    save_drr(prior_by_prior_pp, pair_dir + PRIOR_BY_PRIOR_FILENAME)
-
-    prior_by_current_pp = apply_drr_post_processing(prior_rotated_to_current_drr)
-    save_image_as_nifti(prior_by_prior_pp.cpu().numpy(), pair_dir + "prior.nii.gz")
-    save_drr(prior_by_current_pp, pair_dir + PRIOR_BY_CURRENT_FILENAME)
-
-    # create heatmap
-    print("heatmap...")
-    create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr, pair_dir + HEATMAP_FILENAME)
+    # # 3. Generate DRR (Heavy GPU Operation)
+    # # The result 'current_drr' should be a small 2D image (CPU/Numpy)
+    # current_drr = rotate_and_drr(current_data, current_angles, seg)
+    #
+    # # 4. CRITICAL: Delete 'current_data' immediately to free VRAM
+    # del current_data
+    # torch.cuda.empty_cache()  # Force PyTorch to release the memory for the next step
+    #
+    # # ==========================================
+    # # PHASE 2: Process Prior CT
+    # # ==========================================
+    # # 1. Create a copy for 'prior' (Now we have space again!)
+    # print("prior: ")
+    # prior_data = data.clone()
+    #
+    # # 2. Add mass (GPU)
+    # prior_data = create_prior_ct(prior_data, seg,
+    #                              prior_pos, radius, height, margin)
+    #
+    # # 3. Generate DRRs
+    # # We use the same 'prior_data' 3D volume for both rotations.
+    # # We do NOT need to clone() it again here, saving another chunk of VRAM.
+    # prior_rotated_to_current_drr = rotate_and_drr(prior_data, current_angles, seg)
+    # prior_rotated_to_prior_drr = rotate_and_drr(prior_data, prior_angles, seg)
+    #
+    # # 4. CRITICAL: Delete 'prior_data' and original 'data'
+    # del prior_data
+    # del data
+    # del seg
+    # torch.cuda.empty_cache()
+    #
+    # # ==========================================
+    # # PHASE 3: Post-Processing (CPU / Lightweight)
+    # # ==========================================
+    # # At this point, VRAM is empty. We only have the small 2D DRR images on CPU.
+    # print("post processing and drr...")
+    #
+    # # pp and save drr
+    # current_pp = apply_drr_post_processing(current_drr)
+    # save_drr(current_pp, pair_dir + CURRENT_FILENAME)
+    #
+    # prior_by_prior_pp = apply_drr_post_processing(prior_rotated_to_prior_drr)
+    # save_image_as_nifti(current_pp.cpu().numpy(), pair_dir + "current.nii.gz")
+    # save_drr(prior_by_prior_pp, pair_dir + PRIOR_BY_PRIOR_FILENAME)
+    #
+    # prior_by_current_pp = apply_drr_post_processing(prior_rotated_to_current_drr)
+    # save_image_as_nifti(prior_by_prior_pp.cpu().numpy(), pair_dir + "prior.nii.gz")
+    # save_drr(prior_by_current_pp, pair_dir + PRIOR_BY_CURRENT_FILENAME)
+    #
+    # # create heatmap
+    # print("heatmap...")
+    # create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr, pair_dir + HEATMAP_FILENAME)
 
     print("Done!")

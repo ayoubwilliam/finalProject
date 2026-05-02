@@ -5,33 +5,6 @@ from file_handler import load_nifti, save_nifti
 from noise import create_noise
 
 
-def create_box(data: np.ndarray, ranges: list[list]) -> np.ndarray:
-    x0, x1 = ranges[0]
-    y0, y1 = ranges[1]
-    z0, z1 = ranges[2]
-
-    mask = np.zeros_like(data, dtype=bool)
-    mask[x0:x1, y0:y1, z0:z1] = True
-
-    return mask
-
-
-def create_sphere(data: np.ndarray, center: list[int, int, int], radius: int) -> np.ndarray:
-    cx, cy, cz = center
-
-    # Create coordinate grids
-    x = np.arange(0, data.shape[0])[:, None, None]
-    y = np.arange(0, data.shape[1])[None, :, None]
-    z = np.arange(0, data.shape[2])[None, None, :]
-
-    # Compute squared distance from center
-    dist = np.sqrt((x - cx) ** 2 + (y - cy) ** 2 + (z - cz) ** 2)
-
-    # Assign intensity where inside the sphere
-    mask = dist <= radius
-    return mask
-
-
 def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int]) -> np.ndarray:
     cx, cy, cz = center
     rx, ry, rz = radius
@@ -50,7 +23,31 @@ def create_ellipsoid(data: np.ndarray, center: list[int], radius: list[int]) -> 
     mask = dist <= 1
     return mask
 
-def apply_mask(data: np.ndarray, mask: np.ndarray, intensity: int, is_noised:bool) -> np.ndarray:
+
+def create_cylinder(data: np.ndarray, center: list[int], radius: int, height: int) -> np.ndarray:
+    cx, cy, cz = center
+
+    # Create coordinate grids
+    x = np.arange(0, data.shape[0])[:, None, None]
+    y = np.arange(0, data.shape[1])[None, :, None]
+    z = np.arange(0, data.shape[2])[None, None, :]
+
+    # 1. Radial condition (xy plane)
+    # Note: Comparing squared values is slightly faster than using np.sqrt
+    radial_mask = ((x - cx) ** 2 + (y - cy) ** 2) <= (radius ** 2)
+
+    # 2. Height condition (z axis)
+    # This centers the height of the cylinder exactly at cz
+    z_mask = np.abs(z - cz) <= (height / 2)
+
+    # 3. Combine masks
+    # The bitwise AND (&) will broadcast the final mask to the full (X, Y, Z) shape
+    mask = radial_mask & z_mask
+
+    return mask
+
+
+def apply_mask(data: np.ndarray, mask: np.ndarray, intensity: int, is_noised: bool) -> np.ndarray:
     if is_noised:
         noise = create_noise(data.shape)
         data[mask] = intensity + noise[mask]
@@ -67,11 +64,7 @@ if __name__ == '__main__':
 
     data, affine, header = load_nifti(input_path)
 
-    # create_sphere(data, [180, 250, 300], 30)
-    # create_ellipsoid(data, [180, 250, 300], [30, 40, 60])
-    mask = create_box(data, [[153, 213], [223, 283], [266, 326]])  # cube
-    # create_box(data, [[153, 213], [223, 283], [246, 346]]) # box
+    mask = create_cylinder(data, [250, 300, 400], 10, 100)
 
     data = apply_mask(data, mask, intensity, True)
-
     save_nifti(output_path, data, affine, header)

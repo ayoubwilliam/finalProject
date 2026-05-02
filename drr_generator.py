@@ -7,20 +7,18 @@ from project_paths import INPUT_DIR, OUTPUT_DIR, FILE_EXTENSION
 from pipeline2 import pipeline
 
 # generation numbers
-NUMBER_OF_PAIRS_IN_SCAN = 2
+NUMBER_OF_PAIRS_IN_SCAN = 1
 
 # randomization parameters
 R_MIN = 20
 R_MAX = 40
+R_FIXED = 7
+HEIGHT = 200
 ROT_ANGLE_RANGE_DEG = 15.0  # sample angles in [-15, 15]
 
 
-def get_random_radius(r_min=R_MIN, r_max=R_MAX):
-    return np.random.randint(r_min, r_max + 1)
-
-
-def sample_point_in_lungs(coords: np.ndarray) -> tuple[int, int, int]:
-    # Sample a random index from the available lung voxels
+def sample_point_in_seg(coords: np.ndarray) -> tuple[int, int, int]:
+    # Sample a random index from the available seg voxels
     idx = np.random.randint(0, len(coords))
 
     # Return the voxel coordinate as a tuple (x, y, z)
@@ -62,36 +60,40 @@ def get_pair_dir(pair_index: int, input_path: str) -> str:
     return path
 
 
-def create_pair(pair_dir: str, ct_data: np.ndarray, lung_mask: np.ndarray) -> None:
+def create_pair(pair_dir: str, ct_data: np.ndarray, seg_mask: np.ndarray,
+                affine, header) -> None:
     # get random radius
-    radius = get_random_radius()
+    radius = R_FIXED
+    height = HEIGHT
 
     # sample valid locations inside lungs for the spheres' center
-    coords = np.argwhere(lung_mask > 0)  # Collect coordinates of all voxels that belong to lungs
+    coords = np.argwhere(seg_mask > 0)  # Collect coordinates of all voxels that belong to lungs
     if len(coords) == 0:
         return
-    prior_pos = sample_point_in_lungs(coords)
-    current_pos = sample_point_in_lungs(coords)
+    prior_pos = sample_point_in_seg(coords)
+    current_pos = sample_point_in_seg(coords)
 
     # get random rotation angles for prior and current
     prior_angle = get_random_rotation_angles()
     current_angle = get_random_rotation_angles()
 
     # run pipeline for prior and current
-    pipeline(pair_dir, ct_data, lung_mask, radius,
+    pipeline(pair_dir, ct_data, seg_mask, radius, height,
              prior_pos, current_pos,
-             prior_angle, current_angle)
+             prior_angle, current_angle,
+             affine, header)
 
 
 def create_pairs_for_scan(input_path: str, seg_path: str) -> None:
     print("\nCreating pairs for ", input_path)
-    ct_data, _, _ = load_nifti(input_path)
+    ct_data, affine, header = load_nifti(input_path)
     seg_data, _, _ = load_nifti(seg_path)
 
     for index in range(1, NUMBER_OF_PAIRS_IN_SCAN + 1):
         pair_dir = get_pair_dir(index, input_path)
         print("\nPair number: ", index)
-        create_pair(pair_dir, ct_data, seg_data)
+        create_pair(pair_dir, ct_data, seg_data,
+                    affine, header)
 
 
 def create_pairs_for_all_scans() -> None:

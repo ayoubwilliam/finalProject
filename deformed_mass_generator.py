@@ -2,7 +2,8 @@ import torch
 import numpy as np
 import gryds
 
-from create_shapes import create_sphere, apply_mask
+# from create_shapes import create_sphere
+from create_shapes import apply_mask, create_cylinder
 from device_constants import DEVICE
 
 
@@ -35,7 +36,6 @@ def bspline(data, grid_density_factor, deformation_factor):
     # transform = gryds.BSplineTransformation([gridx, gridy, gridz])
     # interpolator = gryds.Interpolator(data_np, order=3, mode="mirror")
 
-
     nifti_roi = interpolator.transform(transform)
 
     # --- Bridge: Convert back to Tensor if needed ---
@@ -45,65 +45,46 @@ def bspline(data, grid_density_factor, deformation_factor):
     return nifti_roi
 
 
-def get_deformed_sphere(data, intensity, pos, radius, grid_density_factor, deformation_factor):
-    # 1. Create base shape in Numpy (create_shapes likely needs CPU arrays)
-    # We use data.shape to ensure size match, regardless if data is Tensor or Numpy
-    sphere_np = np.zeros(data.shape, dtype=np.float32)
-    sphere_mask_np = create_sphere(sphere_np, pos, radius)
-    apply_mask(sphere_np, sphere_mask_np, intensity, True)
-
-    # 2. Convert to Tensor for pipeline consistency
-    sphere_tensor = torch.from_numpy(sphere_np).to(DEVICE)
-
-    # 3. Deform (bspline now handles Tensor -> Numpy -> Tensor)
-    deformed_sphere = bspline(sphere_tensor, grid_density_factor, deformation_factor)
-
-    # 4. Compute mask in PyTorch
-    mask = torch.round(deformed_sphere) != 0
-
-    return deformed_sphere, mask
-
-
-
-
-def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, margin,
+def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, height, margin,
                              grid_density_factor, deformation_factor):
     """
-    Generates a deformed sphere (PyTorch Version).
+    Generates a deformed cylinder (Updated to support elongated height).
     """
-    # Fix 1: Ensure we have the shape from the tensor
     data_shape = current_volume_tensor.shape
 
-    size = 2 * radius + margin
-    center = size // 2
+    # 1. Update bounding box sizes to accommodate a long cylinder
+    size_xy = 2 * radius + margin
+    size_z = height + margin
 
-    # --- 1. Generate Small Sphere (CPU / Numpy) ---
-    small_sphere_volume = np.zeros((size, size, size), dtype=np.float32)
-    sphere_mask_np = create_sphere(small_sphere_volume, [center, center, center], radius)
+    center_xy = size_xy // 2
+    center_z = size_z // 2
+
+    # --- 1. Generate Small Cylinder (CPU / Numpy) ---
+    # Create a rectangular box instead of a perfect cube
+    small_cylinder_volume = np.zeros((size_xy, size_xy, size_z), dtype=np.float32)
+    cylinder_mask_np = create_cylinder(small_cylinder_volume, [center_xy, center_xy, center_z], radius, height)
 
     # Apply intensity
-    small_sphere_volume[sphere_mask_np > 0] = intensity
+    small_cylinder_volume[cylinder_mask_np > 0] = intensity
 
-    # --- 2. Deform Small Sphere (CPU) ---
-    deformed_small_np = bspline(small_sphere_volume, grid_density_factor, deformation_factor)
+    # --- 2. Deform Small Cylinder (CPU) ---
+    deformed_small_np = bspline(small_cylinder_volume, grid_density_factor, deformation_factor)
 
     # --- 3. Move Result to GPU ---
-    deformed_small_sphere = torch.from_numpy(deformed_small_np).float().to(DEVICE)
+    deformed_small_cylinder = torch.from_numpy(deformed_small_np).float().to(DEVICE)
 
     # --- 4. Initialize Large Volume (PyTorch/GPU) ---
-    sphere_vol = torch.zeros_like(current_volume_tensor)
+    cylinder_vol = torch.zeros_like(current_volume_tensor)
 
     x, y, z = pos
-    half_size = size // 2
 
-    # --- 5. Calculate raw coordinates ---
-    # We use int() to act like explicit integer indexing
-    x_start = int(x - half_size)
-    x_end = int(x_start + size)
-    y_start = int(y - half_size)
-    y_end = int(y_start + size)
-    z_start = int(z - half_size)
-    z_end = int(z_start + size)
+    # --- 5. Calculate raw coordinates (Using independent sizes) ---
+    x_start = int(x - center_xy)
+    x_end = int(x_start + size_xy)
+    y_start = int(y - center_xy)
+    y_end = int(y_start + size_xy)
+    z_start = int(z - center_z)
+    z_end = int(z_start + size_z)
 
     # --- 6. Clamp coordinates (Destination) ---
     sphere_x_start = max(0, x_start)
@@ -125,15 +106,14 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, marg
     if (sphere_x_end > sphere_x_start and
             sphere_y_end > sphere_y_start and
             sphere_z_end > sphere_z_start):
-        sphere_vol[sphere_x_start:sphere_x_end,
-        sphere_y_start:sphere_y_end,
-        sphere_z_start:sphere_z_end] = deformed_small_sphere[
-            small_x_start:small_x_end,
-            small_y_start:small_y_end,
-            small_z_start:small_z_end]
+        cylinder_vol[sphere_x_start:sphere_x_end,
+                     sphere_y_start:sphere_y_end,
+                     sphere_z_start:sphere_z_end] = deformed_small_cylinder[
+                                                    small_x_start:small_x_end,
+                                                    small_y_start:small_y_end,
+                                                    small_z_start:small_z_end]
 
-    # --- FIX: Match NumPy rounding logic exactly ---
-    # This removes the "fuzz" from bspline interpolation so the mask is tight
-    mask = torch.round(sphere_vol) != 0
+    # --- 9. Create Mask ---
+    mask = torch.round(cylinder_vol) != 0
 
-    return sphere_vol, mask
+    return cylinder_vol, mask

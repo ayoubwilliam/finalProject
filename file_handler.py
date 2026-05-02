@@ -4,7 +4,7 @@ import os
 
 from project_paths import SEG_DIR, FILE_EXTENSION
 
-SEG_SUFFIX = "_lungs_seg"
+SEG_SUFFIX = "_trachea_seg"
 
 
 def load_nifti(path: str) -> tuple[np.ndarray, np.ndarray, nib.Nifti1Header]:
