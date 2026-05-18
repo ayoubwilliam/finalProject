@@ -3,7 +3,7 @@ import numpy as np
 import gryds
 
 # from create_shapes import create_sphere
-from create_shapes import apply_mask, create_cylinder
+from create_shapes import create_cylinder, create_torus_segment
 from device_constants import DEVICE
 
 
@@ -22,9 +22,13 @@ def bspline(data, grid_density_factor, deformation_factor):
     y_shape = data_np.shape[1] // grid_density_factor
     z_shape = data_np.shape[2] // grid_density_factor
 
-    gridx = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
-    gridy = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
-    gridz = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+    # gridx = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+    # gridy = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+    # gridz = np.random.rand(x_shape, y_shape, z_shape) * deformation_factor
+
+    gridx = np.zeros((x_shape, y_shape, z_shape), dtype=np.float32)
+    gridy = np.zeros((x_shape, y_shape, z_shape), dtype=np.float32)
+    gridz = np.zeros((x_shape, y_shape, z_shape), dtype=np.float32)
 
     if DEVICE == 'cuda':
         transform = gryds.BSplineTransformationCuda([gridx, gridy, gridz])
@@ -32,9 +36,6 @@ def bspline(data, grid_density_factor, deformation_factor):
     else:
         transform = gryds.BSplineTransformation([gridx, gridy, gridz])
         interpolator = gryds.Interpolator(data_np, order=3, mode="mirror")
-
-    # transform = gryds.BSplineTransformation([gridx, gridy, gridz])
-    # interpolator = gryds.Interpolator(data_np, order=3, mode="mirror")
 
     nifti_roi = interpolator.transform(transform)
 
@@ -59,12 +60,30 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, heig
     center_xy = size_xy // 2
     center_z = size_z // 2
 
-    # --- 1. Generate Small Cylinder (CPU / Numpy) ---
-    # Create a rectangular box instead of a perfect cube
-    small_cylinder_volume = np.zeros((size_xy, size_xy, size_z), dtype=np.float32)
-    cylinder_mask_np = create_cylinder(small_cylinder_volume, [center_xy, center_xy, center_z], radius, height)
+    # # --- 1. Generate Small Cylinder (CPU / Numpy) ---
+    # # Create a rectangular box instead of a perfect cube
+    # small_cylinder_volume = np.zeros((size_xy, size_xy, size_z), dtype=np.float32)
+    # cylinder_mask_np = create_cylinder(small_cylinder_volume, [center_xy, center_xy, center_z],
+    #                                           radius, height)
+    #
+    # # Apply intensity
+    # small_cylinder_volume[cylinder_mask_np > 0] = intensity
 
-    # Apply intensity
+    # --- 1. Directly Generate the Torus Segment (CPU / Numpy) ---
+    small_cylinder_volume = np.zeros((size_xy, size_xy, size_z), dtype=np.float32)
+
+    # Call the torus function.
+    # Example for ET Tube: radius=8 (outer), inner_radius=5 (hollow core)
+    cylinder_mask_np = create_torus_segment(
+        data=small_cylinder_volume,
+        center=[center_xy, center_xy, center_z],
+        tube_radius=radius,  # Outer wall radius
+        height=height,
+        curve_radius=200,
+        inner_radius=radius - 3.0  # Optional: makes the tube hollow with a 3-voxel thick wall
+    )
+
+    # Apply intensity only to the plastic wall
     small_cylinder_volume[cylinder_mask_np > 0] = intensity
 
     # --- 2. Deform Small Cylinder (CPU) ---
@@ -83,7 +102,9 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, heig
     x_end = int(x_start + size_xy)
     y_start = int(y - center_xy)
     y_end = int(y_start + size_xy)
-    z_start = int(z - center_z)
+    # z_start = int(z - center_z)
+    # z_end = int(z_start + size_z)
+    z_start = int(z)
     z_end = int(z_start + size_z)
 
     # --- 6. Clamp coordinates (Destination) ---
@@ -107,11 +128,11 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, heig
             sphere_y_end > sphere_y_start and
             sphere_z_end > sphere_z_start):
         cylinder_vol[sphere_x_start:sphere_x_end,
-                     sphere_y_start:sphere_y_end,
-                     sphere_z_start:sphere_z_end] = deformed_small_cylinder[
-                                                    small_x_start:small_x_end,
-                                                    small_y_start:small_y_end,
-                                                    small_z_start:small_z_end]
+        sphere_y_start:sphere_y_end,
+        sphere_z_start:sphere_z_end] = deformed_small_cylinder[
+                                       small_x_start:small_x_end,
+                                       small_y_start:small_y_end,
+                                       small_z_start:small_z_end]
 
     # --- 9. Create Mask ---
     mask = torch.round(cylinder_vol) != 0

@@ -1,8 +1,5 @@
-import sys
 import numpy as np
 from scipy.ndimage import zoom
-
-from file_handler import load_nifti, save_nifti
 
 MEAN = 100
 STD = 300

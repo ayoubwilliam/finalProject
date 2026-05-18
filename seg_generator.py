@@ -7,7 +7,9 @@ from project_paths import INPUT_DIR
 
 # segmentation constants
 SEG_TASK = "total"
-ROI_SUBSET = ["trachea"]
+ROI_SUBSET = [
+    "trachea"
+]
 
 
 def run_segmentation(input_path: str, output_path: str, task: str, subset: list,

@@ -4,16 +4,15 @@ import os
 
 from file_handler import load_nifti, create_seg_path
 from project_paths import INPUT_DIR, OUTPUT_DIR, FILE_EXTENSION
-from pipeline2 import pipeline
+from pipeline import pipeline
 
 # generation numbers
-NUMBER_OF_PAIRS_IN_SCAN = 1
-
+NUMBER_OF_PAIRS_IN_SCAN = 5
 
 # randomization parameters
 R_MIN = 20
 R_MAX = 40
-R_FIXED = 7
+R_FIXED = 8
 HEIGHT = 200
 ROT_ANGLE_RANGE_DEG = 15.0  # sample angles in [-15, 15]
 

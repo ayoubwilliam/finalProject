@@ -8,8 +8,8 @@ from deformed_mass_generator import get_deformed_sphere_fast
 from pooling import apply_pooling
 from rotation import rotate_ct_scan
 from drr_with_post_processing import create_drr_from_ct, save_drr, apply_drr_post_processing
-from device_constants import DEVICE
 from crop import get_segmentation_bounds
+from device_constants import DEVICE
 from file_handler import save_image_as_nifti, load_image_from_nifti
 from file_handler import save_nifti
 
@@ -61,7 +61,7 @@ def add_mass(data, seg, pos, radius, height, margin):
                                                      GRID_DENSITY_FACTOR, DEFORMATION_FACTOR)
 
     # Resume original logic (Numpy/CPU)
-    mask = correct_mask_by_seg(mask, seg)
+    # mask = correct_mask_by_seg(mask, seg)
     apply_mask(working_data, deformed_sphere, mask)
     print("finished deformed_sphere_fast...")
 
@@ -77,55 +77,55 @@ def add_mass(data, seg, pos, radius, height, margin):
     return working_data, mask
 
 
-def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
-                    prior_pos: tuple[int, int, int], radius: int, height: int, margin: int):
-    # create deformed mass
-    working_data, mask = add_mass(prior, seg, prior_pos, radius, height, margin)
-    apply_mask(prior, working_data, mask)
-    return prior
+# def create_prior_ct(prior: np.ndarray, seg: np.ndarray,
+#                     prior_pos: tuple[int, int, int], radius: int, height: int, margin: int):
+#     # create deformed mass
+#     working_data, mask = add_mass(prior, seg, prior_pos, radius, height, margin)
+#     apply_mask(prior, working_data, mask)
+#     return prior
 
 
 def create_current_ct(current: np.ndarray, seg: np.ndarray,
                       current_pos: tuple[int, int, int], radius: int, height: int, margin: int):
     working_data, mask = add_mass(current, seg, current_pos, radius, height, margin)
     apply_mask(current, working_data, mask)
-    return current
+    return current, mask  # todo: remove mask
 
 
-def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float], seg, crop_margin=10) -> np.ndarray:
-    rotated_ct_gpu = rotate_ct_scan(data, angles[0], angles[1], angles[2])
-
-    # clear gpu memory
-    rotated_ct_cpu = rotated_ct_gpu.detach().cpu()
-    del rotated_ct_gpu
-    torch.cuda.empty_cache()
-
-    bounds = get_segmentation_bounds(seg, angles, crop_margin)
-
-    # Clear cache again just to be safe after segmentation work
-    torch.cuda.empty_cache()
-
-    # --- STEP 3: Apply Crop and Reload to GPU ---
-    if bounds is None:
-        print("Warning: Empty segmentation. Using full rotated volume.")
-        # If seg is empty, we must send the whole thing back (RISK of OOM, but unavoidable)
-        cropped_ct_gpu = rotated_ct_cpu.to(DEVICE)
-    else:
-        z1, z2, y1, y2, x1, x2 = bounds
-
-        # Apply crop on the CPU tensor first (Fast and Memory Safe)
-        cropped_ct_cpu = rotated_ct_cpu[z1:z2, y1:y2, x1:x2]
-
-        # Reload ONLY the cropped portion into GPU memory
-        cropped_ct_gpu = cropped_ct_cpu.to(DEVICE)
-
-    # Clean up the large CPU tensor
-    del rotated_ct_cpu
-
-    # --- STEP 4: Create DRR ---
-    drr = create_drr_from_ct(cropped_ct_gpu)
-
-    return drr
+# def rotate_and_drr(data: np.ndarray, angles: tuple[float, float, float], seg, crop_margin=10) -> np.ndarray:
+#     rotated_ct_gpu = rotate_ct_scan(data, angles[0], angles[1], angles[2])
+#
+#     # clear gpu memory
+#     rotated_ct_cpu = rotated_ct_gpu.detach().cpu()
+#     del rotated_ct_gpu
+#     torch.cuda.empty_cache()
+#
+#     bounds = get_segmentation_bounds(seg, angles, crop_margin)
+#
+#     # Clear cache again just to be safe after segmentation work
+#     torch.cuda.empty_cache()
+#
+#     # --- STEP 3: Apply Crop and Reload to GPU ---
+#     if bounds is None:
+#         print("Warning: Empty segmentation. Using full rotated volume.")
+#         # If seg is empty, we must send the whole thing back (RISK of OOM, but unavoidable)
+#         cropped_ct_gpu = rotated_ct_cpu.to(DEVICE)
+#     else:
+#         z1, z2, y1, y2, x1, x2 = bounds
+#
+#         # Apply crop on the CPU tensor first (Fast and Memory Safe)
+#         cropped_ct_cpu = rotated_ct_cpu[z1:z2, y1:y2, x1:x2]
+#
+#         # Reload ONLY the cropped portion into GPU memory
+#         cropped_ct_gpu = cropped_ct_cpu.to(DEVICE)
+#
+#     # Clean up the large CPU tensor
+#     del rotated_ct_cpu
+#
+#     # --- STEP 4: Create DRR ---
+#     drr = create_drr_from_ct(cropped_ct_gpu)
+#
+#     return drr
 
 
 def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr,
@@ -182,9 +182,10 @@ def pipeline(pair_dir: str, ct_data: np.ndarray, lungs_mask: np.ndarray, radius:
     current_data = data.clone()
 
     # 2. Add mass (GPU)
-    current_data = create_current_ct(current_data, seg,
-                                     current_pos, radius, height, margin)
+    current_data, mask = create_current_ct(current_data, seg,
+                                           current_pos, radius, height, margin)
     save_nifti(pair_dir + "result.nii.gz", current_data, affine, header)
+    save_nifti(pair_dir + "mask.nii.gz", mask, affine, header)
 
     # # 3. Generate DRR (Heavy GPU Operation)
     # # The result 'current_drr' should be a small 2D image (CPU/Numpy)
