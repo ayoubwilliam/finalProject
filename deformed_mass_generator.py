@@ -2,7 +2,6 @@ import torch
 import numpy as np
 import gryds
 
-# from create_shapes import create_sphere
 from create_shapes import create_cylinder, create_torus_segment
 from device_constants import DEVICE
 
@@ -79,7 +78,7 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, heig
         center=[center_xy, center_xy, center_z],
         tube_radius=radius,  # Outer wall radius
         height=height,
-        curve_radius=200,
+        curve_radius=400,
         inner_radius=radius - 3.0  # Optional: makes the tube hollow with a 3-voxel thick wall
     )
 
@@ -138,3 +137,100 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, heig
     mask = torch.round(cylinder_vol) != 0
 
     return cylinder_vol, mask
+
+
+# def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, height, margin,
+#                              grid_density_factor, deformation_factor):
+#     """
+#     Generates a deformed curved cylinder (ET Tube) safely.
+#     Handles dynamic bounding box sizing and correct anatomical placement.
+#     """
+#     data_shape = current_volume_tensor.shape
+#
+#     # --- Fix 1: Realistic curve radius for anatomical correctness ---
+#     # A larger radius creates a subtle, realistic bend instead of a sharp angle
+#     curve_radius = 600.0
+#
+#     # --- Fix 2: Dynamic bounding box calculation ---
+#     # Ensures the curved tube does not get clipped by the local Numpy array boundaries
+#     safe_radius = max(curve_radius, height + 10.0)
+#     max_shift = safe_radius - np.sqrt(safe_radius ** 2 - height ** 2)
+#
+#     size_xy = int(2 * radius + margin + (2 * max_shift) + 20)
+#     size_z = height + margin
+#
+#     center_xy = size_xy // 2
+#
+#     # --- Fix 3: Start the tube near the top of the bounding box ---
+#     # Gives the tube the full local Z-height to extend downwards
+#     top_z = size_z - (margin // 2)
+#
+#     # Initialize local CPU volume
+#     small_cylinder_volume = np.zeros((size_xy, size_xy, size_z), dtype=np.float32)
+#
+#     # Generate the curved tube segment
+#     cylinder_mask_np = create_torus_segment(
+#         data=small_cylinder_volume,
+#         center=[center_xy, center_xy, top_z],
+#         tube_radius=radius,
+#         height=height,
+#         curve_radius=safe_radius,
+#         inner_radius=radius - 3.0
+#     )
+#
+#     # Apply intensity to the solid mask
+#     small_cylinder_volume[cylinder_mask_np > 0] = intensity
+#
+#     # --- Deform Small Cylinder (CPU) ---
+#     deformed_small_np = bspline(small_cylinder_volume, grid_density_factor, deformation_factor)
+#
+#     # --- Move Result to GPU ---
+#     deformed_small_cylinder = torch.from_numpy(deformed_small_np).float().to(DEVICE)
+#
+#     # --- Initialize Large Volume (PyTorch/GPU) ---
+#     cylinder_vol = torch.zeros_like(current_volume_tensor)
+#
+#     x, y, z = pos
+#
+#     # --- Calculate raw destination coordinates ---
+#     x_start = int(x - center_xy)
+#     x_end = int(x_start + size_xy)
+#     y_start = int(y - center_xy)
+#     y_end = int(y_start + size_xy)
+#
+#     # --- Fix 4: Direction of placement ---
+#     # The tube is placed extending DOWNWARDS from the sampled (z) position
+#     z_start = int(z - size_z)
+#     z_end = int(z)
+#
+#     # --- Clamp coordinates (Destination boundaries) ---
+#     sphere_x_start = max(0, x_start)
+#     sphere_x_end = min(data_shape[0], x_end)
+#     sphere_y_start = max(0, y_start)
+#     sphere_y_end = min(data_shape[1], y_end)
+#     sphere_z_start = max(0, z_start)
+#     sphere_z_end = min(data_shape[2], z_end)
+#
+#     # --- Calculate Source coordinates ---
+#     small_x_start = sphere_x_start - x_start
+#     small_x_end = small_x_start + (sphere_x_end - sphere_x_start)
+#     small_y_start = sphere_y_start - y_start
+#     small_y_end = small_y_start + (sphere_y_end - sphere_y_start)
+#     small_z_start = sphere_z_start - z_start
+#     small_z_end = small_z_start + (sphere_z_end - sphere_z_start)
+#
+#     # --- Apply Safe Assignment ---
+#     if (sphere_x_end > sphere_x_start and
+#             sphere_y_end > sphere_y_start and
+#             sphere_z_end > sphere_z_start):
+#         cylinder_vol[sphere_x_start:sphere_x_end,
+#         sphere_y_start:sphere_y_end,
+#         sphere_z_start:sphere_z_end] = deformed_small_cylinder[
+#                                        small_x_start:small_x_end,
+#                                        small_y_start:small_y_end,
+#                                        small_z_start:small_z_end]
+#
+#     # --- Create Mask ---
+#     mask = torch.round(cylinder_vol) != 0
+#
+#     return cylinder_vol, mask

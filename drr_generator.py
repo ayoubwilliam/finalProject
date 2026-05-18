@@ -7,7 +7,7 @@ from project_paths import INPUT_DIR, OUTPUT_DIR, FILE_EXTENSION
 from pipeline import pipeline
 
 # generation numbers
-NUMBER_OF_PAIRS_IN_SCAN = 5
+NUMBER_OF_PAIRS_IN_SCAN = 10
 
 # randomization parameters
 R_MIN = 20
@@ -17,12 +17,53 @@ HEIGHT = 200
 ROT_ANGLE_RANGE_DEG = 15.0  # sample angles in [-15, 15]
 
 
-def sample_point_in_seg(coords: np.ndarray) -> tuple[int, int, int]:
-    # Sample a random index from the available seg voxels
-    idx = np.random.randint(0, len(coords))
+# def sample_point_in_seg(coords: np.ndarray) -> tuple[int, int, int]:
+#     # Sample a random index from the available seg voxels
+#     idx = np.random.randint(0, len(coords))
+#
+#     # Return the voxel coordinate as a tuple (x, y, z)
+#     return tuple(coords[idx])
 
-    # Return the voxel coordinate as a tuple (x, y, z)
-    return tuple(coords[idx])
+def sample_point_in_seg(seg_mask: np.ndarray) -> list[int]:
+    """
+    Samples a starting point for the cylinder.
+    Z is randomly sampled from the top 120 voxels of the ACTUAL lung segmentation.
+    X and Y are then fixed strictly to the center of the lung mask AT that specific Z slice.
+    """
+    # 1. Find all Z coordinates where lung segmentation actually exists (> 0)
+    nonzero_z_coords = np.argwhere(seg_mask > 0)[:, 2]
+
+    if len(nonzero_z_coords) == 0:
+        # Fallback to full volume shape if the mask happens to be empty
+        z_max = seg_mask.shape[2] - 1
+    else:
+        # Get the absolute highest voxel that belongs to the lungs
+        z_max = int(np.max(nonzero_z_coords))
+
+    # 2. Define the safe Z range (120 voxels down from the top of the lungs)
+    z_min = max(0, z_max - 120)
+
+    # 3. Randomly sample Z
+    if z_max > z_min:
+        sampled_z = int(np.random.randint(z_min, z_min + 20))
+    else:
+        sampled_z = max(0, z_max)
+
+    # 4. Find the center of X and Y specifically for the sampled Z slice
+    slice_coords = np.argwhere(seg_mask[:, :, sampled_z] > 0)
+
+    if len(slice_coords) > 0:
+        # Calculate the center based on the bounding box of the lungs at this specific slice
+        min_x, min_y = np.min(slice_coords, axis=0)
+        max_x, max_y = np.max(slice_coords, axis=0)
+        center_x = int((min_x + max_x) // 2)
+        center_y = int((min_y + max_y) // 2)
+    else:
+        # Fallback to global volume center if the sampled slice happens to be empty
+        center_x = seg_mask.shape[0] // 2
+        center_y = seg_mask.shape[1] // 2
+
+    return [center_x, center_y, sampled_z]
 
 
 def get_random_rotation_angles(range_deg: float = ROT_ANGLE_RANGE_DEG) -> tuple[float, float, float]:
@@ -70,8 +111,10 @@ def create_pair(pair_dir: str, ct_data: np.ndarray, seg_mask: np.ndarray,
     coords = np.argwhere(seg_mask > 0)  # Collect coordinates of all voxels that belong to lungs
     if len(coords) == 0:
         return
-    prior_pos = sample_point_in_seg(coords)
-    current_pos = sample_point_in_seg(coords)
+    # prior_pos = sample_point_in_seg(coords)
+    # current_pos = sample_point_in_seg(coords)
+    prior_pos = sample_point_in_seg(seg_mask)
+    current_pos = sample_point_in_seg(seg_mask)
 
     # get random rotation angles for prior and current
     prior_angle = get_random_rotation_angles()

@@ -18,6 +18,7 @@ POOLING_KERNEL_SIZE = 8
 INTENSITY = 1250
 GRID_DENSITY_FACTOR = 16
 DEFORMATION_FACTOR = 0.2
+MARGIN_FACTOR = 1
 
 # images filenames
 CURRENT_FILENAME = "current.png"
@@ -172,7 +173,7 @@ def pipeline(pair_dir: str, ct_data: np.ndarray, lungs_mask: np.ndarray, radius:
     data = torch.from_numpy(ct_data).float().to(DEVICE)
     seg = torch.from_numpy(lungs_mask).bool().to(DEVICE)
 
-    margin = radius
+    margin = radius * MARGIN_FACTOR
 
     # ==========================================
     # PHASE 1: Process Current CT
