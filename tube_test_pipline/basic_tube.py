@@ -294,6 +294,23 @@ def build_tube_volume(ct_shape: Tuple[int, int, int], mask_data: np.ndarray, par
         mask_data, top_point, bottom_point, search_radius, cfg.PATH_SMOOTHING_SIGMA
     )
 
+    z_top_ct = ct_shape[2] - 1
+    current_top_z = path_z[0]
+    current_top_x = path_x[0]
+    current_top_y = path_y[0]
+
+    if current_top_z < z_top_ct:
+        print(f"Extending tube straight up from Z={current_top_z} to Z={z_top_ct}...")
+        # Create coordinates for the straight line going up
+        ext_z = list(range(z_top_ct, current_top_z, -1))
+        ext_x = np.full(len(ext_z), current_top_x)
+        ext_y = np.full(len(ext_z), current_top_y)
+
+        # Prepend the extension to the original smoothed paths
+        path_x = np.concatenate((ext_x, path_x))
+        path_y = np.concatenate((ext_y, path_y))
+        path_z = ext_z + path_z
+
     print(f"Building tube on {device}...")
     solid_volume, hollow_volume = build_tube_gpu(
         ct_shape, path_x, path_y, path_z,
@@ -301,6 +318,13 @@ def build_tube_volume(ct_shape: Tuple[int, int, int], mask_data: np.ndarray, par
     )
 
     print("Sanity check: clipping tube to segmentation...")
-    hollow_volume[mask_data == 0] = 0
+
+    # hollow_volume[mask_data == 0] = 0
+
+    clip_margin = 20  # Number of slices to skip clipping near the top
+    clip_limit_z = max(0, current_top_z - clip_margin)
+    for z in range(clip_limit_z):
+        slice_mask = mask_data[:, :, z]
+        hollow_volume[:, :, z][slice_mask == 0] = 0
 
     return hollow_volume
