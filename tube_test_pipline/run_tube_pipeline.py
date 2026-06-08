@@ -13,14 +13,17 @@ OUTPUT_DIR = "./output/pipeline_output/pair"
 input_ct_path = "../ct/ct_file1.nii.gz"
 input_seg_path = "./segs/ct_file1_full_airway_v2.nii.gz"
 
+
 def get_filename_from_path(path: str) -> str:
     return os.path.basename(path).split('.')[0]
+
 
 def get_pair_dir(pair_index: int, input_path: str, suffix: str) -> str:
     input_filename = get_filename_from_path(input_path)
     path = os.path.join(OUTPUT_DIR, f"{input_filename}_Pair{pair_index}_{suffix}")
     os.makedirs(path, exist_ok=True)
     return path + os.sep
+
 
 def get_random_rotation_angles():
     """Generates random rotation angles based on config ranges."""
@@ -29,12 +32,13 @@ def get_random_rotation_angles():
     z = np.random.uniform(-cfg.ROT_ANGLE_Z_RANGE_DEG, cfg.ROT_ANGLE_Z_RANGE_DEG)
     return [x, y, z]
 
+
 if __name__ == '__main__':
 
     # Bypass requirement for CT_ORIGINAL_DIR during local testing if needed
     if getattr(cfg, 'CT_ORIGINAL_DIR', None) is None:
         cfg.CT_ORIGINAL_DIR = "./ct"
-    
+
     print(f"--- Starting Tube Pipeline Execution ---")
     print(f"Target CT: {input_ct_path}")
     print(f"Target Seg: {input_seg_path}")
@@ -42,8 +46,6 @@ if __name__ == '__main__':
     start_time = time.time()
 
     print("Loading CT and segmentation mask...")
-    
-
 
     ct_data, _, _ = load_nifti(input_ct_path)
     lung_mask, _, _ = load_nifti(input_seg_path)
@@ -55,7 +57,7 @@ if __name__ == '__main__':
 
         # Generate unique parameters for the tube and random rotation angles
         tube_params = get_randomized_tube_params(lung_mask.astype(np.uint8))
-        
+
         prior_angle = get_random_rotation_angles()
         current_angle = get_random_rotation_angles()
 
@@ -73,7 +75,7 @@ if __name__ == '__main__':
             ct_data=ct_data,
             lungs_mask=lung_mask,
             prior_tube_params=tube_params,
-            current_tube_params=tube_params, # Normally same tube params used for prior/current
+            current_tube_params=tube_params,  # Normally same tube params used for prior/current
             prior_angles=prior_angle,
             current_angles=current_angle,
             has_prior_tube=has_prior_tube,
