@@ -114,9 +114,9 @@ def get_deformed_sphere_fast(current_volume_tensor, intensity, pos, radius, marg
         sphere_vol[sphere_x_start:sphere_x_end,
         sphere_y_start:sphere_y_end,
         sphere_z_start:sphere_z_end] = deformed_small_sphere[
-            small_x_start:small_x_end,
-            small_y_start:small_y_end,
-            small_z_start:small_z_end]
+                                       small_x_start:small_x_end,
+                                       small_y_start:small_y_end,
+                                       small_z_start:small_z_end]
 
     # remove bspline interpolation fuzz
     mask = torch.round(sphere_vol) != 0

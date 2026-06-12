@@ -4,7 +4,6 @@ Rotates the lung segmentation mask, then computes tight Y bounds while keeping X
 """
 
 import torch
-import numpy as np
 
 import config as cfg
 from datagen.rotation import rotate_ct_scan

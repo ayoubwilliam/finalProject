@@ -13,7 +13,6 @@ import cupy as cp
 from cupyx.scipy.ndimage import distance_transform_edt as edt_gpu
 from scipy.ndimage import distance_transform_edt as edt_cpu
 from scipy.ndimage import gaussian_filter1d
-import random
 import math
 import sys
 import os
@@ -41,9 +40,9 @@ SHAVING_BOOL = False
 SHAVING_SIGMA = 1.1
 
 # Random Walk Retry Parameters
-MAX_CIRCLE_TRIES = 5000       # Max attempts to find a safe circle at each z-slice
+MAX_CIRCLE_TRIES = 5000  # Max attempts to find a safe circle at each z-slice
 MAX_CONSECUTIVE_FAILURES = 50  # Number of consecutive z-slice failures before giving up on this walk
-TUBE_RESTART_ATTEMPTS = 5     # How many times to restart with a smaller diameter before failing entirely
+TUBE_RESTART_ATTEMPTS = 5  # How many times to restart with a smaller diameter before failing entirely
 TUBE_DIAMETER_SHRINK_STEP = 1.0  # How much to reduce the diameter on each restart
 
 
@@ -152,7 +151,7 @@ def extract_centerline(mask, pt_top, z_target, placement, sigma, tube_radius, wa
         up_path_x.append(up_cx + wiggle_x)
         up_path_y.append(up_cy + wiggle_y)
         up_path_z.append(z)
-        
+
     # Reverse upward path so it connects seamlessly to the downward path
     up_path_x.reverse()
     up_path_y.reverse()
@@ -183,7 +182,8 @@ def extract_centerline(mask, pt_top, z_target, placement, sigma, tube_radius, wa
 
         if not accepted:
             consecutive_failures += 1
-            print(f"  WARNING: No safe placement at z={z} (consecutive failures: {consecutive_failures}/{max_consecutive_failures})")
+            print(
+                f"  WARNING: No safe placement at z={z} (consecutive failures: {consecutive_failures}/{max_consecutive_failures})")
             if consecutive_failures >= max_consecutive_failures:
                 raise TubeWalkFailure(
                     f"Random walk stuck: {consecutive_failures} consecutive z-slices "
@@ -260,14 +260,15 @@ def build_tube_gpu(shape, px, py, pz, diameter, thickness, shaving_bool, shave_s
     disk_area = disk.sum()
 
     slices = solid.permute(2, 0, 1).unsqueeze(1)
-    
+
     # Process convolution in chunks to save memory
     eroded = torch.zeros_like(slices)
     chunk_size = 32
     for start_idx in range(0, slices.shape[0], chunk_size):
         end_idx = min(start_idx + chunk_size, slices.shape[0])
-        eroded[start_idx:end_idx] = (F.conv2d(slices[start_idx:end_idx], disk_kernel, padding=r) >= disk_area).float()
-        
+        eroded[start_idx:end_idx] = (
+                F.conv2d(slices[start_idx:end_idx], disk_kernel, padding=r) >= disk_area).float()
+
     shell = ((slices > 0) & (eroded < 1)).float()
 
     hollow = shell.squeeze(1).permute(1, 2, 0) * tube_intensity
@@ -344,7 +345,7 @@ def add_tube_to_ct(ct_data, trachea_mask, tube_diameter, tube_thickness):
             # Mask tube to trachea region only for the downward walk (z <= z_hi).
             # The upward extrapolation (z > z_hi) ignores the mask so it isn't cut short.
             z_hi = top[2]
-            tube_hollow[:, :, :z_hi+1][mask_np[:, :, :z_hi+1] == 0] = 0
+            tube_hollow[:, :, :z_hi + 1][mask_np[:, :, :z_hi + 1] == 0] = 0
 
             # Insert tube into CT volume
             tube_mask = tube_hollow > 0

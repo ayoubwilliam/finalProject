@@ -6,6 +6,7 @@ Iterates all CT scans, samples random parameters, and calls the pipeline for eac
 import os
 import time
 import numpy as np
+import argparse
 
 import config as cfg
 from lib.nifti_io import load_nifti, create_seg_path
@@ -68,7 +69,7 @@ def create_pair(pair_dir, ct_data, lung_mask, trachea_mask):
 
     has_prior_tube = np.random.random() < cfg.ADD_TUBE_PRIOR_PROBABILITY
     has_current_tube = np.random.random() < cfg.ADD_TUBE_CURRENT_PROBABILITY
-    
+
     from datagen.tube_randomization import get_random_tube_diameter
     tube_diameter, tube_thickness = get_random_tube_diameter()
 
@@ -129,11 +130,10 @@ def create_pairs_for_all_scans():
 
 
 if __name__ == "__main__":
-    import argparse
     parser = argparse.ArgumentParser(description="Run data generation directly.")
     parser.add_argument("ct_dir", type=str, help="Path to the directory containing original CT scans.")
     args = parser.parse_args()
-    
+
     cfg.set_ct_input_dir(args.ct_dir)
 
     start_time = time.time()

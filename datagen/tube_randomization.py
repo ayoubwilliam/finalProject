@@ -5,6 +5,7 @@ import math
 TUBE_HEIGHT_MIN = 0.7
 TUBE_HEIGHT_MAX = 0.9
 
+
 def get_random_tube_diameter():
     """
     Returns a random tube diameter and its corresponding thickness.
@@ -14,6 +15,7 @@ def get_random_tube_diameter():
     diameter = math.floor(min(max(random.gauss(8, 4), 8), 11))
     thickness = math.ceil(diameter / 2)
     return diameter, thickness
+
 
 def get_random_tube_params(tube_diameter):
     """

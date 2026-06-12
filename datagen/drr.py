@@ -3,7 +3,6 @@ DRR (Digitally Reconstructed Radiograph) creation and post-processing.
 Pipeline: CT pre-processing → sum projection → flip → normalize → resize → CLAHE → sharpen.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 from skimage import exposure
 import torch

@@ -117,6 +117,7 @@ def rotate_and_drr(data, angles, seg, crop_margin=None, use_crop=True):
 
 def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr, heatmap_path):
     """Computes difference heatmap and saves both overlay PNG and raw NIfTI."""
+
     def ensure_numpy(data):
         if isinstance(data, torch.Tensor):
             return data.detach().cpu().numpy()
@@ -154,7 +155,7 @@ def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr, heatma
 def pipeline(pair_dir, ct_data, lungs_mask, trachea_mask, radius,
              prior_pos, current_pos, prior_angles, current_angles,
              has_prior_mass=True, has_current_mass=True,
-             has_prior_tube=True, has_current_tube=True, 
+             has_prior_tube=True, has_current_tube=True,
              tube_diameter=8.0, tube_thickness=2,
              use_crop=True):
     """
