@@ -15,8 +15,8 @@ import nibabel as nib
 import config as cfg
 from lib.nifti_io import load_nifti
 from segmentation.tube_seg import generate_full_airway_mask
-from datagen.pipeline import pipeline
-from datagen.generator import get_random_radius, sample_point_in_lungs, get_random_rotation_angles
+from datagen1.pipeline import pipeline
+from datagen1.generator import get_random_radius, sample_point_in_lungs, get_random_rotation_angles
 
 # ==========================================
 # CONFIGURATION & PATHS
@@ -151,7 +151,7 @@ if __name__ == '__main__':
         has_prior_tube = np.random.random() < cfg.ADD_TUBE_PRIOR_PROBABILITY
         has_current_tube = np.random.random() < cfg.ADD_TUBE_CURRENT_PROBABILITY
         
-        from datagen.tube_randomization import get_random_tube_diameter
+        from datagen1.tube_randomization import get_random_tube_diameter
         tube_diameter, tube_thickness = get_random_tube_diameter()
 
         print(f"Radius: {radius}")

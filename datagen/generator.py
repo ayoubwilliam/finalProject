@@ -4,12 +4,13 @@ Iterates all CT scans, samples random parameters, and calls the pipeline for eac
 """
 
 import os
+import random
 import time
 import numpy as np
 import argparse
 
 import config as cfg
-from lib.nifti_io import load_nifti, create_seg_path
+from lib.nifti_io import load_nifti, create_lungs_seg_path
 from datagen.pipeline import pipeline
 
 
@@ -84,11 +85,11 @@ def create_pair(pair_dir, ct_data, lung_mask, trachea_mask):
              tube_thickness=tube_thickness)
 
 
-def create_pairs_for_scan(input_path, seg_path, trachea_seg_path, filename):
+def create_pairs_for_scan(input_path, lungs_seg_path, trachea_seg_path, filename):
     """Creates all pairs for a single CT scan."""
     print("\nCreating pairs for ", input_path)
     ct_data, _, _ = load_nifti(input_path)
-    seg_data, _, _ = load_nifti(seg_path)
+    lungs_data, _, _ = load_nifti(lungs_seg_path)
 
     # Load trachea segmentation if tube is enabled
     trachea_data = None
@@ -101,40 +102,81 @@ def create_pairs_for_scan(input_path, seg_path, trachea_seg_path, filename):
     for index in range(1, cfg.NUMBER_OF_PAIRS_PER_SCAN + 1):
         pair_dir = _get_pair_dir(index, filename)
         print("\nPair number: ", index)
-        create_pair(pair_dir, ct_data, seg_data, trachea_data)
+        create_pair(pair_dir, ct_data, lungs_data, trachea_data)
 
 
 def create_trachea_seg_path(filename):
     """Builds the trachea segmentation output path for a given CT filename."""
-    os.makedirs(cfg.SEGMENTATION_DIR, exist_ok=True)
+    os.makedirs(cfg.TRACHEA_SEGMENTATION_DIR, exist_ok=True)
     base = filename.split(cfg.NIFTI_EXTENSION)[0]
-    return os.path.join(cfg.SEGMENTATION_DIR, base + cfg.TRACHEA_SEG_SUFFIX + cfg.NIFTI_EXTENSION)
+    return os.path.join(cfg.TRACHEA_SEGMENTATION_DIR, base + cfg.TRACHEA_SEG_SUFFIX + cfg.NIFTI_EXTENSION)
 
 
 def create_pairs_for_all_scans():
     """Iterates all CT scans in ct_original, creates pairs for each."""
-    for filename in os.listdir(cfg.CT_ORIGINAL_DIR):
+
+    # 1. Load and shuffle the file list to distribute work across multiple processes
+    all_files = os.listdir(cfg.CT_ORIGINAL_DIR)
+    random.shuffle(all_files)
+
+    for filename in all_files:
         input_path = os.path.join(cfg.CT_ORIGINAL_DIR, filename)
         output_path = _create_output_path(filename)
-        seg_path = create_seg_path(filename)
+        lungs_seg_path = create_lungs_seg_path(filename)
         trachea_seg_path = create_trachea_seg_path(filename)
 
-        if os.path.exists(output_path):
-            print(f"Output dir exists, skipping scan: {output_path}")
+        # 2. Atomic lock mechanism to prevent race conditions
+        try:
+            # Attempt to create target directory. exist_ok=False is critical here!
+            os.makedirs(output_path, exist_ok=False)
+        except FileExistsError:
+            # Another process has already created this directory. Skip to next scan.
+            print(f"Skipping {filename}, another process is already working on it.")
             continue
-        elif not os.path.exists(seg_path):
-            print(f"Can't find {seg_path} file to load. Make sure to run seg_generator.py first"
+
+        # 3. Verify segmentations exist before starting the heavy pipeline
+        if not os.path.exists(lungs_seg_path):
+            print(f"Can't find {lungs_seg_path} file to load. Make sure to run seg_generator.py first"
                   f" to create the lungs segmentation!")
-        else:
-            create_pairs_for_scan(input_path, seg_path, trachea_seg_path, filename)
+            continue
+
+        elif not os.path.exists(trachea_seg_path):
+            print(f"Can't find {trachea_seg_path} file to load. Make sure to run seg_generator.py first"
+                  f" to create the trachea segmentation!")
+            continue
+
+        # Lock acquired successfully and segmentations exist. Proceed to pipeline.
+        create_pairs_for_scan(input_path, lungs_seg_path, trachea_seg_path, filename)
 
 
-if __name__ == "__main__":
+# def create_pairs_for_all_scans():
+#     """Iterates all CT scans in ct_original, creates pairs for each."""
+#     for filename in os.listdir(cfg.CT_ORIGINAL_DIR):
+#         input_path = os.path.join(cfg.CT_ORIGINAL_DIR, filename)
+#         output_path = _create_output_path(filename)
+#         lungs_seg_path = create_lungs_seg_path(filename)
+#         trachea_seg_path = create_trachea_seg_path(filename)
+#
+#         if os.path.exists(output_path):
+#             print(f"Output dir exists, skipping scan: {output_path}")
+#             continue
+#         elif not os.path.exists(lungs_seg_path):
+#             print(f"Can't find {lungs_seg_path} file to load. Make sure to run seg_generator.py first"
+#                   f" to create the lungs segmentation!")
+#         elif not os.path.exists(trachea_seg_path):
+#             print(f"Can't find {trachea_seg_path} file to load. Make sure to run seg_generator.py first"
+#                   f" to create the trachea segmentation!")
+#         else:
+#             create_pairs_for_scan(input_path, lungs_seg_path, trachea_seg_path, filename)
+
+
+def run_generator():
     parser = argparse.ArgumentParser(description="Run data generation directly.")
     parser.add_argument("ct_dir", type=str, help="Path to the directory containing original CT scans.")
     args = parser.parse_args()
 
     cfg.set_ct_input_dir(args.ct_dir)
+    print(7)
 
     start_time = time.time()
     create_pairs_for_all_scans()

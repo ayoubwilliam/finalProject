@@ -12,8 +12,8 @@ import numpy as np
 # FEATURE TOGGLES
 # ==============================================================================
 
-ADD_TUBE = True                # Generate an intubation tube in the CT volume
-ADD_DEFORMED_MASS = False       # Generate a deformed ball mass in the CT volume
+ADD_TUBE = True  # Generate an intubation tube in the CT volume
+ADD_DEFORMED_MASS = False  # Generate a deformed ball mass in the CT volume
 
 # ==============================================================================
 # PROJECT ROOT, DATA PATHS & TEMP SETUP
@@ -21,7 +21,8 @@ ADD_DEFORMED_MASS = False       # Generate a deformed ball mass in the CT volume
 
 _PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-DATA_DIR = os.path.join(os.path.dirname(_PROJECT_ROOT), "data")
+DATA_DIR = os.path.join(_PROJECT_ROOT, "data")
+# DATA_DIR = os.path.join(os.path.dirname(_PROJECT_ROOT), "data")
 
 # --- FIX FOR [Errno 28] No space left on device ---
 # Create a custom temporary directory inside your lab storage space
@@ -40,15 +41,20 @@ os.environ['JOBLIB_TEMP_FOLDER'] = '/dev/shm'
 
 # 2. Force multiprocessing to use local /tmp for its 'pymp-' folders to prevent "Device or resource busy"
 import multiprocessing.util
+
+
 def _custom_get_temp_dir():
     if multiprocessing.util._tempdir is None:
         multiprocessing.util._tempdir = tempfile.mkdtemp(prefix='pymp-', dir='/tmp')
     return multiprocessing.util._tempdir
+
+
 multiprocessing.util.get_temp_dir = _custom_get_temp_dir
 # -------------------------------------------
 
 CT_ORIGINAL_DIR = None  # set at runtime via set_ct_input_dir()
-SEGMENTATION_DIR = os.path.join(DATA_DIR, "segmentations")
+LUNGS_SEGMENTATION_DIR = os.path.join(DATA_DIR, "lungs_segmentations")
+TRACHEA_SEGMENTATION_DIR = os.path.join(DATA_DIR, "trachea_segmentations")
 GENERATED_SYNTHETIC_DIR = os.path.join(DATA_DIR, "generated_synthetic")
 MODEL_WEIGHTS_DIR = os.path.join(DATA_DIR, "model_weights")
 EVALUATION_DIR = os.path.join(DATA_DIR, "evaluation")
@@ -186,6 +192,7 @@ PLOT_FIGSIZE_ROC = (10, 8)
 PLOT_FIGSIZE_CC = (26, 30)
 NIFTI_AFFINE = np.eye(4)
 
+
 # ==============================================================================
 # AUTO-CREATE DATA DIRECTORIES
 # ==============================================================================
@@ -194,10 +201,11 @@ NIFTI_AFFINE = np.eye(4)
 def ensure_directories():
     """Creates all required data directories if they don't already exist."""
     for d in [
-        SEGMENTATION_DIR, GENERATED_SYNTHETIC_DIR, MODEL_WEIGHTS_DIR,
+        LUNGS_SEGMENTATION_DIR, TRACHEA_SEGMENTATION_DIR,
+        GENERATED_SYNTHETIC_DIR, MODEL_WEIGHTS_DIR,
         EVALUATION_DIR, EVAL_VISUALS_DIR, EVAL_PW_DIR,
         EVAL_CC_DIR, EVAL_CC_VISUALS_DIR, EVAL_CC_METRICS_DIR,
-        CUSTOM_TMP_DIR # Also ensure our new tmp directory is included
+        CUSTOM_TMP_DIR  # Also ensure our new tmp directory is included
     ]:
         os.makedirs(d, exist_ok=True)
 
