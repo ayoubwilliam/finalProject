@@ -9,28 +9,24 @@ Usage:
     python run_all.py /path/to/ct/scans --skip-seg          # skip segmentation (already done)
 """
 
-import argparse
 import time
 
-import config as cfg
-
-# --- Global Imports to prevent Multiprocessing Deadlocks ---
-from training.trainer import train
+from evaluation.evaluate import main as eval_main
 
 
-def run_training():
-    """Stage 3: Train the model."""
+def run_evaluation():
+    """Stage 4: Run full evaluation."""
     print("\n" + "=" * 60)
-    print("TRAINING")
+    print("EVALUATION")
     print("=" * 60)
 
-    train()
+    eval_main()
 
 
 def main():
     start_time = time.time()
 
-    run_training()
+    run_evaluation()
 
     elapsed = time.time() - start_time
     print("\n" + "=" * 60)
