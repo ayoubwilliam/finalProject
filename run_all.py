@@ -20,7 +20,7 @@ import config as cfg
 
 # --- Global Imports to prevent Multiprocessing Deadlocks ---
 from totalsegmentator.python_api import totalsegmentator
-from lib.nifti_io import load_nifti, merge_nifti, create_seg_path
+from lib.nifti_io import merge_nifti, create_lungs_seg_path
 from datagen.generator import create_pairs_for_scan, _create_output_path, create_trachea_seg_path
 from segmentation.tube_seg import generate_full_airway_mask
 from training.trainer import train
@@ -72,7 +72,7 @@ def run_segmentation(scan_files):
         print(f"segmenting lungs: {filename}")
 
         input_path = filepath # Use the actual location found by os.walk
-        seg_path = create_seg_path(filename)
+        seg_path = create_lungs_seg_path(filename)
 
         if os.path.exists(seg_path):
             print(f"  Segmentation exists, skipping: {seg_path}")
@@ -135,18 +135,18 @@ def run_data_generation(scan_files):
         filename = os.path.basename(filepath)
         input_path = filepath
         output_path = _create_output_path(filename)
-        seg_path = create_seg_path(filename)
+        lungs_path = create_lungs_seg_path(filename)
         trachea_seg_path = create_trachea_seg_path(filename)
 
         if os.path.exists(output_path):
             print(f"  Output exists, skipping: {output_path}")
             continue
-        elif not os.path.exists(seg_path):
+        elif not os.path.exists(lungs_path):
             print(f"  Missing segmentation for {filename}, skipping.")
             continue
         else:
             print(f"  -> Generating pairs for: {filename}...")
-            create_pairs_for_scan(input_path, seg_path, trachea_seg_path, filename)
+            create_pairs_for_scan(input_path, lungs_path, trachea_seg_path, filename)
 
 
 def run_training():
