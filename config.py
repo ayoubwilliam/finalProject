@@ -43,8 +43,14 @@ os.environ['JOBLIB_TEMP_FOLDER'] = '/dev/shm'
 import multiprocessing.util
 
 
+# def _custom_get_temp_dir():
+#     if multiprocessing.util._tempdir is None:
+#         multiprocessing.util._tempdir = tempfile.mkdtemp(prefix='pymp-', dir='/tmp')
+#     return multiprocessing.util._tempdir
+
+
 def _custom_get_temp_dir():
-    if multiprocessing.util._tempdir is None:
+    if getattr(multiprocessing.util, '_tempdir', None) is None:
         multiprocessing.util._tempdir = tempfile.mkdtemp(prefix='pymp-', dir='/tmp')
     return multiprocessing.util._tempdir
 
