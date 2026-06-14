@@ -62,8 +62,8 @@ def load_image_from_nifti(path):
     return data
 
 
-def create_seg_path(filename):
+def create_lungs_seg_path(filename):
     """Builds the segmentation output path for a given CT filename."""
-    os.makedirs(cfg.SEGMENTATION_DIR, exist_ok=True)
+    os.makedirs(cfg.LUNGS_SEGMENTATION_DIR, exist_ok=True)
     base = filename.split(cfg.NIFTI_EXTENSION)[0]
-    return os.path.join(cfg.SEGMENTATION_DIR, base + cfg.SEG_SUFFIX + cfg.NIFTI_EXTENSION)
+    return os.path.join(cfg.LUNGS_SEGMENTATION_DIR, base + cfg.SEG_SUFFIX + cfg.NIFTI_EXTENSION)

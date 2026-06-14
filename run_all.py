@@ -21,7 +21,7 @@ import config as cfg
 # --- Global Imports to prevent Multiprocessing Deadlocks ---
 from totalsegmentator.python_api import totalsegmentator
 from lib.nifti_io import load_nifti, merge_nifti, create_seg_path
-from datagen1.generator import create_pairs_for_scan, _create_output_path, create_trachea_seg_path
+from datagen.generator import create_pairs_for_scan, _create_output_path, create_trachea_seg_path
 from segmentation.tube_seg import generate_full_airway_mask
 from training.trainer import train
 from evaluation.evaluate import main as eval_main

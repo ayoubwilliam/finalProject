@@ -149,27 +149,6 @@ def create_pairs_for_all_scans():
         create_pairs_for_scan(input_path, lungs_seg_path, trachea_seg_path, filename)
 
 
-# def create_pairs_for_all_scans():
-#     """Iterates all CT scans in ct_original, creates pairs for each."""
-#     for filename in os.listdir(cfg.CT_ORIGINAL_DIR):
-#         input_path = os.path.join(cfg.CT_ORIGINAL_DIR, filename)
-#         output_path = _create_output_path(filename)
-#         lungs_seg_path = create_lungs_seg_path(filename)
-#         trachea_seg_path = create_trachea_seg_path(filename)
-#
-#         if os.path.exists(output_path):
-#             print(f"Output dir exists, skipping scan: {output_path}")
-#             continue
-#         elif not os.path.exists(lungs_seg_path):
-#             print(f"Can't find {lungs_seg_path} file to load. Make sure to run seg_generator.py first"
-#                   f" to create the lungs segmentation!")
-#         elif not os.path.exists(trachea_seg_path):
-#             print(f"Can't find {trachea_seg_path} file to load. Make sure to run seg_generator.py first"
-#                   f" to create the trachea segmentation!")
-#         else:
-#             create_pairs_for_scan(input_path, lungs_seg_path, trachea_seg_path, filename)
-
-
 def run_generator():
     parser = argparse.ArgumentParser(description="Run data generation directly.")
     parser.add_argument("ct_dir", type=str, help="Path to the directory containing original CT scans.")
