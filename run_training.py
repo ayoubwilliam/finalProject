@@ -28,17 +28,7 @@ def run_training():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="End-to-end X-ray change detection pipeline.")
-    parser.add_argument("ct_dir", type=str, help="Path to the directory containing original CT scans.")
-    parser.add_argument("--data-fraction", type=float, default=1.0,
-                        help="Fraction of CT scans to use (0.0–1.0). Default: 1.0 (all).")
-    parser.add_argument("--skip-seg", action="store_true",
-                        help="Skip the segmentation stage (if already completed).")
-    args = parser.parse_args()
-
     start_time = time.time()
-
-    cfg.set_ct_input_dir(args.ct_dir)
 
     run_training()
 
