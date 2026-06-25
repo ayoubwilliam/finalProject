@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Output and data files
+output/
+pipeline_output/
+segs/
+ct/
+*.nii
+*.nii.gz
+*.mha
+*.dcm
+*.mhd
+*.raw
+*.ct
+*.zip
+*.png
+*.jpg
+*.jpeg
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
