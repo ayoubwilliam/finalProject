@@ -23,7 +23,7 @@ curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/rel
 1. Downloads the `Runnable_Version.zip` from the GitHub Releases page using `curl`.
 2. Extracts the zip file completely securely using Python's built-in `zipfile` module.
 3. Installs the bulk of dependencies (`torch`, `numpy`, `TotalSegmentator`, etc.) from `requirements.txt`.
-4. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package.
+4. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package. *(Note: While this handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
 5. Executes the master `run_all.py` orchestrator.
 
 ---
