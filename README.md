@@ -11,17 +11,17 @@ Assuming you have **Python 3.11** installed, simply copy and paste the command t
 
 **For Windows (`python` & `pip`):**
 ```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && tar -xf Runnable_Version.zip && cd Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
 ```
 
 **For Linux / macOS (`python3` & `pip3`):**
 ```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && tar -xf Runnable_Version.zip && cd Runnable_Version && pip3 install -r requirements.txt && python3 -c "import torch, os; v=torch.version.cuda; os.system('pip3 install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip3 install cupy')" && python3 run_all.py
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python3 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && pip3 install -r requirements.txt && python3 -c "import torch, os; v=torch.version.cuda; os.system('pip3 install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip3 install cupy')" && python3 run_all.py
 ```
 
 ### What this command does:
 1. Downloads the `Runnable_Version.zip` from the GitHub Releases page using `curl`.
-2. Creates a folder and extracts the zip file using `tar`.
+2. Extracts the zip file completely securely using Python's built-in `zipfile` module.
 3. Installs the bulk of dependencies (`torch`, `numpy`, `TotalSegmentator`, etc.) from `requirements.txt`.
 4. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package.
 5. Executes the master `run_all.py` orchestrator.
