@@ -104,7 +104,7 @@ Runnable_Version/
     │   └── trained_model.pth   # The final trained model weights
     │
     ├── results/                # (Demo 1) Training Pipeline Evaluation
-    │   ├── metrics.csv         # Strict F1-Score, CC, and Dice scores
+    │   ├── metrics.txt         # Strict F1-Score, CC, and Dice scores
     │   └── visuals/            # Visual grids of True vs Predicted heatmaps
     │
     └── pretrained_model_results/ # (Demo 2 & 3) Pretrained Inference Results
