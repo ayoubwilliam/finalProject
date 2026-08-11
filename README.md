@@ -101,8 +101,7 @@ Runnable_Version/
     │           └── heatmap_gt.nii.gz    # Ground Truth mask of the temporal difference
     │
     ├── checkpoints/            # (Demo 1) Trained Model Weights
-    │   ├── best_model.pth      # Lowest validation loss weights
-    │   └── last_model.pth
+    │   └── trained_model.pth   # The final trained model weights
     │
     ├── results/                # (Demo 1) Training Pipeline Evaluation
     │   ├── metrics.csv         # Strict F1-Score, CC, and Dice scores
