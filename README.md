@@ -1,7 +1,14 @@
-# Finding Changes of Interest in Chest X-rays in ICU
+# 🚀 Finding Changes of Interest in Chest X-rays in ICU
 **Hebrew University of Jerusalem - Final Project**  
 **Group 104**: Agam Hershko & William Ayoub  
 **Advisor:** Prof. Leo Joskowicz (CASMIP Lab) | **Mentor:** Gal Fiebelman
+
+---
+
+## 🩻 Abstract
+Detecting critical temporal changes between consecutive chest X-rays in the ICU (like endotracheal tube shifts or new lung consolidations) is essential but highly error-prone. To overcome severe medical data scarcity, we engineered an automated **twin Convolutional Neural Network (CNN) pipeline trained entirely on synthetic data**. We procedurally inject anomalies into healthy 3D CT scans, apply 3D posture rotations, and project them into synthetic 2D chest X-rays using Digitally Reconstructed Radiography (DRR). A weight-sharing twin-encoder CNN processes these X-rays to perfectly align healthy anatomy and isolate true pathological differences.
+
+---
 
 ## 🚀 Quick Start (One-Liner)
 
@@ -19,38 +26,111 @@ curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/rel
 curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python3 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && python3 -m venv venv && venv/bin/pip install -r requirements.txt && venv/bin/python -c "import torch, os; v=torch.version.cuda; os.system('venv/bin/pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'venv/bin/pip install cupy')" && venv/bin/python run_all.py
 ```
 
-*(Note: You can learn exactly how this command works, how to run scripts manually, and where to find the generated clinical results in our [**Usage & Results Guide**](USAGE_AND_RESULTS.md)!)*
+### What this one-liner does:
+1. **`curl`**: Downloads the `Runnable_Version.zip` package locally.
+2. **`zipfile`**: Perfectly extracts the folder across OS platforms.
+3. **`venv`**: Creates an isolated "Virtual Environment" to protect your system.
+4. **`pip`**: Installs `torch`, `numpy`, `TotalSegmentator`, etc., securely inside the sandbox.
+5. **`cupy`**: Detects your PyTorch CUDA version and dynamically installs the exactly matching `cupy` GPU acceleration package.
+6. **Execution**: Triggers the `run_all.py` master orchestrator inside the sandbox!
+
+*(Note: While this handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
+
+---
+
+## 🧪 Provided Demos in the Package
+
+> [!WARNING]
+> **Crucial Note Regarding Data Volume & Model Performance**
+> While this repository contains the **full, original End-to-End codebase**, the provided `Runnable_Version` only includes a heavily limited subset of raw CT scans (5 files). 
+>
+> The *highly optimized* pretrained models included in this package were trained on a massive dataset of over **2,500 CT files (~300GB of data)**. Hosting a 300GB dataset on GitHub is physically impossible, and distributing it requires strict ethical permissions from the CASMIP lab. 
+> 
+> Therefore, while **Demo 1** successfully demonstrates the complete training pipeline mechanics, the model trained dynamically during this demo will inevitably suffer in performance compared to the pretrained weights due to the severe lack of training data. You can partially alleviate this by increasing the `NUMBER_OF_PAIRS` parameter in `user_settings.py` to artificially expand the dataset via augmentation, but this is not a complete solution for replacing the full 300GB dataset.
+
+The `Runnable_Version` you download contains a carefully curated subset of data (to keep the download size manageable) designed to demonstrate the complete capabilities and evaluation metrics of our system. 
+
+By executing the master orchestrator (`run_all.py`), you are actively running **3 main demos**:
+
+### Demo 1: End-to-End Synthetic Pipeline (Data Gen & Training)
+This demo operates on a limited set of raw 3D CT files to procedurally generate synthetic 2D DRR X-ray pairs (both healthy and anomalous), dynamically trains the PyTorch VGGDiffNet model from scratch on your GPU, and evaluates the results.
+- **Input Data:** `data/ct/`
+- **Output Path:** `output/synthetic_pairs/` and `output/checkpoints/`
+
+### Demo 2: Clinical Inference on Pre-Generated Synthetic Data
+This demo bypasses the heavy training step. It loads our highly-optimized **Pretrained Weights**—which were painstakingly trained on the full 2,500 CT (300GB) dataset, yielding vastly higher quality and accuracy than the model produced in Demo 1. It runs rapid clinical inference on a pre-generated subset of synthetic anomalous X-rays, strictly evaluating the model's performance.
+- **Input Data:** `data/synthetic_xray/synthetic xray/`
+- **Output Path:** `output/pretrained_model_results/synthetic_xray/`
+
+### Demo 3: Clinical Inference on Real-World Patient Data
+This demo applies the same high-quality, 300GB-trained Pretrained Models to **real, chronological patient X-ray visits** from the ICU. This curated demo includes **27 patients from our COVID-19 dataset** (as detailed in the final project report). It compares their sequential scans, overlays the model's predicted anomaly heatmaps, and prints out the actual clinical physician notes alongside the visual results. *(Note: The exemplary patient featured in our final PDF report is **Patient 299**!)*
+- **Input Data:** `data/real_xray/consolidation_tube_pairs/`
+- **Output Path:** `output/pretrained_model_results/real_xray/`
+
+---
+
+## 📦 Expected Output & File Trees
+
+When you execute the master orchestrator, the codebase creates a highly structured `output/` directory locally to safely isolate all generated files, AI models, and visual results. 
+
+Here is exactly what the file tree will look like after running the demos, and where you can find everything:
+
+```text
+Runnable_Version/
+│
+├── data/                       # Contains the limited subset of input data for the demos
+│
+└── output/                     # 🚀 ALL RESULTS ARE SAVED HERE!
+    │
+    ├── synthetic_pairs/        # (Demo 1) Generated X-Rays
+    │   ├── train/
+    │   └── test/
+    │       └── scan_001/
+    │           ├── prior.nii.gz         # Baseline simulated X-ray
+    │           ├── current.nii.gz       # Simulated X-ray with injected anomaly
+    │           └── heatmap_gt.nii.gz    # Ground Truth mask
+    │
+    ├── checkpoints/            # (Demo 1) Trained Model Weights
+    │   ├── best_model.pth      # Lowest validation loss weights
+    │   └── last_model.pth
+    │
+    ├── results/                # (Demo 1) Training Pipeline Evaluation
+    │   ├── metrics.csv         # Strict F1-Score, CC, and Dice scores
+    │   └── visuals/            # Visual grids of True vs Predicted heatmaps
+    │
+    └── pretrained_model_results/ # (Demo 2 & 3) Pretrained Inference Results
+        ├── synthetic_xray/
+        │   ├── consolidation/
+        │   │   └── scan_XXX_consolidation_output.png # Heatmap comparison grid
+        │   └── tube/
+        │       └── scan_XXX_tube_output.png          # Heatmap comparison grid
+        │
+        └── real_xray/
+            ├── consolidation/
+            │   ├── patient_XXX_consolidation_output.png
+            │   └── patient_XXX_consolidation_output.txt  # Clinical notes & status
+            └── tube/
+                ├── patient_XXX_tube_output.png
+                └── patient_XXX_tube_output.txt           # Clinical notes & status
+```
+
+---
+
+## 🎮 How to Run Manually
+
+If you prefer to run the codebase manually (or want to toggle specific demos on or off), follow these steps:
+
+1. **Configure Settings**: Open `user_settings.py` in any text editor. You can easily toggle `True/False` flags to choose whether to run the Data Generation & Training pipeline (`RUN_PIPELINES = True`) or the Pretrained Clinical Inference (`RUN_PRETRAINED = True`).
+2. **Execute Orchestrator**: Run the main script via terminal:
+   ```bash
+   python run_all.py
+   ```
+   *(Ensure you are running this inside your virtual environment so the dependencies are recognized!)*
+
+---
 
 ## 📚 Codebase Architecture
 For a detailed breakdown of the internal file structure and the role of every single python script, please see the [**Codebase Structure Guide**](CODEBASE_GUIDE.md).
-
----
-
-## 🩻 Abstract
-In the Intensive Care Unit (ICU), mechanically ventilated patients require continuous monitoring. Detecting critical temporal changes between consecutive chest X-rays, such as endotracheal tube shifts or new lung consolidations, is essential but highly error-prone. 
-
-To overcome the severe scarcity of paired medical X-ray data, we engineered a fully automated **twin Convolutional Neural Network (CNN) pipeline trained entirely on synthetic data**. We procedurally insert anomalies (tubes and consolidations) into healthy 3D CT scans, apply 3D rotations to simulate realistic patient positioning, and use Digitally Reconstructed Radiography (DRR) to project them into synthetic 2D chest X-rays.
-
-A weight-sharing twin-encoder CNN processes both X-rays into a rotation-invariant latent space, using a subtraction bottleneck to perfectly align healthy anatomy and isolate true pathological differences.
-
----
-
-## ✨ Core Features
-- **Procedural Synthetic Data Generation:** Generates thousands of 2D X-ray pairs (Prior & Current) from base 3D CT scans using physical DRR ray-summing projections.
-- **Twin-Encoder CNN Architecture:** A VGG-style subtraction bottleneck architecture that natively ignores 3D patient rotation and posture shifts.
-- **Automated Anomaly Injection:** Clinically realistic procedural generation of Endotracheal Tubes (using random walks and distance transforms) and Lung Consolidations (using B-spline deformations).
-- **Connected Components Evaluation:** Object-level spatial accuracy evaluation ignoring minor 2D projection discrepancies.
-
-
-
----
-
-## ⚙️ Configuration
-The master orchestrator reads directly from `user_settings.py`. Open `user_settings.py` to easily toggle boolean flags for:
-- Data Generation targets (Consolidations vs Tubes)
-- Number of synthetic pairs to generate per CT scan
-- Whether to execute the heavy data generation/training pipeline
-- Whether to run inference using our provided Pretrained Models
 
 ---
 
