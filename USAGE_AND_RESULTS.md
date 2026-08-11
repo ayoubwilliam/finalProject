@@ -24,12 +24,12 @@ This demo operates on a limited set of raw 3D CT files to procedurally generate 
 - **Output Path:** `output/synthetic_pairs/` and `output/checkpoints/`
 
 ### Demo 2: Clinical Inference on Pre-Generated Synthetic Data
-This demo bypasses the heavy training step. It loads our highly-optimized **Pretrained Weights** and runs rapid clinical inference on a pre-generated subset of synthetic anomalous X-rays, strictly evaluating the model's performance.
+This demo bypasses the heavy training step. It loads our highly-optimized **Pretrained Weights**—which were painstakingly trained on the full 2,500 CT (300GB) dataset, yielding vastly higher quality and accuracy than the model produced in Demo 1. It runs rapid clinical inference on a pre-generated subset of synthetic anomalous X-rays, strictly evaluating the model's performance.
 - **Input Data:** `data/synthetic_xray/synthetic xray/`
 - **Output Path:** `output/pretrained_model_results/synthetic_xray/`
 
 ### Demo 3: Clinical Inference on Real-World Patient Data
-This demo applies our Pretrained Models to **real, chronological patient X-ray visits** from the ICU. It compares their sequential scans, overlays the model's predicted anomaly heatmaps, and prints out the actual clinical physician notes alongside the visual results.
+This demo applies the same high-quality, 300GB-trained Pretrained Models to **real, chronological patient X-ray visits** from the ICU. It compares their sequential scans, overlays the model's predicted anomaly heatmaps, and prints out the actual clinical physician notes alongside the visual results.
 - **Input Data:** `data/real_xray/consolidation_tube_pairs/`
 - **Output Path:** `output/pretrained_model_results/real_xray/`
 
