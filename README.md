@@ -84,20 +84,21 @@ Runnable_Version/
 │
 └── output/                     # 🚀 ALL RESULTS ARE SAVED HERE!
     │
-    ├── synthetic_pairs/        # (Demo 1) Generated X-Rays
-    │   ├── train/
-    │   └── test/
-    │       └── scan_001/
-    │           ├── prior.nii.gz         # Simulated X-ray with initial anomaly
-    │           ├── current.nii.gz       # Simulated X-ray with changed/shifted anomaly
-    │           └── heatmap_gt.nii.gz    # Ground Truth mask of the temporal difference
+    ├── generated_synthetic/    # (Demo 1) Generated X-Rays (Grouped by original CT)
+    │   ├── ct_file1/           
+    │   │   ├── Pair1/          # Each pair contains: prior, current, and heatmap_gt
+    │   │   ├── Pair2/
+    │   │   └── Pair3/
+    │   └── ct_file2/
     │
-    ├── checkpoints/            # (Demo 1) Trained Model Weights
-    │   └── trained_model.pth   # The final trained model weights
+    ├── model_weights/          # (Demo 1) Trained Model Weights
+    │   └── trained_model_weights.pth   # The final trained model weights
     │
-    ├── results/                # (Demo 1) Training Pipeline Evaluation
-    │   ├── metrics.txt         # Strict F1-Score, CC, and Dice scores
-    │   └── visuals/            # Visual grids of True vs Predicted heatmaps
+    ├── evaluation/             # (Demo 1) Training Pipeline Evaluation
+    │   ├── CC/                 # Connected Components Analysis
+    │   │   └── Dataset_Metrics/# Object-level Dice & evaluation metrics
+    │   ├── PW/                 # Pixel-Wise Analysis (ROC curves, pixel Dice)
+    │   └── Visuals/            # Visual grids (True vs Predicted heatmaps) and .nii.gz outputs
     │
     └── pretrained_model_results/ # (Demo 2 & 3) Pretrained Inference Results
         ├── synthetic_xray/
