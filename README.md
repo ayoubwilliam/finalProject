@@ -11,6 +11,7 @@ Detecting critical temporal changes between consecutive chest X-rays in the ICU 
 ---
 
 ## 🚀 Quick Start (One-Liner)
+*(Runs all 3 Demos included in this package - See below!)*
 
 We have provided a fully packaged Runnable Version of this project via GitHub Releases. You can download the packaged zip, extract it, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
 
