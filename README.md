@@ -1,6 +1,6 @@
 # 🚀 Finding Changes of Interest in Chest X-rays in ICU
 **Hebrew University of Jerusalem - Final Project**  
-**Group 104**: Agam Hershko & William Ayoub  
+**Group 104**: Agam Hershko (`agam.hershkodek@mail.huji.ac.il`) & William Ayoub (`william.ayoub@mail.huji.ac.il`)  
 **Advisor:** Prof. Leo Joskowicz (CASMIP Lab) | **Mentor:** Gal Fiebelman
 
 ---
