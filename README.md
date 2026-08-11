@@ -18,29 +18,29 @@ For a detailed breakdown of the internal file structure and the role of every si
 ## 🚀 Running the Demos - One liner quick start
 *(Runs all 3 Demos included in this package - See below!)*
 
+Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
+
+**For Windows (`python` & `pip`):**
+```bash
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip; Expand-Archive Runnable_Version.zip -DestinationPath .; cd Runnable_Version; python -m venv venv; .\venv\Scripts\activate; pip install -r requirements.txt; $cuda_ver = (python -c "import torch; print(''.join(filter(str.isdigit, torch.version.cuda)))"); pip install cupy-cuda$cuda_ver -f https://pip.cupy.dev/aarch64; python run_all.py
+```
+
+**For Linux / macOS (`python3` & `pip3`):**
+```bash
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && unzip Runnable_Version.zip && cd Runnable_Version && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt && cuda_ver=$(python -c "import torch; print(''.join(filter(str.isdigit, torch.version.cuda)))") && pip install cupy-cuda$cuda_ver -f https://pip.cupy.dev/aarch64 && python run_all.py
+```
+
 We have provided a fully packaged Runnable Version of this project via GitHub Releases. You can download the packaged zip, extract it, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
 
 > [!IMPORTANT]
 > **Python 3.11 is STRICTLY REQUIRED.** 
 > Because this project relies on highly specific native C++/CUDA deep learning bindings and strictly pinned dependency versions (like `torch==2.7.1` and `gryds`), **you must use Python 3.11**. Other versions (like 3.10 or 3.12) will fail to build the environment correctly!
 
-> [!NOTE]
-> **Execution Time:** Please allow approximately **30 minutes** for the full one-liner to complete. This includes downloading and installing all heavy dependencies, and fully executing the training and inference pipelines across all 3 demos.
-
 > [!WARNING]
 > **Data Volume & Model Performance:** The provided `Runnable_Version` includes a limited subset of 5 raw CT scans (to fit on GitHub). While **Demo 1** fully demonstrates the training pipeline, its resulting model will perform worse than our included **Pretrained Models**, which were optimized on **2,500 CT files (~300GB)**. You can increase `NUMBER_OF_PAIRS` in `user_settings.py` for more augmented data, but the pretrained weights remain far superior.
 
-Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
-
-**For Windows (`python` & `pip`):**
-```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && python -m venv venv && venv\Scripts\pip install -r requirements.txt && venv\Scripts\python -c "import torch, os; v=torch.version.cuda; os.system(r'venv\Scripts\pip install cupy-cuda' + v.split('.')[0] + 'x' if v else r'venv\Scripts\pip install cupy')" && venv\Scripts\python run_all.py
-```
-
-**For Linux / macOS (`python3` & `pip3`):**
-```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python3 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && python3 -m venv venv && venv/bin/pip install -r requirements.txt && venv/bin/python -c "import torch, os; v=torch.version.cuda; os.system('venv/bin/pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'venv/bin/pip install cupy')" && venv/bin/python run_all.py
-```
+> [!NOTE]
+> **Execution Time:** Please allow approximately **30 minutes** for the full one-liner to complete. This includes downloading and installing all heavy dependencies, and fully executing the training and inference pipelines across all 3 demos.
 
 ### What this one-liner does:
 1. **`curl`**: Downloads the `Runnable_Version.zip` package locally.
