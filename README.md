@@ -42,13 +42,7 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 > [!NOTE]
 > **Execution Time:** Please allow ~**30 minutes** for the one-liner to download heavy dependencies, train, and run inference across all 3 demos.
 
-### What this one-liner does:
-1. **`curl`**: Downloads the `Runnable_Version.zip` package locally.
-2. **`zipfile`**: Perfectly extracts the folder across OS platforms.
-3. **`venv`**: Creates an isolated "Virtual Environment" to protect your system.
-4. **`pip`**: Installs `torch`, `numpy`, `TotalSegmentator`, etc., securely inside the sandbox.
-5. **`cupy`**: Detects your PyTorch CUDA version and dynamically installs the exactly matching `cupy` GPU acceleration package.
-6. **Execution**: Triggers the `run_all.py` master orchestrator inside the sandbox!
+*(What this one-liner does: Downloads the package, securely installs all dependencies in an isolated virtual environment, and runs the entire pipeline!)*
 
 *(Note: While this handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
 
