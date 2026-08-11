@@ -16,7 +16,7 @@ For a detailed breakdown of the internal file structure and the role of every si
 ---
 
 ## 🚀 Running the Demos - One liner quick start
-*(Runs all 3 Demos included in this package - See below!)*
+*(Runs all **3 Demos** included in this package - See below!)*
 
 Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
 
