@@ -24,6 +24,9 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 > **Python 3.11 is STRICTLY REQUIRED.** 
 > Because this project relies on highly specific native C++/CUDA deep learning bindings and strictly pinned dependency versions (like `torch==2.7.1` and `gryds`), **you must use Python 3.11**. Other versions (like 3.10 or 3.12) will fail to build the environment correctly!
 
+> [!NOTE]
+> **Execution Time:** Please allow approximately **30 minutes** for the full one-liner to complete. This includes downloading and installing all heavy dependencies, and fully executing the training and inference pipelines across all 3 demos.
+
 Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
 
 **For Windows (`python` & `pip`):**
