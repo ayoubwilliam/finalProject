@@ -7,12 +7,16 @@
 
 We have provided a fully packaged Runnable Version of this project via GitHub Releases. You can download the packaged zip, extract it, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
 
-*(Note: This assumes you upload the `Runnable_Version.zip` to a GitHub Release tagged as `v1.0.0`)*
+Assuming you have **Python 3.11** installed, simply copy and paste the command that matches your operating system:
 
-Assuming you have Python 3.11 installed, simply copy and paste this into your terminal:
-
+**For Windows (`python` & `pip`):**
 ```bash
 curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && tar -xf Runnable_Version.zip && cd Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
+```
+
+**For Linux / macOS (`python3` & `pip3`):**
+```bash
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && tar -xf Runnable_Version.zip && cd Runnable_Version && pip3 install -r requirements.txt && python3 -c "import torch, os; v=torch.version.cuda; os.system('pip3 install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip3 install cupy')" && python3 run_all.py
 ```
 
 ### What this command does:
