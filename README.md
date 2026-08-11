@@ -63,7 +63,7 @@ The `Runnable_Version` you download contains a carefully curated subset of data 
 By executing the master orchestrator (`run_all.py`), you are actively running **3 main demos**:
 
 ### Demo 1: End-to-End Synthetic Pipeline (Data Gen & Training)
-This demo operates on a limited set of raw 3D CT files to procedurally generate synthetic 2D DRR X-ray pairs (both healthy and anomalous), dynamically trains the PyTorch VGGDiffNet model from scratch on your GPU, and evaluates the results.
+This demo operates on a limited set of raw 3D CT files to procedurally generate synthetic 2D DRR X-ray pairs (both containing injected anomalies to simulate temporal changes), dynamically trains the PyTorch VGGDiffNet model from scratch on your GPU, and evaluates the results.
 - **Input Data:** `data/ct/`
 - **Output Path:** `output/synthetic_pairs/` and `output/checkpoints/`
 
@@ -96,9 +96,9 @@ Runnable_Version/
     │   ├── train/
     │   └── test/
     │       └── scan_001/
-    │           ├── prior.nii.gz         # Baseline simulated X-ray
-    │           ├── current.nii.gz       # Simulated X-ray with injected anomaly
-    │           └── heatmap_gt.nii.gz    # Ground Truth mask
+    │           ├── prior.nii.gz         # Simulated X-ray with initial anomaly
+    │           ├── current.nii.gz       # Simulated X-ray with changed/shifted anomaly
+    │           └── heatmap_gt.nii.gz    # Ground Truth mask of the temporal difference
     │
     ├── checkpoints/            # (Demo 1) Trained Model Weights
     │   ├── best_model.pth      # Lowest validation loss weights
