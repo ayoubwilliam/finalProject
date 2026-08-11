@@ -35,6 +35,7 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 > [!IMPORTANT]
 > **Python 3.11 is STRICTLY REQUIRED.** 
 > Due to strict native C++/CUDA bindings and pinned dependencies, other versions (like 3.10 or 3.12) will fail to build!
+> *(Note: While the one-liner dynamically handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
 
 > [!WARNING]
 > **Data Volume & Model Performance:** The provided `Runnable_Version` includes a limited subset of 5 raw CT scans (to fit on GitHub). While **Demo 1** fully demonstrates the training pipeline, its resulting model will perform worse than our included **Pretrained Models**, which were optimized on **2,500 CT files (~300GB)**. You can increase `NUMBER_OF_PAIRS` in `user_settings.py` for more augmented data, but the pretrained weights remain far superior.
@@ -43,8 +44,6 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 > **Execution Time:** Please allow ~**30 minutes** for the one-liner to download heavy dependencies, train, and run inference across all 3 demos.
 
 *(What this one-liner does: Downloads the package, securely installs all dependencies in an isolated virtual environment, and runs the entire pipeline!)*
-
-*(Note: While this handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
 
 ---
 
