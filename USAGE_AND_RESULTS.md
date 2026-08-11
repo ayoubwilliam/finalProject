@@ -29,7 +29,7 @@ This demo bypasses the heavy training step. It loads our highly-optimized **Pret
 - **Output Path:** `output/pretrained_model_results/synthetic_xray/`
 
 ### Demo 3: Clinical Inference on Real-World Patient Data
-This demo applies the same high-quality, 300GB-trained Pretrained Models to **real, chronological patient X-ray visits** from the ICU. It compares their sequential scans, overlays the model's predicted anomaly heatmaps, and prints out the actual clinical physician notes alongside the visual results.
+This demo applies the same high-quality, 300GB-trained Pretrained Models to **real, chronological patient X-ray visits** from the ICU. This curated demo includes **27 patients from our COVID-19 dataset** (as detailed in the final project report). It compares their sequential scans, overlays the model's predicted anomaly heatmaps, and prints out the actual clinical physician notes alongside the visual results. *(Note: The exemplary patient featured in our final PDF report is **Patient 299**!)*
 - **Input Data:** `data/real_xray/consolidation_tube_pairs/`
 - **Output Path:** `output/pretrained_model_results/real_xray/`
 
