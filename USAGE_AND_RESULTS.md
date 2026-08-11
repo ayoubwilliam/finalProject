@@ -1,12 +1,82 @@
 # 🚀 Usage & Results Guide
 
-This document explains everything a new user needs to know about how to execute the project, what the one-liner command does behind the scenes, and exactly where to find the generated results and outputs.
+This document explains exactly what is included in the submitted package, the three main demos you can run, what the one-liner command does behind the scenes, and exactly where to find the generated results with expected file trees.
+
+---
+
+## 🧪 Provided Demos in the Package
+
+The `Runnable_Version` you download contains a carefully curated subset of data (to keep the download size manageable) designed to demonstrate the complete capabilities of our system. 
+
+By executing the master orchestrator (`run_all.py`), you are actively running **3 main demos**:
+
+### Demo 1: End-to-End Synthetic Pipeline (Data Gen & Training)
+This demo operates on a limited set of raw 3D CT files to procedurally generate synthetic 2D DRR X-ray pairs (both healthy and anomalous), dynamically trains the PyTorch VGGDiffNet model from scratch on your GPU, and evaluates the results.
+- **Input Data:** `data/ct/`
+- **Output Path:** `output/synthetic_pairs/` and `output/checkpoints/`
+
+### Demo 2: Clinical Inference on Pre-Generated Synthetic Data
+This demo bypasses the heavy training step. It loads our highly-optimized **Pretrained Weights** and runs rapid clinical inference on a pre-generated subset of synthetic anomalous X-rays, strictly evaluating the model's performance.
+- **Input Data:** `data/synthetic_xray/synthetic xray/`
+- **Output Path:** `output/pretrained_model_results/synthetic_xray/`
+
+### Demo 3: Clinical Inference on Real-World Patient Data
+This demo applies our Pretrained Models to **real, chronological patient X-ray visits** from the ICU. It compares their sequential scans, overlays the model's predicted anomaly heatmaps, and prints out the actual clinical physician notes alongside the visual results.
+- **Input Data:** `data/real_xray/consolidation_tube_pairs/`
+- **Output Path:** `output/pretrained_model_results/real_xray/`
+
+---
+
+## 📦 Expected Output & File Trees
+
+When you execute the master orchestrator, the codebase creates a highly structured `output/` directory locally to safely isolate all generated files, AI models, and visual results. 
+
+Here is exactly what the file tree will look like after running the demos, and where you can find everything:
+
+```text
+Runnable_Version/
+│
+├── data/                       # Contains the limited subset of input data for the demos
+│
+└── output/                     # 🚀 ALL RESULTS ARE SAVED HERE!
+    │
+    ├── synthetic_pairs/        # (Demo 1) Generated X-Rays
+    │   ├── train/
+    │   └── test/
+    │       └── scan_001/
+    │           ├── prior.nii.gz         # Baseline simulated X-ray
+    │           ├── current.nii.gz       # Simulated X-ray with injected anomaly
+    │           └── heatmap_gt.nii.gz    # Ground Truth mask
+    │
+    ├── checkpoints/            # (Demo 1) Trained Model Weights
+    │   ├── best_model.pth      # Lowest validation loss weights
+    │   └── last_model.pth
+    │
+    ├── results/                # (Demo 1) Training Pipeline Evaluation
+    │   ├── metrics.csv         # Strict F1-Score, CC, and Dice scores
+    │   └── visuals/            # Visual grids of True vs Predicted heatmaps
+    │
+    └── pretrained_model_results/ # (Demo 2 & 3) Pretrained Inference Results
+        ├── synthetic_xray/
+        │   ├── consolidation/
+        │   │   └── scan_XXX_consolidation_output.png # Heatmap comparison grid
+        │   └── tube/
+        │       └── scan_XXX_tube_output.png          # Heatmap comparison grid
+        │
+        └── real_xray/
+            ├── consolidation/
+            │   ├── patient_XXX_consolidation_output.png
+            │   └── patient_XXX_consolidation_output.txt  # Clinical notes & status
+            └── tube/
+                ├── patient_XXX_tube_output.png
+                └── patient_XXX_tube_output.txt           # Clinical notes & status
+```
 
 ---
 
 ## ⚡ The One-Liner Execution
 
-The quickest way to run the project is using the terminal one-liner provided in the `README.md`. 
+The quickest way to run all 3 demos simultaneously is using the terminal one-liner provided in the `README.md`. 
 Here is exactly what happens when you paste that command into your terminal:
 
 1. **`curl` / Download**: It automatically reaches out to GitHub Releases and downloads the `Runnable_Version.zip` package locally.
@@ -20,38 +90,11 @@ Here is exactly what happens when you paste that command into your terminal:
 
 ## 🎮 How to Run Manually
 
-If you prefer to run the codebase manually (or want to toggle settings), follow these steps:
+If you prefer to run the codebase manually (or want to toggle specific demos on or off), follow these steps:
 
-1. **Configure Settings**: Open `user_settings.py` in any text editor. You can easily toggle `True/False` flags to choose whether to run Data Generation, Neural Network Training, or Clinical Inference.
+1. **Configure Settings**: Open `user_settings.py` in any text editor. You can easily toggle `True/False` flags to choose whether to run the Data Generation & Training pipeline (`RUN_PIPELINES = True`) or the Pretrained Clinical Inference (`RUN_PRETRAINED = True`).
 2. **Execute Orchestrator**: Run the main script via terminal:
    ```bash
    python run_all.py
    ```
    *(Ensure you are running this inside your virtual environment so the dependencies are recognized!)*
-
----
-
-## 📦 Output & Results Structure
-
-When you execute the master orchestrator (`run_all.py`), the codebase creates a highly structured `output/` directory locally to safely isolate all generated files, AI models, and visual results. 
-
-Here is exactly what you should expect to see inside that folder as a new user:
-
-### 1. The `output/` Root Directory
-Everything generated by the system goes here. This directory is strictly kept separate from the `data/` and `src/` directories so you can easily wipe your results without accidentally losing any source code or raw data.
-
-### 2. Synthetic Data (`output/synthetic_pairs/`)
-If you toggled Data Generation to `True` in `user_settings.py`, the system procedurally generates and saves thousands of physical DRR projections here. For each synthetic patient scan, you will find:
-- **`prior.nii.gz`**: The simulated 2D X-ray of the "healthy" or baseline state.
-- **`current.nii.gz`**: The simulated 2D X-ray with the newly injected anomaly (such as a shifted Tube or new Consolidation).
-- **`heatmap_gt.nii.gz`**: The exact Ground Truth spatial mask of the difference between the two X-rays, which the model uses to learn.
-
-### 3. Model Weights (`output/checkpoints/`)
-If you execute the heavy training pipeline, the system automatically saves the Neural Network weights here across training epochs:
-- **`best_model.pth`**: The PyTorch model weights that achieved the lowest validation loss during training.
-- **`last_model.pth`**: The final weights at the end of the epochs.
-
-### 4. Evaluation Results (`output/results/`)
-Once the pipeline finishes running clinical inference, it evaluates the network's predictions and creates detailed reports. This is where you should look to see how well the AI performed!
-- **`metrics.csv`**: A spreadsheet containing the strict mathematical scores for the run, including the classification F1-Score, Pixel-Wise Dice, and our custom Object-Level Connected Components Dice score.
-- **`visuals/`**: A folder containing beautiful, side-by-side PNG image grids. These allow you to visually verify the model's performance by comparing the Prior X-ray, Current X-ray, the True Heatmap, and the Model's Predicted Heatmap with your own eyes!
