@@ -10,7 +10,7 @@ Pillow>=10.0.0
 
 # Medical Imaging (NIfTI & CT processing)
 nibabel>=5.1.0
-TotalSegmentator>=2.0.0
+TotalSegmentator==2.13.0
 
 # Plotting and Metrics
 matplotlib>=3.7.0
