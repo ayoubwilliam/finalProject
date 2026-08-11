@@ -3,23 +3,6 @@
 **Group 104**: Agam Hershko & William Ayoub  
 **Advisor:** Prof. Leo Joskowicz (CASMIP Lab) | **Mentor:** Gal Fiebelman
 
-## 🩻 Abstract
-In the Intensive Care Unit (ICU), mechanically ventilated patients require continuous monitoring. Detecting critical temporal changes between consecutive chest X-rays, such as endotracheal tube shifts or new lung consolidations, is essential but highly error-prone. 
-
-To overcome the severe scarcity of paired medical X-ray data, we engineered a fully automated **twin Convolutional Neural Network (CNN) pipeline trained entirely on synthetic data**. We procedurally insert anomalies (tubes and consolidations) into healthy 3D CT scans, apply 3D rotations to simulate realistic patient positioning, and use Digitally Reconstructed Radiography (DRR) to project them into synthetic 2D chest X-rays.
-
-A weight-sharing twin-encoder CNN processes both X-rays into a rotation-invariant latent space, using a subtraction bottleneck to perfectly align healthy anatomy and isolate true pathological differences.
-
----
-
-## ✨ Core Features
-- **Procedural Synthetic Data Generation:** Generates thousands of 2D X-ray pairs (Prior & Current) from base 3D CT scans using physical DRR ray-summing projections.
-- **Twin-Encoder CNN Architecture:** A VGG-style subtraction bottleneck architecture that natively ignores 3D patient rotation and posture shifts.
-- **Automated Anomaly Injection:** Clinically realistic procedural generation of Endotracheal Tubes (using random walks and distance transforms) and Lung Consolidations (using B-spline deformations).
-- **Connected Components Evaluation:** Object-level spatial accuracy evaluation ignoring minor 2D projection discrepancies.
-
----
-
 ## 🚀 Quick Start (One-Liner)
 
 We have provided a fully packaged Runnable Version of this project via GitHub Releases. You can download the packaged zip, extract it, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
@@ -38,6 +21,32 @@ curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/rel
 3. Installs the bulk of dependencies (`torch`, `numpy`, `TotalSegmentator`, etc.) from `requirements.txt`.
 4. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package.
 5. Executes the master `run_all.py` orchestrator.
+
+---
+
+## 📂 Code Structure & Documentation
+Want to dive into the codebase? We have thoroughly documented the purpose, architecture, and logic of every single script in the project!
+
+👉 **[Click here to view the detailed Codebase Structure Guide](CODEBASE_GUIDE.md)**
+
+---
+
+## 🩻 Abstract
+In the Intensive Care Unit (ICU), mechanically ventilated patients require continuous monitoring. Detecting critical temporal changes between consecutive chest X-rays, such as endotracheal tube shifts or new lung consolidations, is essential but highly error-prone. 
+
+To overcome the severe scarcity of paired medical X-ray data, we engineered a fully automated **twin Convolutional Neural Network (CNN) pipeline trained entirely on synthetic data**. We procedurally insert anomalies (tubes and consolidations) into healthy 3D CT scans, apply 3D rotations to simulate realistic patient positioning, and use Digitally Reconstructed Radiography (DRR) to project them into synthetic 2D chest X-rays.
+
+A weight-sharing twin-encoder CNN processes both X-rays into a rotation-invariant latent space, using a subtraction bottleneck to perfectly align healthy anatomy and isolate true pathological differences.
+
+---
+
+## ✨ Core Features
+- **Procedural Synthetic Data Generation:** Generates thousands of 2D X-ray pairs (Prior & Current) from base 3D CT scans using physical DRR ray-summing projections.
+- **Twin-Encoder CNN Architecture:** A VGG-style subtraction bottleneck architecture that natively ignores 3D patient rotation and posture shifts.
+- **Automated Anomaly Injection:** Clinically realistic procedural generation of Endotracheal Tubes (using random walks and distance transforms) and Lung Consolidations (using B-spline deformations).
+- **Connected Components Evaluation:** Object-level spatial accuracy evaluation ignoring minor 2D projection discrepancies.
+
+
 
 ---
 
