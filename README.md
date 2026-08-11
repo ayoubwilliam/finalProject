@@ -19,19 +19,10 @@ curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/rel
 curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python3 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && python3 -m venv venv && venv/bin/pip install -r requirements.txt && venv/bin/python -c "import torch, os; v=torch.version.cuda; os.system('venv/bin/pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'venv/bin/pip install cupy')" && venv/bin/python run_all.py
 ```
 
-### What this command does:
-1. Downloads the `Runnable_Version.zip` from the GitHub Releases page using `curl`.
-2. Extracts the zip file completely securely using Python's built-in `zipfile` module.
-3. Installs the bulk of dependencies (`torch`, `numpy`, `TotalSegmentator`, etc.) from `requirements.txt`.
-4. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package. *(Note: While this handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
-5. Executes the master `run_all.py` orchestrator.
+*(Note: You can learn exactly how this command works, how to run scripts manually, and where to find the generated clinical results in our [**Usage & Results Guide**](USAGE_AND_RESULTS.md)!)*
 
----
-
-## 📂 Code Structure & Documentation
-Want to dive into the codebase? We have thoroughly documented the purpose, architecture, and logic of every single script in the project!
-
-👉 **[Click here to view the detailed Codebase Structure Guide](CODEBASE_GUIDE.md)**
+## 📚 Codebase Architecture
+For a detailed breakdown of the internal file structure and the role of every single python script, please see the [**Codebase Structure Guide**](CODEBASE_GUIDE.md).
 
 ---
 
