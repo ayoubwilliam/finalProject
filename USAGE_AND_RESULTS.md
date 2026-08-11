@@ -1,4 +1,4 @@
-# 🚀 Usage & Results Guide
+# 🚀 Usage, Evaluation & Results Guide
 
 This document explains exactly what is included in the submitted package, the three main demos you can run, what the one-liner command does behind the scenes, and exactly where to find the generated results with expected file trees.
 
@@ -6,7 +6,15 @@ This document explains exactly what is included in the submitted package, the th
 
 ## 🧪 Provided Demos in the Package
 
-The `Runnable_Version` you download contains a carefully curated subset of data (to keep the download size manageable) designed to demonstrate the complete capabilities of our system. 
+> [!WARNING]
+> **Crucial Note Regarding Data Volume & Model Performance**
+> While this repository contains the **full, original End-to-End codebase**, the provided `Runnable_Version` only includes a heavily limited subset of raw CT scans (5 files). 
+>
+> The *highly optimized* pretrained models included in this package were trained on a massive dataset of over **2,500 CT files (~300GB of data)**. Hosting a 300GB dataset on GitHub is physically impossible, and distributing it requires strict ethical permissions from the CASMIP lab. 
+> 
+> Therefore, while **Demo 1** successfully demonstrates the complete training pipeline mechanics, the model trained dynamically during this demo will inevitably suffer in performance compared to the pretrained weights due to the severe lack of training data. You can partially alleviate this by increasing the `NUMBER_OF_PAIRS` parameter in `user_settings.py` to artificially expand the dataset via augmentation, but this is not a complete solution for replacing the full 300GB dataset.
+
+The `Runnable_Version` you download contains a carefully curated subset of data (to keep the download size manageable) designed to demonstrate the complete capabilities and evaluation metrics of our system. 
 
 By executing the master orchestrator (`run_all.py`), you are actively running **3 main demos**:
 
