@@ -12,7 +12,7 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 Assuming you have Python installed, simply copy and paste this into your terminal:
 
 ```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && mkdir Runnable_Version && tar -xf Runnable_Version.zip -C Runnable_Version && cd Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && tar -xf Runnable_Version.zip && cd Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
 ```
 
 ### What this command does:
