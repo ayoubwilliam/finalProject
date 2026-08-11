@@ -10,6 +10,11 @@ Detecting critical temporal changes between consecutive chest X-rays in the ICU 
 
 ---
 
+## 📚 Codebase Architecture
+For a detailed breakdown of the internal file structure and the role of every single python script, please see the [**Codebase Structure Guide**](CODEBASE_GUIDE.md).
+
+---
+
 ## 🚀 Quick Start (One-Liner)
 *(Runs all 3 Demos included in this package - See below!)*
 
@@ -127,11 +132,6 @@ If you prefer to run the codebase manually (or want to toggle specific demos on 
    python run_all.py
    ```
    *(Ensure you are running this inside your virtual environment so the dependencies are recognized!)*
-
----
-
-## 📚 Codebase Architecture
-For a detailed breakdown of the internal file structure and the role of every single python script, please see the [**Codebase Structure Guide**](CODEBASE_GUIDE.md).
 
 ---
 
