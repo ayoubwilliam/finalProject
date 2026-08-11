@@ -22,19 +22,22 @@ A weight-sharing twin-encoder CNN processes both X-rays into a rotation-invarian
 
 ## 🚀 Quick Start (One-Liner)
 
-We have provided a fully packaged Runnable Version of this project. You can download the codebase, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
+We have provided a fully packaged Runnable Version of this project via GitHub Releases. You can download the packaged zip, extract it, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
 
-Assuming you have Python and Git installed, simply copy and paste this into your terminal:
+*(Note: This assumes you upload the `Runnable_Version.zip` to a GitHub Release tagged as `v1.0.0`)*
+
+Assuming you have Python installed, simply copy and paste this into your terminal:
 
 ```bash
-git clone https://github.com/ayoubwilliam/finalProject.git && cd finalProject/Submission/Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && mkdir Runnable_Version && tar -xf Runnable_Version.zip -C Runnable_Version && cd Runnable_Version && pip install -r requirements.txt && python -c "import torch, os; v=torch.version.cuda; os.system('pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'pip install cupy')" && python run_all.py
 ```
 
 ### What this command does:
-1. Clones this repository and navigates to the `Runnable_Version` folder.
-2. Installs the bulk of dependencies (`torch`, `numpy`, `TotalSegmentator`, etc.) from `requirements.txt`.
-3. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package.
-4. Executes the master `run_all.py` orchestrator.
+1. Downloads the `Runnable_Version.zip` from the GitHub Releases page using `curl`.
+2. Creates a folder and extracts the zip file using `tar`.
+3. Installs the bulk of dependencies (`torch`, `numpy`, `TotalSegmentator`, etc.) from `requirements.txt`.
+4. Automatically detects your PyTorch CUDA version and dynamically installs the correctly matching `cupy` GPU acceleration package.
+5. Executes the master `run_all.py` orchestrator.
 
 ---
 
