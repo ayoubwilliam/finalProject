@@ -1,0 +1,17 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "a case of a previously healthy man who presented with non-specific symptoms of shortness of breath, dry cough, anorexia and fever and then progressed to acute respiratory distress syndrome and sepsis is reported. treatment in the intensive care unit with antibiotics and mechanical ventilation was successful. residual fibrotic changes are present bilaterally with no focal area of consolidation.",
+    "intubated": ""
+  },
+  {
+    "offset": 6.0,
+    "clinical_notes": "a case of a previously healthy man who presented with non-specific symptoms of shortness of breath, dry cough, anorexia and fever and then progressed to acute respiratory distress syndrome and sepsis is reported. treatment in the intensive care unit with antibiotics and mechanical ventilation was successful. bilateral lower zone air-space shadowing with relative preservation of the costophrenic recesses and perihilar regions.",
+    "intubated": ""
+  },
+  {
+    "offset": 30.0,
+    "clinical_notes": "a case of a previously healthy man who presented with non-specific symptoms of shortness of breath, dry cough, anorexia and fever and then progressed to acute respiratory distress syndrome and sepsis is reported. treatment in the intensive care unit with antibiotics and mechanical ventilation was successful. worsening of the radiological findings when compared to the previous chest x-ray showing more pronunced bilateral lower zone air-space shadowing.",
+    "intubated": ""
+  }
+]

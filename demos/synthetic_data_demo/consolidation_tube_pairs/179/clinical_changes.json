@@ -1,0 +1,17 @@
+[
+  {
+    "offset": -5.0,
+    "clinical_notes": "a 56-year-old male patient with end-stage renal disease, heart failure, and tobacco cigarette smoking (5 pack year history) presented to the emergency department with nausea, vomiting, and low-grade fever (37.9\u00b0c), and was diagnosed with gastroenteritis. he subsequently developed a dry cough and myalgia, and returned 5 days later with fever (38.1\u00b0c). laboratory studies were remarkable for mild lymphopenia (0.8\u00d7103/\u00b5l, normal range 0.9\u00d7103/\u00b5l \u2013 3.3\u00d7103/\u00b5l), elevated aspartate aminotransferase (71 iu/l, normal range 13 iu/l \u2013 39 iu/l), elevated c-reactive protein (14.6 mg/dl, normal range 0 \u2013 1 mg/dl), and elevated procalcitonin (2.37 ng/ml, normal < 0.1 ng/ml). he had traveled to south korea approximately 7 weeks prior to presentation. ap chest x-ray at initial presentation demonstrated mild patchy increased interstitial markings at the bilateral lung bases without evidence of focal consolidation and stable mild cardiomegaly (fig. 1).",
+    "intubated": "Y"
+  },
+  {
+    "offset": 0.0,
+    "clinical_notes": "a 56-year-old male patient with end-stage renal disease, heart failure, and tobacco cigarette smoking (5 pack year history) presented to the emergency department with nausea, vomiting, and low-grade fever (37.9\u00b0c), and was diagnosed with gastroenteritis. he subsequently developed a dry cough and myalgia, and returned 5 days later with fever (38.1\u00b0c). laboratory studies were remarkable for mild lymphopenia (0.8\u00d7103/\u00b5l, normal range 0.9\u00d7103/\u00b5l \u2013 3.3\u00d7103/\u00b5l), elevated aspartate aminotransferase (71 iu/l, normal range 13 iu/l \u2013 39 iu/l), elevated c-reactive protein (14.6 mg/dl, normal range 0 \u2013 1 mg/dl), and elevated procalcitonin (2.37 ng/ml, normal < 0.1 ng/ml). he had traveled to south korea approximately 7 weeks prior to presentation. ap chest x-ray obtained at second presentation demonstrated diffuse patchy bilateral airspace opacities (fig. 2). ",
+    "intubated": "Y"
+  },
+  {
+    "offset": 2.0,
+    "clinical_notes": "a 56-year-old male patient with end-stage renal disease, heart failure, and tobacco cigarette smoking (5 pack year history) presented to the emergency department with nausea, vomiting, and low-grade fever (37.9\u00b0c), and was diagnosed with gastroenteritis. he subsequently developed a dry cough and myalgia, and returned 5 days later with fever (38.1\u00b0c). laboratory studies were remarkable for mild lymphopenia (0.8\u00d7103/\u00b5l, normal range 0.9\u00d7103/\u00b5l \u2013 3.3\u00d7103/\u00b5l), elevated aspartate aminotransferase (71 iu/l, normal range 13 iu/l \u2013 39 iu/l), elevated c-reactive protein (14.6 mg/dl, normal range 0 \u2013 1 mg/dl), and elevated procalcitonin (2.37 ng/ml, normal < 0.1 ng/ml). he had traveled to south korea approximately 7 weeks prior to presentation. ap chest x-ray on day two of admission (fig. 4) demonstrated interval intubation, increased patchy airspace opacities, and stable mild cardiomegaly.",
+    "intubated": "Y"
+  }
+]

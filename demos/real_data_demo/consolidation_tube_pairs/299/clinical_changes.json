@@ -1,0 +1,22 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "chest x-rays of a 73-year-old male patient affected by covid-19 (a\u2013d). the first chest radiograph at admission demonstrated bilateral pulmonary perihilar consolidations (a). due to a worsening of the clinical conditions, during the second day after admission, he underwent endotracheal intubation (b) with a significant improvement of the radiological findings within 24 h (c). 72 h later, the radiological findings worsened again especially in the left lung (d)",
+    "intubated": "Y"
+  },
+  {
+    "offset": 2.0,
+    "clinical_notes": "chest x-rays of a 73-year-old male patient affected by covid-19 (a\u2013d). the first chest radiograph at admission demonstrated bilateral pulmonary perihilar consolidations (a). due to a worsening of the clinical conditions, during the second day after admission, he underwent endotracheal intubation (b) with a significant improvement of the radiological findings within 24 h (c). 72 h later, the radiological findings worsened again especially in the left lung (d)",
+    "intubated": "Y"
+  },
+  {
+    "offset": 3.0,
+    "clinical_notes": "chest x-rays of a 73-year-old male patient affected by covid-19 (a\u2013d). the first chest radiograph at admission demonstrated bilateral pulmonary perihilar consolidations (a). due to a worsening of the clinical conditions, during the second day after admission, he underwent endotracheal intubation (b) with a significant improvement of the radiological findings within 24 h (c). 72 h later, the radiological findings worsened again especially in the left lung (d)",
+    "intubated": "Y"
+  },
+  {
+    "offset": 6.0,
+    "clinical_notes": "chest x-rays of a 73-year-old male patient affected by covid-19 (a\u2013d). the first chest radiograph at admission demonstrated bilateral pulmonary perihilar consolidations (a). due to a worsening of the clinical conditions, during the second day after admission, he underwent endotracheal intubation (b) with a significant improvement of the radiological findings within 24 h (c). 72 h later, the radiological findings worsened again especially in the left lung (d)",
+    "intubated": "Y"
+  }
+]

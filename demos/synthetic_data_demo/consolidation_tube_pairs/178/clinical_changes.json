@@ -1,0 +1,27 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "a 72-year-old woman admitted with acute respiratory failure, fever (38\u00b0c) and dyspnoea. she was tachypneic (30bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). patient presented to the emergency department two days earlier with fever (up to 38.6\u00b0c), dry cough, odynophagia and general malaise. she was discharged from hospital because she did not present alarm criteria at that time. the patient required mechanical ventilation and was admitted to intensive care. during her stay in icu, poor evolution to respiratory distress syndrome and to multi-organic failure. the patient passed away 24 hours later. figure 1 (at admission). ill-defined bilateral alveolar consolidation with peripheral distribution. ",
+    "intubated": "Y"
+  },
+  {
+    "offset": 0.0,
+    "clinical_notes": "a 72-year-old woman admitted with acute respiratory failure, fever (38\u00b0c) and dyspnoea. she was tachypneic (30bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). patient presented to the emergency department two days earlier with fever (up to 38.6\u00b0c), dry cough, odynophagia and general malaise. she was discharged from hospital because she did not present alarm criteria at that time. the patient required mechanical ventilation and was admitted to intensive care. during her stay in icu, poor evolution to respiratory distress syndrome and to multi-organic failure. the patient passed away 24 hours later. figure 2 (4 hours later). radiological worsening, with affectation of lower lobes. endotracheal tube and central venous line were required.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 1.0,
+    "clinical_notes": "a 72-year-old woman admitted with acute respiratory failure, fever (38\u00b0c) and dyspnoea. she was tachypneic (30bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). patient presented to the emergency department two days earlier with fever (up to 38.6\u00b0c), dry cough, odynophagia and general malaise. she was discharged from hospital because she did not present alarm criteria at that time. the patient required mechanical ventilation and was admitted to intensive care. during her stay in icu, poor evolution to respiratory distress syndrome and to multi-organic failure. the patient passed away 24 hours later. figure 2 (4 hours later). radiological worsening, with affectation of lower lobes. endotracheal tube and central venous line were required. figure 3 (day 1). bilateral alveolar consolidation.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 2.0,
+    "clinical_notes": "a 72-year-old woman admitted with acute respiratory failure, fever (38\u00b0c) and dyspnoea. she was tachypneic (30bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). patient presented to the emergency department two days earlier with fever (up to 38.6\u00b0c), dry cough, odynophagia and general malaise. she was discharged from hospital because she did not present alarm criteria at that time. the patient required mechanical ventilation and was admitted to intensive care. during her stay in icu, poor evolution to respiratory distress syndrome and to multi-organic failure. the patient passed away 24 hours later. figure 4 (day 2). radiological worsening. bilateral alveolar consolidation with panlobar affectation.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 3.0,
+    "clinical_notes": "a 72-year-old woman admitted with acute respiratory failure, fever (38\u00b0c) and dyspnoea. she was tachypneic (30bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). patient presented to the emergency department two days earlier with fever (up to 38.6\u00b0c), dry cough, odynophagia and general malaise. she was discharged from hospital because she did not present alarm criteria at that time. the patient required mechanical ventilation and was admitted to intensive care. during her stay in icu, poor evolution to respiratory distress syndrome and to multi-organic failure. the patient passed away 24 hours later. figure 5 (day 3). bilateral alveolar consolidation with panlobar affectation, with typical radiological findings of ards. 24 hours later the patient passed away.",
+    "intubated": "Y"
+  }
+]

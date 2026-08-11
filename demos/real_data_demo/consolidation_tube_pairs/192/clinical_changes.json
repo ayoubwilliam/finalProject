@@ -1,0 +1,12 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "chest film normal on admission to hospital",
+    "intubated": "Y"
+  },
+  {
+    "offset": 4.0,
+    "clinical_notes": "patient on mechanical ventilation with bilateral consolidations on the chest film",
+    "intubated": "Y"
+  }
+]

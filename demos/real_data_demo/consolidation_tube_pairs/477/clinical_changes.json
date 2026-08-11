@@ -1,0 +1,12 @@
+[
+  {
+    "offset": 7.0,
+    "clinical_notes": "unwell. low saturations. pyrexic. tachypneic, right basal rhonchi. dry cough 1 week ago. green productive cough few days ago ?lrti/?covid this is a microbiologically confirmed case of legionella pneumonia. dense right upper lobe pneumonia. right lower lobe consolidation and round pneumonia in the apical segment of the left lower lobe. heart size normal.",
+    "intubated": "Y"
+  },
+  {
+    "offset": "unknown",
+    "clinical_notes": "unwell. low saturations. pyrexic. tachypneic, right basal rhonchi. dry cough 1 week ago. green productive cough few days ago ?lrti/?covid endotracheal tube.  this is a microbiologically confirmed case of legionella pneumonia. right and left internal jugular lines. partial clearing of the right upper lobe pneumonia. right and left lobe pneumonia remains.",
+    "intubated": "Y"
+  }
+]

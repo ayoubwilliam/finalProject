@@ -1,0 +1,37 @@
+[
+  {
+    "offset": 1.0,
+    "clinical_notes": "moderate amount of mid zone airspace opacification in both mid zones with a peripheral predominance.",
+    "intubated": ""
+  },
+  {
+    "offset": 6.0,
+    "clinical_notes": "just stepped down from hdu. new oxygen requirements. extensive bilateral airspace opacification in both lungs, more pronounced on the right and with relative sparing of the left upper lobe.  the airspace opacification has a peripheral distribution.  no pleural effusions. ",
+    "intubated": ""
+  },
+  {
+    "offset": 11.0,
+    "clinical_notes": "itu admission, endotracheal tube, nasogastric tube and right internal jugular lines suitable sited.  bilateral airspace opacification persists, but it has partially regressed since the prior radiograph.",
+    "intubated": ""
+  },
+  {
+    "offset": 13.0,
+    "clinical_notes": "lines and tubes suitably sited.  minor regression in the appearances of the lungs from the radiograph of 2 days earlier.",
+    "intubated": ""
+  },
+  {
+    "offset": 20.0,
+    "clinical_notes": "increasing oxygen requirements. extubated.  positive pressure ventilation mask in use.  widespread bilateral airspace opacification in both lungs.  no longer is the distribution peripheral or sparing the apices.  no pleural effusions or lobar consolidation.",
+    "intubated": ""
+  },
+  {
+    "offset": 24.0,
+    "clinical_notes": "extubated since the prior radiograph.  partial regression of the diffuse lungs changes, however air bronchograms are now evident in both upper lobes.",
+    "intubated": ""
+  },
+  {
+    "offset": 28.0,
+    "clinical_notes": "remarkable improvement in appearances since the radiograph 4 days earlier.    the current appearances of the lungs are nearly normal and better than the day 1 admission appearances.",
+    "intubated": ""
+  }
+]

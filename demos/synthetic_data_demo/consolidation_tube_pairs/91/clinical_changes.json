@@ -1,0 +1,22 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "aspiration event a few hours before presentation. bilateral inhomogeneous patchy airspace opacities mainly in the lower zones. effacement of the costophrenic recesses consistent with aspiration.  ",
+    "intubated": ""
+  },
+  {
+    "offset": 3.0,
+    "clinical_notes": "there is marked improvement seen in the right lung; however, there is no sign of regression in the left lower zone. there is also a nasogastric tube which appears to be appropriately positioned.",
+    "intubated": ""
+  },
+  {
+    "offset": 10.0,
+    "clinical_notes": "a confluent consolidation with air bronchograms has developed in the left lower zone, completely effacing the diaphragm on that side.  findings are in line with left lower lobe aspiration pneumonia. the nasogastric tube remains in a satisfactory position.",
+    "intubated": ""
+  },
+  {
+    "offset": 27.0,
+    "clinical_notes": "after successful treatment, an almost complete regression of the the left lower lobe consolidation can be seen. ",
+    "intubated": ""
+  }
+]

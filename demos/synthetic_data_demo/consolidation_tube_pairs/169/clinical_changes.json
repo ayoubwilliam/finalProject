@@ -1,0 +1,12 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "patient presented with pyrexia and dyspnea. past medical history of hypertension, gerd, and asthma. lymphopenia on admission. subtle bilateral peripheral air space opacification predominantly in the right upper and both mid zones. no pleural effusions.  hiatus hernia.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 8.0,
+    "clinical_notes": "patient presented with pyrexia and dyspnea. past medical history of hypertension, gerd, and asthma. lymphopenia on admission. radiological progression with dense peripheral right upper lobe consolidation. peripheral areas of air space opacification in the left hemithorax are also now more conspicuous.   the nasogastric tube is inappropriately positioned in the esophagus requiring resiting. ",
+    "intubated": "Y"
+  }
+]

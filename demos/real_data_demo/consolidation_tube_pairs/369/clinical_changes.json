@@ -1,0 +1,17 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "recently diagnosed hiv presented with shortness of breath. with treatment this patient is likely to recover. pcp once very common in hiv positive patients, is far less frequently encountered as both haart and prophylaxis are effective.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 6.0,
+    "clinical_notes": "recently diagnosed hiv presented with shortness of breath. cxr the next day demonstrates further worsening of the parenchymal attenuation. with treatment this patient is likely to recover. pcp once very common in hiv positive patients, is far less frequently encountered as both haart and prophylaxis are effective.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 11.0,
+    "clinical_notes": "recently diagnosed hiv presented with shortness of breath. the patient continued to deteriorate and necessitated intubation. consolidation is progressive. with treatment this patient is likely to recover. pcp once very common in hiv positive patients, is far less frequently encountered as both haart and prophylaxis are effective.",
+    "intubated": "Y"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "offset": "unknown",
+    "clinical_notes": "increasing lethargy and flu-like symptoms. new oxygen requirement. crackles on both bases no collapse or consolidation. no pleural effusion. ",
+    "intubated": "Y"
+  },
+  {
+    "offset": "unknown",
+    "clinical_notes": "increasing lethargy and flu-like symptoms. new oxygen requirement. crackles on both bases ett and ng tube placed. new air-space shadowing with air bronchogram in left lower zone . new pneumomediastinum demonstrated.",
+    "intubated": "Y"
+  },
+  {
+    "offset": "unknown",
+    "clinical_notes": "increasing lethargy and flu-like symptoms. new oxygen requirement. crackles on both bases ett and ng tube in place. right-sided intercostal drain with bilateral small pneumothorax and pneumomediastinum with diffuse air space in both lungs typical for covid.",
+    "intubated": "Y"
+  },
+  {
+    "offset": "unknown",
+    "clinical_notes": "increasing lethargy and flu-like symptoms. new oxygen requirement. crackles on both bases ett, ng tube and right sided intercostal drain in place. interval increase in size of left pneumothorax with persistent right pneumothorax and pneumomediastinum with diffuse air space in both lungs. no pleural effusion.",
+    "intubated": "Y"
+  }
+]

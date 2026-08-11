@@ -1,0 +1,12 @@
+[
+  {
+    "offset": 4.0,
+    "clinical_notes": "four-day history of high-grade fever, cough and myalgia. on admission, the patient was tachycardic but maintained oxygen saturation on low flow. on auscultation, he had bilateral crackles and crepitations. coarse patchy opacification of both lower zones which appear inflammatory in nature. no focal collapse or consolidation. the pleural surfaces are clear with normal cardio-mediastinal contour.",
+    "intubated": ""
+  },
+  {
+    "offset": 8.0,
+    "clinical_notes": "four days following admission, the patient developed increasing hypoxia and sepsis with hypotension, requiring intensive care admission for ventilation and inotropic support.  ap supine portable cxr:  the previously seen patchy opacities appear as areas of bilateral peripheral consolidations with air bronchograms. consolidation above the horizontal fissure suggests right upper lobe pneumonia. obliteration of the left heart border suggests lower lobe pneumonia.  support lines (ett, ng, and left internal jugular cvc) are in situ.",
+    "intubated": ""
+  }
+]

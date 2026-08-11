@@ -1,0 +1,17 @@
+[
+  {
+    "offset": 1.0,
+    "clinical_notes": "we present the case of a 62 year old female caucasian patient, who was transferred to our intensive care unit (icu) because of respiratory distress. bilateral interstitial opacities and pleural effusions on both sides.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 9.0,
+    "clinical_notes": "we present the case of a 62 year old female caucasian patient, who was transferred to our intensive care unit (icu) because of respiratory distress. mixed interstitial and airway consolidations in both lungs.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 16.0,
+    "clinical_notes": "we present the case of a 62 year old female caucasian patient, who was transferred to our intensive care unit (icu) because of respiratory distress. pronounced central airway consolidations in both lungs.",
+    "intubated": "Y"
+  }
+]

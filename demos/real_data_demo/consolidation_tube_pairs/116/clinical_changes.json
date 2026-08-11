@@ -1,0 +1,17 @@
+[
+  {
+    "offset": 6.0,
+    "clinical_notes": "six days self-isolating with fever. progressive respiratory effort. lymphopenic on presentation (1.2). mutifocal consolidation in right mid zone and left mid/lower zones.  no pleural abnormality.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 7.0,
+    "clinical_notes": "intensive care study",
+    "intubated": "Y"
+  },
+  {
+    "offset": 12.0,
+    "clinical_notes": "persisting but improving regions of consolidation nearly a week after presentation. remains intubated.",
+    "intubated": "Y"
+  }
+]

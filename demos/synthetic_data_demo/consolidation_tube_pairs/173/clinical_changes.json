@@ -1,0 +1,27 @@
+[
+  {
+    "offset": 3.0,
+    "clinical_notes": "three days cough, myalgias and fever. no recent overseas travel. only sick contact was her husband who was recently hospitalized with presumed community-acquired pneumonia but not tested for covid-19. past history of vascath in-situ for dialysis on a background of chronic end-stage renal failure with dysfunctional a-v fistula. there is mild left peri-hilar and upper lobe interstitial opacity consistent with developing consolidation.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 7.0,
+    "clinical_notes": "three days cough, myalgias and fever. no recent overseas travel. only sick contact was her husband who was recently hospitalized with presumed community-acquired pneumonia but not tested for covid-19. past history of vascath in-situ for dialysis on a background of chronic end-stage renal failure with dysfunctional a-v fistula. serial chest x-ray was taken four days after the first x-ray, and seven days since the onset of symptoms. by this stage, the patient has had a positive nasopharyngeal swab for covid-19 virus.  there is established left upper lobe and now progressive patchy consolidation in left lower, right upper and middle lobes.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 9.0,
+    "clinical_notes": "three days cough, myalgias and fever. no recent overseas travel. only sick contact was her husband who was recently hospitalized with presumed community-acquired pneumonia but not tested for covid-19. past history of vascath in-situ for dialysis on a background of chronic end-stage renal failure with dysfunctional a-v fistula. there is progression of right side opacity and, clinically, the patient is desaturating with increased work of breathing higher supplemental oxygen requirements. ",
+    "intubated": "Y"
+  },
+  {
+    "offset": 10.0,
+    "clinical_notes": "three days cough, myalgias and fever. no recent overseas travel. only sick contact was her husband who was recently hospitalized with presumed community-acquired pneumonia but not tested for covid-19. past history of vascath in-situ for dialysis on a background of chronic end-stage renal failure with dysfunctional a-v fistula. little more than 24 hours from the previous x-ray the patient has increased work of breathing, fatigue and low oxygen saturations on 10-15 l/min of supplemental oxygen. progressive acute respiratory failure. patient intubated and mechanically ventilated. the endotracheal tube is just above the carina and there is a nasogastric tube within the stomach. there is a right jugular central line with the tip in the superior vena cava. there is now widespread interstitial and alveolar opacity diffusely spread through both lung fields.",
+    "intubated": "Y"
+  },
+  {
+    "offset": "unknown",
+    "clinical_notes": "three days cough, myalgias and fever. no recent overseas travel. only sick contact was her husband who was recently hospitalized with presumed community-acquired pneumonia but not tested for covid-19. past history of vascath in-situ for dialysis on a background of chronic end-stage renal failure with dysfunctional a-v fistula. vascath in-situ. upper abdominal surgical clips. lungs and pleural spaces are clear. elevated right hemidiaphragm.",
+    "intubated": "Y"
+  }
+]

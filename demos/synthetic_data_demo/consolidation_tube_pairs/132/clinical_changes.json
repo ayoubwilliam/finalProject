@@ -1,0 +1,17 @@
+[
+  {
+    "offset": 1.0,
+    "clinical_notes": "recent travel from endemic covid-19 region. 24 hours confusion with new temperature and desaturation on assessment. supine study. patchy consolidation in peripheral right midzone.  no pleural abnormality.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 3.0,
+    "clinical_notes": "progressive right mid and lower zone consolidation. left lung and pleural spaces remains clear.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 9.0,
+    "clinical_notes": "diffuse patchy airspace consolidation in the mid/lower zones bilaterally.  et tube, right jugular central line and ng tube in situ.  no pleural abnormality.",
+    "intubated": "Y"
+  }
+]

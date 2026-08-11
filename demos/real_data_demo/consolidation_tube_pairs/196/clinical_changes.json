@@ -1,0 +1,22 @@
+[
+  {
+    "offset": 1.0,
+    "clinical_notes": "day 1: normal findings. history: 73 year old male with aorta insufficiency and pacemaker was admitted to the hospital with fever and coughing after being in an area with covid-19. pcr positive. follow-up: extubated after 9 days of mechanical ventilation.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 4.0,
+    "clinical_notes": "day 4: bilateral consolidations intubated. history: 73 year old male with aorta insufficiency and pacemaker was admitted to the hospital with fever and coughing after being in an area with covid-19. pcr positive. follow-up: extubated after 9 days of mechanical ventilation.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 8.0,
+    "clinical_notes": "day 8: bilateral consolidation. history: 73 year old male with aorta insufficiency and pacemaker was admitted to the hospital with fever and coughing after being in an area with covid-19. pcr positive. follow-up: extubated after 9 days of mechanical ventilation.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 13.0,
+    "clinical_notes": "day 13: extubation. history: 73 year old male with aorta insufficiency and pacemaker was admitted to the hospital with fever and coughing after being in an area with covid-19. pcr positive. follow-up: extubated after 9 days of mechanical ventilation.",
+    "intubated": "Y"
+  }
+]

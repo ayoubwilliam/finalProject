@@ -1,0 +1,22 @@
+[
+  {
+    "offset": 0.0,
+    "clinical_notes": "admitted with acute respiratory failure, fever (38\u00b0c) and dyspnea. she was tachypneic (30 bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). ill-defined bilateral alveolar consolidation with peripheral distribution.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 1.0,
+    "clinical_notes": "admitted with acute respiratory failure, fever (38\u00b0c) and dyspnea. she was tachypneic (30 bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). radiological worsening, with changes within the lower lobes. endotracheal tube and central venous line were required.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 2.0,
+    "clinical_notes": "admitted with acute respiratory failure, fever (38\u00b0c) and dyspnea. she was tachypneic (30 bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). radiological worsening. bilateral alveolar consolidation with panlobar change.",
+    "intubated": "Y"
+  },
+  {
+    "offset": 3.0,
+    "clinical_notes": "admitted with acute respiratory failure, fever (38\u00b0c) and dyspnea. she was tachypneic (30 bpm), with lymphopenia and low oxygen saturation (spo2 85%, pafi<250). bilateral alveolar consolidation with panlobar change, with typical radiological findings of ards. ",
+    "intubated": "Y"
+  }
+]
