@@ -27,6 +27,9 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 > [!NOTE]
 > **Execution Time:** Please allow approximately **30 minutes** for the full one-liner to complete. This includes downloading and installing all heavy dependencies, and fully executing the training and inference pipelines across all 3 demos.
 
+> [!WARNING]
+> **Data Volume & Model Performance:** The provided `Runnable_Version` includes a limited subset of 5 raw CT scans (to fit on GitHub). While **Demo 1** fully demonstrates the training pipeline, its resulting model will perform worse than our included **Pretrained Models**, which were optimized on **2,500 CT files (~300GB)**. You can increase `NUMBER_OF_PAIRS` in `user_settings.py` for more augmented data, but the pretrained weights remain far superior.
+
 Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
 
 **For Windows (`python` & `pip`):**
@@ -52,14 +55,6 @@ curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/rel
 ---
 
 ## 🧪 Provided Demos in the Package
-
-> [!WARNING]
-> **Crucial Note Regarding Data Volume & Model Performance**
-> While this repository contains the **full, original End-to-End codebase**, the provided `Runnable_Version` only includes a heavily limited subset of raw CT scans (5 files). 
->
-> The *highly optimized* pretrained models included in this package were trained on a massive dataset of over **2,500 CT files (~300GB of data)**. Hosting a 300GB dataset on GitHub is physically impossible, and distributing it requires strict ethical permissions from the CASMIP lab. 
-> 
-> Therefore, while **Demo 1** successfully demonstrates the complete training pipeline mechanics, the model trained dynamically during this demo will inevitably suffer in performance compared to the pretrained weights due to the severe lack of training data. You can partially alleviate this by increasing the `NUMBER_OF_PAIRS` parameter in `user_settings.py` to artificially expand the dataset via augmentation, but this is not a complete solution for replacing the full 300GB dataset.
 
 The `Runnable_Version` you download contains a carefully curated subset of data (to keep the download size manageable) designed to demonstrate the complete capabilities and evaluation metrics of our system. 
 
