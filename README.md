@@ -16,7 +16,7 @@ For a detailed breakdown of the internal file structure and the role of every si
 ---
 
 ## 🚀 Running the Demos - One liner quick start
-*(Runs all **3 Demos** included in this package - See below!)*
+*(Runs all 3 Demos included in this package - See below!)*
 
 Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
 
@@ -34,16 +34,23 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 
 > [!IMPORTANT]
 > **Python 3.11 is STRICTLY REQUIRED.** 
-> Due to strict native C++/CUDA bindings and pinned dependencies, other versions (like 3.10 or 3.12) will fail to build!
-> *(Note: While the one-liner dynamically handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
+> Because this project relies on highly specific native C++/CUDA deep learning bindings and strictly pinned dependency versions (like `torch==2.7.1` and `gryds`), **you must use Python 3.11**. Other versions (like 3.10 or 3.12) will fail to build the environment correctly!
 
 > [!WARNING]
 > **Data Volume & Model Performance:** The provided `Runnable_Version` includes a limited subset of 5 raw CT scans (to fit on GitHub). While **Demo 1** fully demonstrates the training pipeline, its resulting model will perform worse than our included **Pretrained Models**, which were optimized on **2,500 CT files (~300GB)**. You can increase `NUMBER_OF_PAIRS` in `user_settings.py` for more augmented data, but the pretrained weights remain far superior.
 
 > [!NOTE]
-> **Execution Time:** Please allow ~**30 minutes** for the one-liner to download heavy dependencies, train, and run inference across all 3 demos.
+> **Execution Time:** Please allow approximately **30 minutes** for the full one-liner to complete. This includes downloading and installing all heavy dependencies, and fully executing the training and inference pipelines across all 3 demos.
 
-*(What this one-liner does: Downloads the package, securely installs all dependencies in an isolated virtual environment, and runs the entire pipeline!)*
+### What this one-liner does:
+1. **`curl`**: Downloads the `Runnable_Version.zip` package locally.
+2. **`zipfile`**: Perfectly extracts the folder across OS platforms.
+3. **`venv`**: Creates an isolated "Virtual Environment" to protect your system.
+4. **`pip`**: Installs `torch`, `numpy`, `TotalSegmentator`, etc., securely inside the sandbox.
+5. **`cupy`**: Detects your PyTorch CUDA version and dynamically installs the exactly matching `cupy` GPU acceleration package.
+6. **Execution**: Triggers the `run_all.py` master orchestrator inside the sandbox!
+
+*(Note: While this handles other CUDA versions, the pipeline was extensively tested on **CUDA 12**, and using CUDA 12 is strongly recommended for optimal stability!)*
 
 ---
 
@@ -83,21 +90,20 @@ Runnable_Version/
 │
 └── output/                     # 🚀 ALL RESULTS ARE SAVED HERE!
     │
-    ├── generated_synthetic/    # (Demo 1) Generated X-Rays (Grouped by original CT)
-    │   ├── ct_file1/           
-    │   │   ├── Pair1/          # Each pair contains: prior, current, and heatmap_gt
-    │   │   ├── Pair2/
-    │   │   └── Pair3/
-    │   └── ct_file2/
+    ├── synthetic_pairs/        # (Demo 1) Generated X-Rays
+    │   ├── train/
+    │   └── test/
+    │       └── scan_001/
+    │           ├── prior.nii.gz         # Simulated X-ray with initial anomaly
+    │           ├── current.nii.gz       # Simulated X-ray with changed/shifted anomaly
+    │           └── heatmap_gt.nii.gz    # Ground Truth mask of the temporal difference
     │
-    ├── model_weights/          # (Demo 1) Trained Model Weights
-    │   └── trained_model_weights.pth   # The final trained model weights
+    ├── checkpoints/            # (Demo 1) Trained Model Weights
+    │   └── trained_model.pth   # The final trained model weights
     │
-    ├── evaluation/             # (Demo 1) Training Pipeline Evaluation
-    │   ├── CC/                 # Connected Components Analysis
-    │   │   └── Dataset_Metrics/# Object-level Dice & evaluation metrics
-    │   ├── PW/                 # Pixel-Wise Analysis (ROC curves, pixel Dice)
-    │   └── Visuals/            # Visual grids (True vs Predicted heatmaps) and .nii.gz outputs
+    ├── results/                # (Demo 1) Training Pipeline Evaluation
+    │   ├── metrics.txt         # Strict F1-Score, CC, and Dice scores
+    │   └── visuals/            # Visual grids of True vs Predicted heatmaps
     │
     └── pretrained_model_results/ # (Demo 2 & 3) Pretrained Inference Results
         ├── synthetic_xray/
