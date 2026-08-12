@@ -18,7 +18,8 @@ For a detailed breakdown of the internal file structure and the role of every si
 ## 🚀 Running the Demos - One liner quick start
 *(Runs all 3 Demos included in this package - See below!)*
 
-Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
+Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system.
+*(Note: Linux / macOS is the highly recommended OS for this project. Windows is supported but may encounter environment limitations.)*
 
 **For Windows (`powershell`):**
 ```powershell
