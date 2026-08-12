@@ -1,3 +1,8 @@
+"""
+Module: file_handler.py
+Provides functionality for file_handler.
+"""
+
 import numpy as np
 import nibabel as nib
 import os
@@ -33,6 +38,7 @@ def save_nifti(path: str, data, affine: np.ndarray, header: nib.Nifti1Header) ->
 
 
 def load_and_save_nifti(input_path: str, output_path: str) -> None:
+    """Functionality for load_and_save_nifti."""
     data, affine, header = load_nifti(input_path)
     save_nifti(output_path, data, affine, header)
 
@@ -69,11 +75,13 @@ def merge_nifti(output_path: str, *input_paths: str) -> None:
 
 
 def create_seg_path(filename: str) -> str:
+    """Functionality for create_seg_path."""
     os.makedirs(SEG_DIR, exist_ok=True)
     return SEG_DIR + filename.split(FILE_EXTENSION)[0] + SEG_SUFFIX + FILE_EXTENSION
 
 
 def save_image_as_nifti(data: np.ndarray, path: str) -> None:
+    """Functionality for save_image_as_nifti."""
     if data.ndim == 2:
         data = data[:, :, np.newaxis]
 
@@ -84,6 +92,7 @@ def save_image_as_nifti(data: np.ndarray, path: str) -> None:
 
 
 def load_image_from_nifti(path: str) -> np.ndarray:
+    """Functionality for load_image_from_nifti."""
     img = nib.load(path)
     data = img.get_fdata()
     data = np.squeeze(data)

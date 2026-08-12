@@ -1,1 +1,2 @@
+"""Module initialization."""
 # Segmentation package

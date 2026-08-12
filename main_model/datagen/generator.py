@@ -171,6 +171,7 @@ def create_pairs_for_all_scans():
 
 
 def run_generator():
+    """Functionality for run_generator."""
     parser = argparse.ArgumentParser(description="Run data generation directly.")
     parser.add_argument("ct_dir", type=str, help="Path to the directory containing original CT scans.")
     args = parser.parse_args()

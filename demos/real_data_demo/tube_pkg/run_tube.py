@@ -1,3 +1,8 @@
+"""
+Module: run_tube.py
+Provides functionality for run_tube.
+"""
+
 import os
 import sys
 import json
@@ -198,6 +203,7 @@ def process_patient(patient_id, model, rcg_cmap, model_type):
 
 
 def run_batch_inference():
+    """Functionality for run_batch_inference."""
     if not os.path.exists(BASE_DATA_DIR):
         print(f"Error: Base directory '{BASE_DATA_DIR}' not found.")
         return

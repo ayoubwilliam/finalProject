@@ -49,6 +49,7 @@ class AngleRegressionNet(nn.Module):
         )
 
     def forward(self, prior, current):
+        """Functionality for forward."""
         # Concatenate prior and current along channel dim
         x = torch.cat([prior, current], dim=1)
         x = self.features(x)

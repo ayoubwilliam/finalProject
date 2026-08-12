@@ -50,6 +50,7 @@ import multiprocessing.util
 
 
 def _custom_get_temp_dir():
+    """Functionality for _custom_get_temp_dir."""
     if getattr(multiprocessing.util, '_tempdir', None) is None:
         multiprocessing.util._tempdir = tempfile.mkdtemp(prefix='pymp-', dir='/tmp')
     return multiprocessing.util._tempdir

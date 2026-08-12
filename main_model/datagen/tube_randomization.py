@@ -1,3 +1,8 @@
+"""
+Module: tube_randomization.py
+Provides functionality for tube_randomization.
+"""
+
 import random
 import math
 

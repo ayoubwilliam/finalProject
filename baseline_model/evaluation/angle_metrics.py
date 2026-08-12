@@ -1,3 +1,8 @@
+"""
+Module: angle_metrics.py
+Provides functionality for angle_metrics.
+"""
+
 import os
 import torch
 import numpy as np

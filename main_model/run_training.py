@@ -28,6 +28,7 @@ def run_training():
 
 
 def main():
+    """Functionality for main."""
     start_time = time.time()
 
     run_training()

@@ -1,3 +1,8 @@
+"""
+Module: pull_data.py
+Provides functionality for pull_data.
+"""
+
 import pandas as pd
 import urllib.request
 import os
@@ -9,6 +14,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def download_clinical_pairs():
+    """Functionality for download_clinical_pairs."""
     print("Downloading metadata from IEEE8023 COVID Dataset...")
     csv_url = "https://raw.githubusercontent.com/ieee8023/covid-chestxray-dataset/master/metadata.csv"
     base_image_url = "https://raw.githubusercontent.com/ieee8023/covid-chestxray-dataset/master/images/"

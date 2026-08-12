@@ -1,8 +1,14 @@
+"""
+Module: run_all.py
+Provides functionality for run_all.
+"""
+
 import os
 import subprocess
 import sys
 
 def main():
+    """Functionality for main."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(base_dir)
     

@@ -211,6 +211,7 @@ def extract_centerline(mask, pt_top, z_target, placement, sigma, tube_radius, wa
 # ==========================================
 @torch.no_grad()
 def gaussian_smooth_3d_gpu(vol, sigma):
+    """Functionality for gaussian_smooth_3d_gpu."""
     ks = int(6 * sigma + 1) | 1
     half = ks // 2
     t = torch.arange(ks, device=vol.device, dtype=torch.float32) - half
@@ -231,6 +232,7 @@ def gaussian_smooth_3d_gpu(vol, sigma):
 # ==========================================
 @torch.no_grad()
 def build_tube_gpu(shape, px, py, pz, diameter, thickness, shaving_bool, shave_sigma, tube_intensity):
+    """Functionality for build_tube_gpu."""
     radius_sq = (diameter / 2.0) ** 2
 
     xg = torch.arange(shape[0], device=DEVICE, dtype=torch.float32).view(-1, 1)

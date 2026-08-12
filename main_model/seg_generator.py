@@ -1,3 +1,8 @@
+"""
+Module: seg_generator.py
+Provides functionality for seg_generator.
+"""
+
 from totalsegmentator.python_api import totalsegmentator
 import os
 import tempfile
@@ -27,6 +32,7 @@ def run_segmentation(input_path: str, output_path: str, task: str, subset: list,
 
 
 def create_segmentation() -> None:
+    """Functionality for create_segmentation."""
     total, skipped_exists, created, skipped_perm = 0, 0, 0, 0
 
     for filename in os.listdir(INPUT_DIR):

@@ -1,3 +1,8 @@
+"""
+Module: run_pipeline_on_single_test.py
+Provides functionality for run_pipeline_on_single_test.
+"""
+
 import os
 import time
 import numpy as np
@@ -13,9 +18,11 @@ input_ct_path = "../../ct/train_10270_a_2.nii.gz"
 input_seg_path = "../../ct/train_10270_a_2_lungs_seg.nii.gz"
 
 def get_filename_from_path(path: str) -> str:
+    """Functionality for get_filename_from_path."""
     return os.path.basename(path).split('.')[0]
 
 def get_pair_dir(pair_index: int, input_path: str, suffix: str) -> str:
+    """Functionality for get_pair_dir."""
     input_filename = get_filename_from_path(input_path)
     path = os.path.join(OUTPUT_DIR, f"{input_filename}_Pair{pair_index}_{suffix}")
     os.makedirs(path, exist_ok=True)

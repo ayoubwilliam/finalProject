@@ -1,0 +1,113 @@
+baseline_model\run_all.py:
+  - FunctionDef: main
+baseline_model\run_pipeline_on_single_test.py:
+  - Module docstring missing
+  - FunctionDef: get_filename_from_path
+  - FunctionDef: get_pair_dir
+baseline_model\datagen\pipeline.py:
+  - FunctionDef: ensure_numpy
+baseline_model\datagen\__init__.py:
+  - Module docstring missing
+baseline_model\evaluation\angle_metrics.py:
+  - Module docstring missing
+baseline_model\evaluation\__init__.py:
+  - Module docstring missing
+baseline_model\lib\__init__.py:
+  - Module docstring missing
+baseline_model\segmentation\__init__.py:
+  - Module docstring missing
+baseline_model\training\data_loader.py:
+  - FunctionDef: __len__
+  - FunctionDef: __getitem__
+baseline_model\training\models.py:
+  - FunctionDef: forward
+baseline_model\training\__init__.py:
+  - Module docstring missing
+demos\run_all.py:
+  - Module docstring missing
+  - FunctionDef: main
+demos\real_data_demo\pull_data.py:
+  - Module docstring missing
+  - FunctionDef: download_clinical_pairs
+demos\real_data_demo\run_all.py:
+  - Module docstring missing
+  - FunctionDef: main
+demos\real_data_demo\consolidation_pkg\preprocessing.py:
+  - Module docstring missing
+demos\real_data_demo\consolidation_pkg\run_consolidation.py:
+  - Module docstring missing
+  - FunctionDef: run_batch_inference
+demos\real_data_demo\lib\__init__.py:
+  - Module docstring missing
+demos\real_data_demo\tube_pkg\preprocessing.py:
+  - Module docstring missing
+demos\real_data_demo\tube_pkg\run_tube.py:
+  - Module docstring missing
+  - FunctionDef: run_batch_inference
+demos\synthetic_data_demo\pull_data.py:
+  - Module docstring missing
+  - FunctionDef: download_clinical_pairs
+demos\synthetic_data_demo\run_all.py:
+  - Module docstring missing
+  - FunctionDef: main
+demos\synthetic_data_demo\consolidation_pkg\preprocessing.py:
+  - Module docstring missing
+demos\synthetic_data_demo\consolidation_pkg\run_consolidation.py:
+  - Module docstring missing
+  - FunctionDef: run_batch_inference
+demos\synthetic_data_demo\lib\__init__.py:
+  - Module docstring missing
+demos\synthetic_data_demo\tube_pkg\preprocessing.py:
+  - Module docstring missing
+demos\synthetic_data_demo\tube_pkg\run_tube.py:
+  - Module docstring missing
+  - FunctionDef: run_batch_inference
+main_model\config.py:
+  - FunctionDef: _custom_get_temp_dir
+main_model\file_handler.py:
+  - Module docstring missing
+  - FunctionDef: load_and_save_nifti
+  - FunctionDef: create_seg_path
+  - FunctionDef: save_image_as_nifti
+  - FunctionDef: load_image_from_nifti
+main_model\project_paths.py:
+  - Module docstring missing
+main_model\run_all.py:
+  - FunctionDef: main
+main_model\run_datagen.py:
+  - Module docstring missing
+main_model\run_evaluation.py:
+  - FunctionDef: main
+main_model\run_training.py:
+  - FunctionDef: main
+main_model\seg_generator.py:
+  - Module docstring missing
+  - FunctionDef: create_segmentation
+main_model\datagen\generator.py:
+  - FunctionDef: run_generator
+main_model\datagen\pipeline.py:
+  - FunctionDef: ensure_numpy
+main_model\datagen\tube.py:
+  - FunctionDef: gaussian_smooth_3d_gpu
+  - FunctionDef: build_tube_gpu
+main_model\datagen\tube_randomization.py:
+  - Module docstring missing
+main_model\datagen\__init__.py:
+  - Module docstring missing
+main_model\evaluation\__init__.py:
+  - Module docstring missing
+main_model\lib\__init__.py:
+  - Module docstring missing
+main_model\training\data_loader.py:
+  - FunctionDef: __len__
+  - FunctionDef: __getitem__
+main_model\training\models.py:
+  - ClassDef: SimpleConvBlock
+  - ClassDef: VGGBlock
+  - FunctionDef: forward
+  - FunctionDef: forward
+  - FunctionDef: forward
+  - FunctionDef: forward_encoder
+  - FunctionDef: forward
+main_model\training\__init__.py:
+  - Module docstring missing

@@ -1,8 +1,14 @@
+"""
+Module: run_all.py
+Provides functionality for run_all.
+"""
+
 import os
 import subprocess
 import sys
 
 def main():
+    """Functionality for main."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     
     tube_script = os.path.join(base_dir, "tube_pkg", "run_tube.py")

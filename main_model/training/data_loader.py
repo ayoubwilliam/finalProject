@@ -29,9 +29,11 @@ class ChangeDetectionDataset(Dataset):
         self.file_list = file_list
 
     def __len__(self):
+        """Functionality for __len__."""
         return len(self.file_list)
 
     def __getitem__(self, idx):
+        """Functionality for __getitem__."""
         pair_path = os.path.join(self.root_dir, self.file_list[idx])
 
         try:

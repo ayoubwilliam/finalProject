@@ -11,6 +11,7 @@ import config as cfg
 
 
 class SimpleConvBlock(nn.Module):
+    """Class SimpleConvBlock."""
     def __init__(self, in_channels, out_channels):
         super().__init__()
         self.conv = nn.Sequential(
@@ -23,6 +24,7 @@ class SimpleConvBlock(nn.Module):
         )
 
     def forward(self, x):
+        """Functionality for forward."""
         return self.conv(x)
 
 
@@ -43,10 +45,12 @@ class SimpleDiffNet(nn.Module):
         )
 
     def forward(self, prior, current):
+        """Functionality for forward."""
         return self.decoder(self.encoder(current) - self.encoder(prior))
 
 
 class VGGBlock(nn.Module):
+    """Class VGGBlock."""
     def __init__(self, in_channels, out_channels, num_convs=2):
         super().__init__()
         layers = [
@@ -63,6 +67,7 @@ class VGGBlock(nn.Module):
         self.block = nn.Sequential(*layers)
 
     def forward(self, x):
+        """Functionality for forward."""
         return self.block(x)
 
 
@@ -85,6 +90,7 @@ class VGGDiffNet(nn.Module):
         self.final_conv = nn.Conv2d(64, 1, kernel_size=1)
 
     def forward_encoder(self, x):
+        """Functionality for forward_encoder."""
         x = self.pool1(self.enc1(x))
         x = self.pool2(self.enc2(x))
         x = self.pool3(self.enc3(x))
@@ -93,6 +99,7 @@ class VGGDiffNet(nn.Module):
         return x
 
     def forward(self, prior, current):
+        """Functionality for forward."""
         diff = self.forward_encoder(current) - self.forward_encoder(prior)
 
         x = self.dec5(diff)

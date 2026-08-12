@@ -1,3 +1,8 @@
+"""
+Module: preprocessing.py
+Provides functionality for preprocessing.
+"""
+
 import torch
 import numpy as np
 from PIL import Image

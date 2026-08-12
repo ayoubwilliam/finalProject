@@ -24,6 +24,7 @@ def run_evaluation():
 
 
 def main():
+    """Functionality for main."""
     start_time = time.time()
 
     run_evaluation()

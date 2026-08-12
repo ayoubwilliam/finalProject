@@ -1,3 +1,8 @@
+"""
+Module: project_paths.py
+Provides functionality for project_paths.
+"""
+
 FILE_EXTENSION = ".nii.gz"
 
 # Option 1- Paths (Itamar's files)

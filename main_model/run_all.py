@@ -182,6 +182,7 @@ def run_evaluation():
 
 
 def main():
+    """Functionality for main."""
     parser = argparse.ArgumentParser(description="End-to-end X-ray change detection pipeline for main model.")
     parser.add_argument("--ct_dir", type=str, default="", help="Path to the directory containing original CT scans.")
     parser.add_argument("--data-fraction", type=float, default=1.0,

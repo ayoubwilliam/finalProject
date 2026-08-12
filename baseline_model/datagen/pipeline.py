@@ -114,6 +114,7 @@ def rotate_and_drr(data, angles, seg, crop_margin=None, use_crop=True):
 def create_heatmap(current_drr, current_pp, prior_rotated_to_current_drr, heatmap_path):
     """Computes difference heatmap and saves both overlay PNG and raw NIfTI."""
     def ensure_numpy(data):
+        """Functionality for ensure_numpy."""
         if isinstance(data, torch.Tensor):
             return data.detach().cpu().numpy()
         return np.asarray(data)
