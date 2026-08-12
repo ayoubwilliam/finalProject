@@ -80,6 +80,8 @@ Here is exactly what the file tree will look like after running the demos, and w
 Runnable_Version/
 │
 ├── data/                       # Contains the limited subset of input data for the demos
+│   └── real_xray/              
+│       └── pull_data.py        # ⬇️ Script to automatically download the real clinical X-ray dataset!
 │
 └── output/                     # 🚀 ALL RESULTS ARE SAVED HERE!
     │
