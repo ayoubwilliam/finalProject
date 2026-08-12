@@ -22,12 +22,12 @@ Assuming you have Python 3.11 installed, simply copy and paste the command that 
 
 **For Windows (`cmd`):**
 ```bash
-curl.exe -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && py -3.11 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && py -3.11 -m venv venv && .\venv\Scripts\pip install -r requirements.txt && .\venv\Scripts\python -c "import torch, os; v=torch.version.cuda; os.system(r'venv\Scripts\pip install cupy-cuda' + v.split('.')[0] + 'x' if v else r'venv\Scripts\pip install cupy')" && .\venv\Scripts\python run_all.py
+curl.exe -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && py -3.11 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && py -3.11 -m venv venv && .\venv\Scripts\pip install -r requirements.txt && .\venv\Scripts\python -c "import torch, os, sys; v=torch.version.cuda; cmd=chr(34)+sys.executable+chr(34)+' -m pip install cupy'; os.system(cmd+'-cuda'+v.split('.')[0]+'x' if v else cmd)" && .\venv\Scripts\python run_all.py
 ```
 
 **For Linux / macOS (`python3` & `pip3`):**
 ```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python3 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && python3 -m venv venv && venv/bin/pip install -r requirements.txt && venv/bin/python -c "import torch, os; v=torch.version.cuda; os.system('venv/bin/pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'venv/bin/pip install cupy')" && venv/bin/python run_all.py
+curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && python3 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && python3 -m venv venv && venv/bin/pip install -r requirements.txt && venv/bin/python -c "import torch, os, sys; v=torch.version.cuda; cmd=chr(34)+sys.executable+chr(34)+' -m pip install cupy'; os.system(cmd+'-cuda'+v.split('.')[0]+'x' if v else cmd)" && venv/bin/python run_all.py
 ```
 
 We have provided a fully packaged Runnable Version of this project via GitHub Releases. You can download the packaged zip, extract it, dynamically install all dependencies, and run the complete End-to-End Orchestrator (Inference & Training) using a single command in your terminal.
