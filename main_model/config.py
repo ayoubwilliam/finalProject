@@ -67,14 +67,14 @@ EVALUATION_DIR = os.path.join(DATA_DIR, "evaluation")
 
 # Evaluation sub-folders
 EVAL_VISUALS_DIR = os.path.join(EVALUATION_DIR, "Visuals")
-EVAL_PW_DIR = os.path.join(EVALUATION_DIR, "PW")
+
 EVAL_CC_DIR = os.path.join(EVALUATION_DIR, "CC")
 EVAL_CC_VISUALS_DIR = os.path.join(EVAL_CC_DIR, "Visual_Samples")
 EVAL_CC_METRICS_DIR = os.path.join(EVAL_CC_DIR, "Dataset_Metrics")
 
 # Evaluation output files
-EVAL_FILE_PW_DICE = os.path.join(EVAL_PW_DIR, "pw_dice_report.txt")
-EVAL_FILE_PW_ROC = os.path.join(EVAL_PW_DIR, "pw_roc_curve.png")
+
+
 EVAL_FILE_CC_METRICS = os.path.join(EVAL_CC_METRICS_DIR, "cc_object_evaluation.txt")
 EVAL_FILE_CC_DICE = os.path.join(EVAL_CC_METRICS_DIR, "cc_instance_dice.txt")
 
@@ -183,7 +183,7 @@ PIN_MEMORY = True
 # EVALUATION THRESHOLDS
 # ==============================================================================
 
-PW_DICE_THRESHOLD = 0.03
+
 PRED_THRESHOLD = 0.03
 GT_THRESHOLD = 0.03
 IOU_THRESHOLD = 0.3
@@ -213,7 +213,7 @@ def ensure_directories():
     for d in [
         LUNGS_SEGMENTATION_DIR, TRACHEA_SEGMENTATION_DIR,
         GENERATED_SYNTHETIC_DIR, MODEL_WEIGHTS_DIR,
-        EVALUATION_DIR, EVAL_VISUALS_DIR, EVAL_PW_DIR,
+        EVALUATION_DIR, EVAL_VISUALS_DIR,
         EVAL_CC_DIR, EVAL_CC_VISUALS_DIR, EVAL_CC_METRICS_DIR,
         CUSTOM_TMP_DIR  # Also ensure our new tmp directory is included
     ]:

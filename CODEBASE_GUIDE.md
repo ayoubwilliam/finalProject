@@ -32,7 +32,6 @@ This package handles the quantitative and qualitative assessment of the models o
 - **`evaluate.py`**: The main evaluation orchestrator that runs the trained models against the unseen test splits.
 - **`cc_lib.py` & `cc_metrics.py`**: Implements the Object-Level Connected Components (CC) evaluation. It handles image thresholding, blob extraction, spatial Intersection-over-Union (IoU) mapping, and calculating True Positives/False Negatives to prevent unfair penalization of minor 2D projection shifts.
 - **`visuals.py`**: Generates intuitive side-by-side PNG grids comparing the prior X-ray, current X-ray, ground truth heatmap, and the model's predicted heatmap.
-- **`pw_metrics.py`**: Handles standard strict Pixel-Wise (PW) mathematical metrics as a baseline comparison.
 
 ## 🚀 Execution Scripts
 - **`run_datagen.py`**: Standalone script to trigger only the 3D-to-2D data generation pipeline.

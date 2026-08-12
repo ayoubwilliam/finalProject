@@ -4,8 +4,6 @@ Executes the full evaluation pipeline: PW Dice → PW AUC → CC Metrics → CC 
 """
 
 import config as cfg
-from evaluation.pw_dice import run_pw_dice
-from evaluation.pw_auc import run_pw_auc
 from evaluation.cc_metrics import run_cc_metrics
 from evaluation.cc_dice import run_cc_dice
 from evaluation.cc_visuals import run_cc_visuals
@@ -19,14 +17,7 @@ def main():
     print(f" Model: {cfg.SELECTED_MODEL} | Device: {cfg.DEVICE}")
     print("=" * 50)
 
-    print("\n>>> STEP 1: Running Pixel-Wise Metrics (PW)...")
-    try:
-        run_pw_dice()
-        run_pw_auc()
-    except Exception as e:
-        print(f"[ERROR] PW Metrics evaluation failed: {e}")
-
-    print("\n>>> STEP 2: Running Connected Components Metrics (CC)...")
+    print("\n>>> STEP 1: Running Connected Components Metrics (CC)...")
     try:
         run_cc_metrics()
         run_cc_dice()
@@ -42,7 +33,7 @@ def main():
 
     print("\n" + "=" * 50)
     print(" EVALUATION PIPELINE COMPLETELY FINISHED!")
-    print(f" PW Results: {cfg.EVAL_PW_DIR}")
+    print(f" CC Results: {cfg.EVAL_CC_DIR}")
     print(f" CC Results: {cfg.EVAL_CC_DIR}")
     print(f" Visuals:    {cfg.EVAL_VISUALS_DIR}")
     print("=" * 50)
