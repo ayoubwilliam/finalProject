@@ -41,7 +41,7 @@ We have provided a fully packaged Runnable Version of this project via GitHub Re
 > **Data Volume & Model Performance:** The provided `Runnable_Version` includes a limited subset of 5 raw CT scans (to fit on GitHub). While **Demo 1** fully demonstrates the training pipeline, its resulting model will perform worse than our included **Pretrained Models**, which were optimized on **2,500 CT files (~300GB)**. You can increase `NUMBER_OF_PAIRS` in `user_settings.py` for more augmented data, but the pretrained weights remain far superior.
 
 > [!NOTE]
-> **Execution Time:** Please allow ~**30 minutes** for the one-liner to download heavy dependencies, train, and run inference across all 3 demos.
+> **Execution Time:** Please allow ~**30 minutes (on an RTX 4090)** for the one-liner to download heavy dependencies, train, and run inference across all 3 demos.
 
 *(What this one-liner does: Downloads the package, securely installs all dependencies in an isolated virtual environment, and runs all 3 demos!)*
 
