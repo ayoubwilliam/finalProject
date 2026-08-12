@@ -20,9 +20,9 @@ For a detailed breakdown of the internal file structure and the role of every si
 
 Assuming you have Python 3.11 installed, simply copy and paste the command that matches your operating system:
 
-**For Windows (`python` & `pip`):**
+**For Windows (`cmd`):**
 ```bash
-curl -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip; py -3.11 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')"; cd Runnable_Version; py -3.11 -m venv venv; .\venv\Scripts\pip install -r requirements.txt; .\venv\Scripts\python -c "import torch, os; v=torch.version.cuda; os.system('venv/Scripts/pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'venv/Scripts/pip install cupy')"; .\venv\Scripts\python run_all.py
+curl.exe -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip && py -3.11 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')" && cd Runnable_Version && py -3.11 -m venv venv && .\venv\Scripts\pip install -r requirements.txt && .\venv\Scripts\python -c "import torch, os; v=torch.version.cuda; os.system('venv/Scripts/pip install cupy-cuda' + v.split('.')[0] + 'x' if v else 'venv/Scripts/pip install cupy')" && .\venv\Scripts\python run_all.py
 ```
 
 **For Linux / macOS (`python3` & `pip3`):**
