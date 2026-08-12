@@ -3,6 +3,8 @@
 **Group 104**: Agam Hershko (`agam.hershkodek@mail.huji.ac.il`) & William Ayoub (`william.ayoub@mail.huji.ac.il`)  
 **Advisor:** Prof. Leo Joskowicz (CASMIP Lab) | **Mentor:** Gal Fiebelman
 
+📖 **Read the Full Project Book:** [project_book.pdf](project_book.pdf)
+
 ---
 
 ## 🩻 Abstract
