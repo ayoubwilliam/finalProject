@@ -22,7 +22,7 @@ Assuming you have Python 3.11 installed, simply copy and paste the command that 
 
 **For Windows (`powershell`):**
 ```powershell
-curl.exe -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip; py -3.11 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')"; cd Runnable_Version; py -3.11 -m venv venv; .\venv\Scripts\pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu118; .\venv\Scripts\python -c "import torch, os, sys; v=torch.version.cuda; cmd=chr(34)+sys.executable+chr(34)+' -m pip install cupy'; os.system(cmd+'-cuda'+v.split('.')[0]+'x' if v else cmd)"; .\venv\Scripts\python run_all.py
+curl.exe -L -o Runnable_Version.zip https://github.com/ayoubwilliam/finalProject/releases/download/v1.0.0/Runnable_Version.zip; py -3.11 -c "import zipfile; zipfile.ZipFile('Runnable_Version.zip', 'r').extractall('.')"; cd Runnable_Version; py -3.11 -m venv venv; .\venv\Scripts\pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu126; .\venv\Scripts\python -c "import torch, os, sys; v=torch.version.cuda; cmd=chr(34)+sys.executable+chr(34)+' -m pip install cupy'; os.system(cmd+'-cuda'+v.split('.')[0]+'x' if v else cmd)"; .\venv\Scripts\python run_all.py
 ```
 
 **For Linux / macOS (`python3` & `pip3`):**
